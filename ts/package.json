@@ -1,0 +1,27 @@
+{
+  "name": "facility-core",
+  "version": "0.1.0",
+  "description": "Common code for the Facility API Framework.",
+  "scripts": {
+    "build": "tsc && tslint --exclude **/*.d.ts src/*.ts",
+    "test": "npm run --silent build && mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FacilityApi/FacilityJavaScript.git"
+  },
+  "author": "Ed Ball",
+  "license": "UNLICENSED",
+  "files": [
+    "src"
+  ],
+  "main": "src/facilityCore.js",
+  "typings": "src/facilityCore.d.ts",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "tslint": "^3.10.2",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
+  }
+}
