@@ -4,245 +4,314 @@
 import { HttpClientUtility } from 'facility-core';
 
 /** Provides access to ExampleApi over HTTP via fetch. */
-export function createHttpClient({ fetch, baseUri }): IExampleApi {
-	return new ExampleApiHttpClient(fetch, baseUri);
+export function createHttpClient({ fetch, baseUri }) {
+  return new ExampleApiHttpClient(fetch, baseUri);
 }
 
-const { fetchJson, createResponseError } = HttpClientUtility;
+const { fetchResponse, createResponseError } = HttpClientUtility;
 
 class ExampleApiHttpClient {
-	constructor(fetch, baseUri) {
-		if (typeof fetch !== 'function') {
-			throw new TypeError('fetch must be a function.');
-		}
-		if (typeof baseUri === 'undefined') {
-			baseUri = 'http://local.example.com/v1';
-		}
-		if (/[^\/]$/.test(baseUri)) {
-			baseUri += '/';
-		}
-		this._fetch = fetch;
-		this._baseUri = baseUri;
-	}
-	/** Gets widgets. */
-	getWidgets(request) {
-		var uri = '/widgets';
-		const query = [];
-		request.query == null || query.push('q=' + encodeURIComponent(request.query));
-		request.limit == null || query.push('limit=' + encodeURIComponent(request.limit));
-		request.sort == null || query.push('sort=' + encodeURIComponent(request.sort));
-		request.desc == null || query.push('desc=' + encodeURIComponent(request.desc));
-		request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight));
-		if (query.length) {
-			uri = uri + '?' + query.join('&');
-		}
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json };
-				}
-				if (status === 202) {
-					return { value: { job: result.json } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Creates a new widget. */
-	createWidget(request) {
-		const uri = '/widgets/';
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: request.widget
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 201) {
-					return { value: { widget: result.json } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Gets the specified widget. */
-	getWidget(request) {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: { widget: result.json } };
-				}
-				if (status === 304) {
-					return { value: { notModified: true } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Deletes the specified widget. */
-	deleteWidget(request) {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Edits widget. */
-	editWidget(request) {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: {
-				ops: request.ops,
-				weight: request.weight
-			}
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: { widget: result.json } };
-				}
-				if (status === 202) {
-					return { value: { job: result.json } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Gets the specified widgets. */
-	getWidgetBatch(request) {
-		const uri = '/widgets/get';
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: body
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Gets the widget weight. */
-	getWidgetWeight(request) {
-		const uri = `/widgets/{encodeURIComponent(request.id)}/weight`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Gets a widget preference. */
-	getPreference(request) {
-		const uri = `/prefs/{encodeURIComponent(request.key)}`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: { value: result.json } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Sets a widget preference. */
-	setPreference(request) {
-		const uri = `/prefs/{encodeURIComponent(request.key)}`;
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: request.value
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200) {
-					return { value: { value: result.json } };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/** Demonstrates the default HTTP behavior. */
-	notRestful(request) {
-		const uri = '/notRestful';
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	/**  */
-	kitchen(request) {
-		const uri = '/kitchen';
-		const body = JSON.stringify(request);
-		const fetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: body
-		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} };
-				}
-				return createResponseError(status, result.json);
-			});
-	}
-	private _fetch;
-	private _baseUri;
+  constructor(fetch, baseUri) {
+    if (typeof fetch !== 'function') {
+      throw new TypeError('fetch must be a function.');
+    }
+    if (typeof baseUri === 'undefined') {
+      baseUri = 'http://local.example.com/v1';
+    }
+    if (/[^\/]$/.test(baseUri)) {
+      baseUri += '/';
+    }
+    this._fetch = fetch;
+    this._baseUri = baseUri;
+  }
+  /** Gets widgets. */
+  getWidgets(request) {
+    let uri = 'widgets';
+    const query = [];
+    request.query == null || query.push('q=' + encodeURIComponent(request.query));
+    request.limit == null || query.push('limit=' + request.limit.toString());
+    request.sort == null || query.push('sort=' + request.sort);
+    request.desc == null || query.push('desc=' + request.desc.toString());
+    request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight.toString()));
+    if (query.length) {
+      uri = uri + '?' + query.join('&');
+    }
+    const fetchRequest = {
+      method: 'GET'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = result.json;
+          }
+          else if (status === 202) {
+            value = { job: result.json };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Creates a new widget. */
+  createWidget(request) {
+    const uri = 'widgets';
+    const fetchRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request.widget)
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 201) {
+            value = { widget: result.json };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Gets the specified widget. */
+  getWidget(request) {
+    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const fetchRequest = {
+      method: 'GET'
+    };
+    if (request.ifNoneMatch != null) {
+      fetchRequest.headers['If-None-Match'] = request.ifNoneMatch;
+    }
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = { widget: result.json };
+          }
+          else if (status === 304) {
+            value = { notModified: true };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        let headerValue;
+        headerValue = result.response.headers.get('eTag');
+        if (headerValue != null) {
+          value.eTag = headerValue;
+        }
+        return { value: value };
+      });
+  }
+  /** Deletes the specified widget. */
+  deleteWidget(request) {
+    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const fetchRequest = {
+      method: 'DELETE'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = {};
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Edits widget. */
+  editWidget(request) {
+    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const fetchRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ops: request.ops,
+        weight: request.weight
+      })
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = { widget: result.json };
+          }
+          else if (status === 202) {
+            value = { job: result.json };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Gets the specified widgets. */
+  getWidgetBatch(request) {
+    const uri = 'widgets/get';
+    const fetchRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = result.json;
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Gets the widget weight. */
+  getWidgetWeight(request) {
+    const uri = `widgets/${encodeURIComponent(request.id)}/weight`;
+    const fetchRequest = {
+      method: 'GET'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = result.json;
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Gets a widget preference. */
+  getPreference(request) {
+    const uri = `prefs/${encodeURIComponent(request.key)}`;
+    const fetchRequest = {
+      method: 'GET'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = { value: result.json };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Sets a widget preference. */
+  setPreference(request) {
+    const uri = `prefs/${encodeURIComponent(request.key)}`;
+    const fetchRequest = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request.value)
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = { value: result.json };
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Gets service info. */
+  getInfo(request) {
+    const uri = '';
+    const fetchRequest = {
+      method: 'GET'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = result.json;
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  /** Demonstrates the default HTTP behavior. */
+  notRestful(request) {
+    const uri = 'notRestful';
+    const fetchRequest = {
+      method: 'POST'
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = {};
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
+  kitchen(request) {
+    const uri = 'kitchen';
+    const fetchRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    };
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+      .then(result => {
+        const status = result.response.status;
+        let value = null;
+        if (result.json) {
+          if (status === 200 || status === 204) {
+            value = {};
+          }
+        }
+        if (!value) {
+          return createResponseError(status, result.json);
+        }
+        return { value: value };
+      });
+  }
 }

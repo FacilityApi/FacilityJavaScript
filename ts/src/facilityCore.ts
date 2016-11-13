@@ -26,8 +26,8 @@ export interface IServiceError {
 export interface IHttpClientOptions {
 	/** The fetch object. */
 	fetch: HttpClientUtility.IFetch;
-	/** The service URL. */
-	url?: string;
+	/** The base URI of the service. */
+	baseUri?: string;
 }
 
 /** Helpers for HTTP clients. */
@@ -54,12 +54,12 @@ export namespace HttpClientUtility {
 		json(): Promise<any>;
 	}
 
-	/** A fetch response with any fetched JSON. */
-	export interface IFetchedJson {
+	/** A fetch response with any fetched content. */
+	export interface IFetchedResponseWithContent {
 		/** The fetch response. */
 		response: IFetchResponse;
 		/** The fetched JSON, if any. */
-		json: any;
+		json?: any;
 	}
 
 	const standardErrorCodes: { [index: number]: string } = {
@@ -75,22 +75,27 @@ export namespace HttpClientUtility {
 		'503': 'serviceUnavailable'
 	};
 
+	const jsonContentType = 'application/json';
+
 	/** Fetch JSON using the specified fetch, URI, and request. */
-	export function fetchJson(fetch: IFetch, uri: string, request: IFetchRequest): Promise<IFetchedJson> {
+	export function fetchResponse(fetch: IFetch, uri: string, request: IFetchRequest): Promise<IFetchedResponseWithContent> {
 		return fetch(uri, request)
 			.then(response => {
 				if (!response.headers || !response.status || typeof response.json !== 'function') {
 					throw new TypeError('fetch must resolve Promise with { status, headers, json() }.');
 				}
 				const contentType = response.headers.get('content-type');
-				if (!contentType || contentType.toLowerCase().indexOf('application/json') !== 0) {
-					throw new TypeError('Expected Content-Type application/json in response.');
+				if (!contentType) {
+					return Promise.resolve({ response: response, json: {} });
 				}
-				const jsonPromise = response.json();
-				if (!jsonPromise || typeof jsonPromise.then !== 'function') {
-					throw new TypeError('json() of fetch response must return a Promise.');
+				if (contentType.toLowerCase().substr(0, jsonContentType.length) === jsonContentType) {
+					const jsonPromise = response.json();
+					if (!jsonPromise || typeof jsonPromise.then !== 'function') {
+						throw new TypeError('json() of fetch response must return a Promise.');
+					}
+					return jsonPromise.then(json => ({ response: response, json: json }));
 				}
-				return jsonPromise.then(json => ({ response: response, json: json }));
+				return Promise.resolve({ response: response });
 			});
 	}
 

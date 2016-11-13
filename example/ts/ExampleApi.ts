@@ -27,9 +27,10 @@ export interface IExampleApi {
 	getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>>;
 	/** Sets a widget preference. */
 	setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>>;
+	/** Gets service info. */
+	getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>>;
 	/** Demonstrates the default HTTP behavior. */
 	notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>>;
-	/**  */
 	kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>>;
 }
 
@@ -75,7 +76,6 @@ export interface ICreateWidgetResponse {
 export interface IGetWidgetRequest {
 	/** The widget ID. */
 	id?: string;
-	/**  */
 	ifNoneMatch?: string;
 }
 
@@ -83,9 +83,7 @@ export interface IGetWidgetRequest {
 export interface IGetWidgetResponse {
 	/** The requested widget. */
 	widget?: IWidget;
-	/**  */
 	eTag?: string;
-	/**  */
 	notModified?: boolean;
 }
 
@@ -167,6 +165,16 @@ export interface ISetPreferenceResponse {
 	value?: IPreference;
 }
 
+/** Request for GetInfo. */
+export interface IGetInfoRequest {
+}
+
+/** Response for GetInfo. */
+export interface IGetInfoResponse {
+	/** The name of the service. */
+	name?: string;
+}
+
 /** Request for NotRestful. */
 export interface INotRestfulRequest {
 }
@@ -177,7 +185,6 @@ export interface INotRestfulResponse {
 
 /** Request for Kitchen. */
 export interface IKitchenRequest {
-	/**  */
 	sink?: IKitchenSink;
 }
 
@@ -203,69 +210,42 @@ export interface IWidgetJob {
 
 /** A preference. */
 export interface IPreference {
-	/**  */
 	boolean?: boolean;
-	/**  */
 	booleans?: boolean[];
-	/**  */
 	double?: number;
-	/**  */
 	doubles?: number[];
-	/**  */
 	integer?: number;
-	/**  */
 	integers?: number[];
-	/**  */
 	string?: string;
-	/**  */
 	strings?: string[];
-	/**  */
 	bytes?: string;
-	/**  */
 	byteses?: string[];
-	/**  */
 	widgetField?: string;
-	/**  */
 	widgetFields?: string[];
-	/**  */
 	widget?: IWidget;
-	/**  */
 	widgets?: IWidget[];
-	/**  */
 	result?: IServiceResult<IWidget>;
-	/**  */
 	results?: IServiceResult<IWidget>[];
-	/**  */
 	bigInteger?: number;
-	/**  */
 	bigIntegers?: number[];
-	/**  */
 	error?: IServiceError;
-	/**  */
 	errors?: IServiceError[];
-	/**  */
 	object?: any;
-	/**  */
 	objects?: any[];
-	/**  */
 	namedStrings?: any;
-	/**  */
 	namedWidgets?: any;
 }
 
 /** An obsolete DTO. */
 export interface IObsoleteData {
-	/**  */
 	unused?: boolean;
 }
 
-/**  */
 export interface IKitchenSink {
-	/**  */
 	oldField?: string;
 }
 
-const { fetchJson, createResponseError } = HttpClientUtility;
+const { fetchResponse, createResponseError } = HttpClientUtility;
 type IFetch = HttpClientUtility.IFetch;
 type IFetchRequest = HttpClientUtility.IFetchRequest;
 
@@ -285,221 +265,292 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Gets widgets. */
 	public getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>> {
-		var uri = '/widgets';
+		let uri = 'widgets';
 		const query: string[] = [];
 		request.query == null || query.push('q=' + encodeURIComponent(request.query));
-		request.limit == null || query.push('limit=' + encodeURIComponent(request.limit));
-		request.sort == null || query.push('sort=' + encodeURIComponent(request.sort));
-		request.desc == null || query.push('desc=' + encodeURIComponent(request.desc));
-		request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight));
+		request.limit == null || query.push('limit=' + request.limit.toString());
+		request.sort == null || query.push('sort=' + request.sort);
+		request.desc == null || query.push('desc=' + request.desc.toString());
+		request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight.toString()));
 		if (query.length) {
 			uri = uri + '?' + query.join('&');
 		}
-		const body = JSON.stringify(request);
 		const fetchRequest: IFetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'GET'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json as IGetWidgetsResponse };
+				let value: IGetWidgetsResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = result.json;
+					}
+					else if (status === 202) {
+						value = { job: result.json };
+					}
 				}
-				if (status === 202) {
-					return { value: { job: result.json } as IGetWidgetsResponse };
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetWidgetsResponse>;
 				}
-				return createResponseError(status, result.json) as IServiceResult<IGetWidgetsResponse>;
+				return { value: value };
 			});
 	}
 	/** Creates a new widget. */
 	public createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>> {
-		const uri = '/widgets/';
-		const body = JSON.stringify(request);
+		const uri = 'widgets';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: request.widget
+			body: JSON.stringify(request.widget)
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 201) {
-					return { value: { widget: result.json } as ICreateWidgetResponse };
+				let value: ICreateWidgetResponse = null;
+				if (result.json) {
+					if (status === 201) {
+						value = { widget: result.json };
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<ICreateWidgetResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<ICreateWidgetResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Gets the specified widget. */
 	public getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>> {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
+		const uri = `widgets/${encodeURIComponent(request.id)}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'GET'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		if (request.ifNoneMatch != null) {
+			fetchRequest.headers['If-None-Match'] = request.ifNoneMatch;
+		}
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: { widget: result.json } as IGetWidgetResponse };
+				let value: IGetWidgetResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = { widget: result.json };
+					}
+					else if (status === 304) {
+						value = { notModified: true };
+					}
 				}
-				if (status === 304) {
-					return { value: { notModified: true } as IGetWidgetResponse };
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetWidgetResponse>;
 				}
-				return createResponseError(status, result.json) as IServiceResult<IGetWidgetResponse>;
+				let headerValue: string;
+				headerValue = result.response.headers.get('eTag');
+				if (headerValue != null) {
+					value.eTag = headerValue;
+				}
+				return { value: value };
 			});
 	}
 	/** Deletes the specified widget. */
 	public deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>> {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
+		const uri = `widgets/${encodeURIComponent(request.id)}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'DELETE'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} as IDeleteWidgetResponse };
+				let value: IDeleteWidgetResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = {};
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<IDeleteWidgetResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IDeleteWidgetResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Edits widget. */
 	public editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>> {
-		const uri = `/widgets/{encodeURIComponent(request.id)}`;
-		const body = JSON.stringify(request);
+		const uri = `widgets/${encodeURIComponent(request.id)}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: {
+			body: JSON.stringify({
 				ops: request.ops,
 				weight: request.weight
-			}
+			})
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: { widget: result.json } as IEditWidgetResponse };
+				let value: IEditWidgetResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = { widget: result.json };
+					}
+					else if (status === 202) {
+						value = { job: result.json };
+					}
 				}
-				if (status === 202) {
-					return { value: { job: result.json } as IEditWidgetResponse };
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IEditWidgetResponse>;
 				}
-				return createResponseError(status, result.json) as IServiceResult<IEditWidgetResponse>;
+				return { value: value };
 			});
 	}
 	/** Gets the specified widgets. */
 	public getWidgetBatch(request: IGetWidgetBatchRequest): Promise<IServiceResult<IGetWidgetBatchResponse>> {
-		const uri = '/widgets/get';
-		const body = JSON.stringify(request);
+		const uri = 'widgets/get';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: body
+			body: JSON.stringify(request)
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json as IGetWidgetBatchResponse };
+				let value: IGetWidgetBatchResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = result.json;
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<IGetWidgetBatchResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetWidgetBatchResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Gets the widget weight. */
 	public getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>> {
-		const uri = `/widgets/{encodeURIComponent(request.id)}/weight`;
-		const body = JSON.stringify(request);
+		const uri = `widgets/${encodeURIComponent(request.id)}/weight`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'GET'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: result.json as IGetWidgetWeightResponse };
+				let value: IGetWidgetWeightResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = result.json;
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<IGetWidgetWeightResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetWidgetWeightResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Gets a widget preference. */
 	public getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>> {
-		const uri = `/prefs/{encodeURIComponent(request.key)}`;
-		const body = JSON.stringify(request);
+		const uri = `prefs/${encodeURIComponent(request.key)}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'GET'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: { value: result.json } as IGetPreferenceResponse };
+				let value: IGetPreferenceResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = { value: result.json };
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<IGetPreferenceResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetPreferenceResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Sets a widget preference. */
 	public setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>> {
-		const uri = `/prefs/{encodeURIComponent(request.key)}`;
-		const body = JSON.stringify(request);
+		const uri = `prefs/${encodeURIComponent(request.key)}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
-			body: request.value
+			body: JSON.stringify(request.value)
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200) {
-					return { value: { value: result.json } as ISetPreferenceResponse };
+				let value: ISetPreferenceResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = { value: result.json };
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<ISetPreferenceResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<ISetPreferenceResponse>;
+				}
+				return { value: value };
+			});
+	}
+	/** Gets service info. */
+	public getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
+		const uri = '';
+		const fetchRequest: IFetchRequest = {
+			method: 'GET'
+		};
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+			.then(result => {
+				const status = result.response.status;
+				let value: IGetInfoResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = result.json;
+					}
+				}
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IGetInfoResponse>;
+				}
+				return { value: value };
 			});
 	}
 	/** Demonstrates the default HTTP behavior. */
 	public notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>> {
-		const uri = '/notRestful';
-		const body = JSON.stringify(request);
+		const uri = 'notRestful';
 		const fetchRequest: IFetchRequest = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: null
+			method: 'POST'
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} as INotRestfulResponse };
+				let value: INotRestfulResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = {};
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<INotRestfulResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<INotRestfulResponse>;
+				}
+				return { value: value };
 			});
 	}
-	/**  */
 	public kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>> {
-		const uri = '/kitchen';
-		const body = JSON.stringify(request);
+		const uri = 'kitchen';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: body
+			body: JSON.stringify(request)
 		};
-		return fetchJson(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				if (status === 200 || status === 204) {
-					return { value: {} as IKitchenResponse };
+				let value: IKitchenResponse = null;
+				if (result.json) {
+					if (status === 200 || status === 204) {
+						value = {};
+					}
 				}
-				return createResponseError(status, result.json) as IServiceResult<IKitchenResponse>;
+				if (!value) {
+					return createResponseError(status, result.json) as IServiceResult<IKitchenResponse>;
+				}
+				return { value: value };
 			});
 	}
 	private _fetch: IFetch;

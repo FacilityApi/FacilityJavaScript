@@ -1,6 +1,8 @@
 .vs/
+.vscode/
 bin/
 cake/
+node_modules/
 obj/
 packages/
 release/
