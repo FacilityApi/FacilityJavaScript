@@ -4,7 +4,7 @@ using System.Resources;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Facility.JavaScript")]
-[assembly: AssemblyDescription("The core .NET library for the Facility API Framework.")]
+[assembly: AssemblyDescription("JavaScript and TypeScript code generation for Facility Service Definitions.")]
 [assembly: AssemblyProduct("Facility.JavaScript")]
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
