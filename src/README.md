@@ -1,6 +1,6 @@
 # Tools and Libraries
 
-[![Build status](https://ci.appveyor.com/api/projects/status/9jnedwr284uc32nt?svg=true)](https://ci.appveyor.com/project/ejball/facilityjavascript)
+[![Build status](https://ci.appveyor.com/api/projects/status/hpyavxt83gfqd491?svg=true)](https://ci.appveyor.com/project/ejball/facilityjavascript)
 [![Coverage Status](https://coveralls.io/repos/github/FacilityApi/FacilityJavaScript/badge.svg?branch=master)](https://coveralls.io/github/FacilityApi/FacilityJavaScript?branch=master)
 
 ## Facility.JavaScript
