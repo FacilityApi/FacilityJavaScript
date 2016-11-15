@@ -99,7 +99,7 @@ export namespace HttpClientUtility {
 			});
 	}
 
-	/** Creates an error for the specified response. */
+	/** Creates an error result for the specified response. */
 	export function createResponseError(status: number, json?: any): IServiceResultBase {
 		if (json && json.code) {
 			return { error: json };
@@ -109,5 +109,10 @@ export namespace HttpClientUtility {
 		const errorCode = standardErrorCodes[status] || (isClientError ? 'invalidRequest' : 'invalidResponse');
 		const message = isServerError ? 'HTTP server error' : isClientError ? 'HTTP client error' : 'Unexpected HTTP status code';
 		return { error: { code: errorCode, message: `${message}: ${status}` } };
+	}
+
+	/** Creates an error result for a required request field. */
+	export function createRequiredRequestFieldError(name: string): IServiceResultBase {
+		return { error: { code: 'invalidRequest', message: `The request field '${name}' is required.` } };
 	}
 }

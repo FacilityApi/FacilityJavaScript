@@ -245,7 +245,7 @@ export interface IKitchenSink {
 	oldField?: string;
 }
 
-const { fetchResponse, createResponseError } = HttpClientUtility;
+const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
 type IFetch = HttpClientUtility.IFetch;
 type IFetchRequest = HttpClientUtility.IFetchRequest;
 
@@ -321,7 +321,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Gets the specified widget. */
 	public getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>> {
-		const uri = `widgets/${encodeURIComponent(request.id)}`;
+		const uriPartId = request.id != null && encodeURIComponent(request.id);
+		if (!uriPartId) {
+			return Promise.resolve(createRequiredRequestFieldError('id'));
+		}
+		const uri = `widgets/${uriPartId}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'GET'
 		};
@@ -353,7 +357,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Deletes the specified widget. */
 	public deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>> {
-		const uri = `widgets/${encodeURIComponent(request.id)}`;
+		const uriPartId = request.id != null && encodeURIComponent(request.id);
+		if (!uriPartId) {
+			return Promise.resolve(createRequiredRequestFieldError('id'));
+		}
+		const uri = `widgets/${uriPartId}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'DELETE'
 		};
@@ -374,7 +382,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Edits widget. */
 	public editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>> {
-		const uri = `widgets/${encodeURIComponent(request.id)}`;
+		const uriPartId = request.id != null && encodeURIComponent(request.id);
+		if (!uriPartId) {
+			return Promise.resolve(createRequiredRequestFieldError('id'));
+		}
+		const uri = `widgets/${uriPartId}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -426,7 +438,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Gets the widget weight. */
 	public getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>> {
-		const uri = `widgets/${encodeURIComponent(request.id)}/weight`;
+		const uriPartId = request.id != null && encodeURIComponent(request.id);
+		if (!uriPartId) {
+			return Promise.resolve(createRequiredRequestFieldError('id'));
+		}
+		const uri = `widgets/${uriPartId}/weight`;
 		const fetchRequest: IFetchRequest = {
 			method: 'GET'
 		};
@@ -447,7 +463,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Gets a widget preference. */
 	public getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>> {
-		const uri = `prefs/${encodeURIComponent(request.key)}`;
+		const uriPartKey = request.key != null && encodeURIComponent(request.key);
+		if (!uriPartKey) {
+			return Promise.resolve(createRequiredRequestFieldError('key'));
+		}
+		const uri = `prefs/${uriPartKey}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'GET'
 		};
@@ -468,7 +488,11 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Sets a widget preference. */
 	public setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>> {
-		const uri = `prefs/${encodeURIComponent(request.key)}`;
+		const uriPartKey = request.key != null && encodeURIComponent(request.key);
+		if (!uriPartKey) {
+			return Promise.resolve(createRequiredRequestFieldError('key'));
+		}
+		const uri = `prefs/${uriPartKey}`;
 		const fetchRequest: IFetchRequest = {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },

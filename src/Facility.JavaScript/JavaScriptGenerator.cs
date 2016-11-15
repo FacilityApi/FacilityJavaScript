@@ -83,7 +83,7 @@ namespace Facility.JavaScript
 				}
 
 				code.WriteLine();
-				code.WriteLine("const { fetchResponse, createResponseError } = HttpClientUtility;");
+				code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
 				if (TypeScript)
 				{
 					code.WriteLine("type IFetch = HttpClientUtility.IFetch;");
@@ -115,15 +115,23 @@ namespace Facility.JavaScript
 						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
 						{
 							bool hasPathFields = httpMethodInfo.PathFields.Count != 0;
-							bool hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
-
 							string jsUriDelim = hasPathFields ? "`" : "'";
 							string jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
-							foreach (var httpPathField in httpMethodInfo.PathFields)
-								jsUri = jsUri.Replace("{" + httpPathField.ServiceField.Name + "}", "${" + RenderUriComponent(httpPathField.ServiceField, service) + "}");
-							code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
+							if (hasPathFields)
+							{
+								foreach (var httpPathField in httpMethodInfo.PathFields)
+								{
+									code.WriteLine($"const uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)} = request.{httpPathField.ServiceField.Name} != null && {RenderUriComponent(httpPathField.ServiceField, service)};");
+									using (code.Block($"if (!uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}) {{", "}"))
+										code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpPathField.ServiceField.Name}'));");
+								}
+								foreach (var httpPathField in httpMethodInfo.PathFields)
+									jsUri = jsUri.Replace("{" + httpPathField.ServiceField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+							}
 
-							if (httpMethodInfo.QueryFields.Count != 0)
+							bool hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
+							code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
+							if (hasQueryFields)
 							{
 								code.WriteLine("const query" + IfTypeScript(": string[]") + " = [];");
 								foreach (var httpQueryField in httpMethodInfo.QueryFields)
