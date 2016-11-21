@@ -8,7 +8,7 @@ export function createHttpClient({ fetch, baseUri }) {
   return new ExampleApiHttpClient(fetch, baseUri);
 }
 
-const { fetchResponse, createResponseError } = HttpClientUtility;
+const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
 
 class ExampleApiHttpClient {
   constructor(fetch, baseUri) {
@@ -82,7 +82,11 @@ class ExampleApiHttpClient {
   }
   /** Gets the specified widget. */
   getWidget(request) {
-    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const uriPartId = request.id != null && encodeURIComponent(request.id);
+    if (!uriPartId) {
+      return Promise.resolve(createRequiredRequestFieldError('id'));
+    }
+    const uri = `widgets/${uriPartId}`;
     const fetchRequest = {
       method: 'GET'
     };
@@ -114,7 +118,11 @@ class ExampleApiHttpClient {
   }
   /** Deletes the specified widget. */
   deleteWidget(request) {
-    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const uriPartId = request.id != null && encodeURIComponent(request.id);
+    if (!uriPartId) {
+      return Promise.resolve(createRequiredRequestFieldError('id'));
+    }
+    const uri = `widgets/${uriPartId}`;
     const fetchRequest = {
       method: 'DELETE'
     };
@@ -135,7 +143,11 @@ class ExampleApiHttpClient {
   }
   /** Edits widget. */
   editWidget(request) {
-    const uri = `widgets/${encodeURIComponent(request.id)}`;
+    const uriPartId = request.id != null && encodeURIComponent(request.id);
+    if (!uriPartId) {
+      return Promise.resolve(createRequiredRequestFieldError('id'));
+    }
+    const uri = `widgets/${uriPartId}`;
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -187,7 +199,11 @@ class ExampleApiHttpClient {
   }
   /** Gets the widget weight. */
   getWidgetWeight(request) {
-    const uri = `widgets/${encodeURIComponent(request.id)}/weight`;
+    const uriPartId = request.id != null && encodeURIComponent(request.id);
+    if (!uriPartId) {
+      return Promise.resolve(createRequiredRequestFieldError('id'));
+    }
+    const uri = `widgets/${uriPartId}/weight`;
     const fetchRequest = {
       method: 'GET'
     };
@@ -208,7 +224,11 @@ class ExampleApiHttpClient {
   }
   /** Gets a widget preference. */
   getPreference(request) {
-    const uri = `prefs/${encodeURIComponent(request.key)}`;
+    const uriPartKey = request.key != null && encodeURIComponent(request.key);
+    if (!uriPartKey) {
+      return Promise.resolve(createRequiredRequestFieldError('key'));
+    }
+    const uri = `prefs/${uriPartKey}`;
     const fetchRequest = {
       method: 'GET'
     };
@@ -229,7 +249,11 @@ class ExampleApiHttpClient {
   }
   /** Sets a widget preference. */
   setPreference(request) {
-    const uri = `prefs/${encodeURIComponent(request.key)}`;
+    const uriPartKey = request.key != null && encodeURIComponent(request.key);
+    if (!uriPartKey) {
+      return Promise.resolve(createRequiredRequestFieldError('key'));
+    }
+    const uri = `prefs/${uriPartKey}`;
     const fetchRequest = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
