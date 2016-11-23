@@ -102,7 +102,7 @@ export interface IEditWidgetRequest {
 	/** The widget ID. */
 	id?: string;
 	/** The operations. */
-	ops?: any[];
+	ops?: { [name: string]: any }[];
 	/** The new weight. */
 	weight?: number;
 }
@@ -230,10 +230,10 @@ export interface IPreference {
 	bigIntegers?: number[];
 	error?: IServiceError;
 	errors?: IServiceError[];
-	object?: any;
-	objects?: any[];
-	namedStrings?: any;
-	namedWidgets?: any;
+	object?: { [name: string]: any };
+	objects?: { [name: string]: any }[];
+	namedStrings?: { [name: string]: string };
+	namedWidgets?: { [name: string]: IWidget };
 }
 
 /** An obsolete DTO. */

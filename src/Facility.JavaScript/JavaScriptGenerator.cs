@@ -302,8 +302,7 @@ namespace Facility.JavaScript
 			case ServiceTypeKind.Int64:
 				return "number";
 			case ServiceTypeKind.Object:
-			case ServiceTypeKind.Map:
-				return "any";
+				return "{ [name: string]: any }";
 			case ServiceTypeKind.Error:
 				return "IServiceError";
 			case ServiceTypeKind.Dto:
@@ -312,6 +311,8 @@ namespace Facility.JavaScript
 				return $"IServiceResult<{RenderFieldType(fieldType.ValueType)}>";
 			case ServiceTypeKind.Array:
 				return $"{RenderFieldType(fieldType.ValueType)}[]";
+			case ServiceTypeKind.Map:
+				return $"{{ [name: string]: {RenderFieldType(fieldType.ValueType)} }}";
 			default:
 				throw new NotSupportedException("Unknown field type " + fieldType.Kind);
 			}
