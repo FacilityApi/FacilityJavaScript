@@ -16,13 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.JavaScript", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.JavaScript.UnitTests", "tests\Facility.JavaScript.UnitTests\Facility.JavaScript.UnitTests.csproj", "{EADECDC8-65A8-47A7-91ED-10CA49F15B97}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{06D7A4F7-94FF-457B-9BA7-407B226FBBDF}"
-	ProjectSection(SolutionItems) = preProject
-		src\Facility.JavaScript.nuspec = src\Facility.JavaScript.nuspec
-		src\fsdgenjs.nuspec = src\fsdgenjs.nuspec
-		src\README.md = src\README.md
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
