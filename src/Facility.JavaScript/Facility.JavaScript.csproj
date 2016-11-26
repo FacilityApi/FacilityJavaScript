@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Facility.JavaScript.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
