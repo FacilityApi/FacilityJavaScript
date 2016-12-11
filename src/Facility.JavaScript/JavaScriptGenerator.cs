@@ -217,16 +217,9 @@ namespace Facility.JavaScript
 
 												var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
 												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
-												{
 													code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
-												}
 												else
-												{
-													if (bodyFieldType.Dto.Fields.Count == 0)
-														code.WriteLine($"value = {{ {responseBodyFieldName}: {{}} }};");
-													else
-														code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }};");
-												}
+													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }};");
 											}
 											else
 											{

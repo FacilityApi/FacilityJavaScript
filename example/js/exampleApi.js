@@ -180,7 +180,7 @@ class ExampleApiHttpClient {
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request.ids)
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -188,7 +188,7 @@ class ExampleApiHttpClient {
         let value = null;
         if (result.json) {
           if (status === 200 || status === 204) {
-            value = result.json;
+            value = { results: result.json };
           }
         }
         if (!value) {

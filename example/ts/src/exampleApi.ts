@@ -27,8 +27,6 @@ export interface IExampleApi {
 	getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>>;
 	/** Sets a widget preference. */
 	setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>>;
-	/** Gets service info. */
-	getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>>;
 	/** Demonstrates the default HTTP behavior. */
 	notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>>;
 	kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>>;
@@ -165,16 +163,6 @@ export interface ISetPreferenceResponse {
 	value?: IPreference;
 }
 
-/** Request for GetInfo. */
-export interface IGetInfoRequest {
-}
-
-/** Response for GetInfo. */
-export interface IGetInfoResponse {
-	/** The name of the service. */
-	name?: string;
-}
-
 /** Request for NotRestful. */
 export interface INotRestfulRequest {
 }
@@ -298,7 +286,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 	/** Creates a new widget. */
 	public createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>> {
-		const uri = 'widgets';
+		const uri = 'widgets/';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -509,27 +497,6 @@ class ExampleApiHttpClient implements IExampleApi {
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<ISetPreferenceResponse>;
-				}
-				return { value: value };
-			});
-	}
-	/** Gets service info. */
-	public getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
-		const uri = '';
-		const fetchRequest: IFetchRequest = {
-			method: 'GET'
-		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
-			.then(result => {
-				const status = result.response.status;
-				let value: IGetInfoResponse = null;
-				if (result.json) {
-					if (status === 200 || status === 204) {
-						value = result.json;
-					}
-				}
-				if (!value) {
-					return createResponseError(status, result.json) as IServiceResult<IGetInfoResponse>;
 				}
 				return { value: value };
 			});
