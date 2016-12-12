@@ -242,6 +242,8 @@ export interface IObsoleteData {
 }
 
 export interface IKitchenSink {
+	matrix?: number[][][];
+	crazy?: IServiceResult<{ [name: string]: string[] }[]>[];
 	oldField?: string;
 }
 
