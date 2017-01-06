@@ -7,7 +7,7 @@
     <owners>Ed Ball</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A command-line tool that generates JavaScript and TypeScript for a Facility Service Definition.</description>
-    <copyright>Copyright 2016 Ed Ball</copyright>
+    <copyright>Copyright 2016-2017 Ed Ball</copyright>
     <projectUrl>https://github.com/FacilityApi/FacilityJavaScript</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/FacilityApi/FacilityJavaScript/master/LICENSE</licenseUrl>
   </metadata>
