@@ -126,7 +126,7 @@ namespace Facility.JavaScript
 										code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpPathField.ServiceField.Name}'));");
 								}
 								foreach (var httpPathField in httpMethodInfo.PathFields)
-									jsUri = jsUri.Replace("{" + httpPathField.ServiceField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+									jsUri = jsUri.Replace("{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
 							}
 
 							bool hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
