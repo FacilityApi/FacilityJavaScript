@@ -5,16 +5,24 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{A219E328-B15A-41FF-BAA5-5F46679EF9C8}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		.travis.yml = .travis.yml
+		appveyor.yml = appveyor.yml
 		build.cake = build.cake
+		build.ps1 = build.ps1
+		build.sh = build.sh
+		LICENSE = LICENSE
+		README.md = README.md
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fsdgenjs", "src\fsdgenjs\fsdgenjs.csproj", "{3B9A5F61-E874-4A5A-BB5F-436990E521F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.JavaScript", "src\Facility.JavaScript\Facility.JavaScript.csproj", "{B6EA1C94-27CD-4602-8544-6D16D225917F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.CodeGen.JavaScript", "src\Facility.CodeGen.JavaScript\Facility.CodeGen.JavaScript.csproj", "{B6EA1C94-27CD-4602-8544-6D16D225917F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.JavaScript.UnitTests", "tests\Facility.JavaScript.UnitTests\Facility.JavaScript.UnitTests.csproj", "{EADECDC8-65A8-47A7-91ED-10CA49F15B97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility.CodeGen.JavaScript.UnitTests", "tests\Facility.CodeGen.JavaScript.UnitTests\Facility.CodeGen.JavaScript.UnitTests.csproj", "{EADECDC8-65A8-47A7-91ED-10CA49F15B97}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{F6D4394D-08C3-4BB8-9D56-0462BCCF4BE9}"
 	ProjectSection(SolutionItems) = preProject

@@ -4,7 +4,7 @@ using Facility.Definition;
 using Facility.Definition.Fsd;
 using NUnit.Framework;
 
-namespace Facility.JavaScript.UnitTests
+namespace Facility.CodeGen.JavaScript.UnitTests
 {
 	public sealed class JavaScriptGeneratorTests
 	{
@@ -13,7 +13,7 @@ namespace Facility.JavaScript.UnitTests
 		public void GenerateExampleApiSuccess(bool typeScript)
 		{
 			ServiceInfo service;
-			const string fileName = "Facility.JavaScript.UnitTests.ExampleApi.fsd";
+			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName);
 			Assert.IsNotNull(stream);

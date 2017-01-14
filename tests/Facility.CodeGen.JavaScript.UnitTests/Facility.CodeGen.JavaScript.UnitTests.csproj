@@ -7,8 +7,8 @@
     <ProjectGuid>{EADECDC8-65A8-47A7-91ED-10CA49F15B97}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Facility.JavaScript.UnitTests</RootNamespace>
-    <AssemblyName>Facility.JavaScript.UnitTests</AssemblyName>
+    <RootNamespace>Facility.CodeGen.JavaScript.UnitTests</RootNamespace>
+    <AssemblyName>Facility.CodeGen.JavaScript.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,8 +32,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Facility.Definition, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Facility.Definition.0.4.3\lib\dotnet\Facility.Definition.dll</HintPath>
+    <Reference Include="Facility.Definition, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Facility.Definition.0.5.0\lib\dotnet\Facility.Definition.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Faithlife.Parsing, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -73,9 +73,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Facility.JavaScript\Facility.JavaScript.csproj">
+    <ProjectReference Include="..\..\src\Facility.CodeGen.JavaScript\Facility.CodeGen.JavaScript.csproj">
       <Project>{b6ea1c94-27cd-4602-8544-6d16d225917f}</Project>
-      <Name>Facility.JavaScript</Name>
+      <Name>Facility.CodeGen.JavaScript</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

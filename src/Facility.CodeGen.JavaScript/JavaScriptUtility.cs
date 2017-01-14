@@ -6,7 +6,7 @@ using System.Text;
 using Facility.Definition;
 using Facility.Definition.CodeGen;
 
-namespace Facility.JavaScript
+namespace Facility.CodeGen.JavaScript
 {
 	internal static class JavaScriptUtility
 	{

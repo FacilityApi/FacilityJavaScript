@@ -8,8 +8,8 @@
     <ProjectGuid>{B6EA1C94-27CD-4602-8544-6D16D225917F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Facility.JavaScript</RootNamespace>
-    <AssemblyName>Facility.JavaScript</AssemblyName>
+    <RootNamespace>Facility.CodeGen.JavaScript</RootNamespace>
+    <AssemblyName>Facility.CodeGen.JavaScript</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -25,7 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\Facility.JavaScript.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Facility.CodeGen.JavaScript.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,7 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Release\Facility.JavaScript.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Facility.CodeGen.JavaScript.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs">
@@ -46,8 +46,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Facility.Definition, Version=0.4.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Facility.Definition.0.4.3\lib\portable-net45+netcore45+wpa81\Facility.Definition.dll</HintPath>
+    <Reference Include="Facility.Definition, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Facility.Definition.0.5.0\lib\portable-net45+netcore45+wpa81\Facility.Definition.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Faithlife.Parsing, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -64,7 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Facility.JavaScript.nuspec" />
+    <None Include="Facility.CodeGen.JavaScript.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

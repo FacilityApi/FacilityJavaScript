@@ -4,7 +4,7 @@ using System.Resources;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("fsdgenjs")]
-[assembly: AssemblyDescription("A command-line tool that generates JavaScript and TypeScript for a Facility Service Definition.")]
+[assembly: AssemblyDescription("A tool that generates JavaScript or TypeScript for a Facility Service Definition.")]
 [assembly: AssemblyProduct("fsdgenjs")]
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]

@@ -6,7 +6,7 @@ using Facility.Definition;
 using Facility.Definition.CodeGen;
 using Facility.Definition.Http;
 
-namespace Facility.JavaScript
+namespace Facility.CodeGen.JavaScript
 {
 	/// <summary>
 	/// Generates JavaScript and TypeScript.

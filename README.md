@@ -10,10 +10,10 @@
 
 Common code for the Facility API Framework. [![npm](https://img.shields.io/npm/v/facility-core.svg)](https://www.npmjs.com/package/facility-core)
 
-## Facility.JavaScript
-
-JavaScript and TypeScript code generation for Facility Service Definitions. [![NuGet](https://img.shields.io/nuget/v/Facility.JavaScript.svg)](https://www.nuget.org/packages/Facility.JavaScript)
-
 ## fsdgenjs
 
-A command-line tool that generates JavaScript and TypeScript for a Facility Service Definition. [![NuGet](https://img.shields.io/nuget/v/fsdgenjs.svg)](https://www.nuget.org/packages/fsdgenjs)
+A tool that generates JavaScript or TypeScript for a Facility Service Definition. [![NuGet](https://img.shields.io/nuget/v/fsdgenjs.svg)](https://www.nuget.org/packages/fsdgenjs)
+
+## Facility.CodeGen.JavaScript
+
+Used by fsdgenjs to generate JavaScript or TypeScript for a Facility Service Definition. [![NuGet](https://img.shields.io/nuget/v/Facility.CodeGen.JavaScript.svg)](https://www.nuget.org/packages/Facility.CodeGen.JavaScript)
