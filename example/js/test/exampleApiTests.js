@@ -70,7 +70,10 @@ describe('createHttpClient', () => {
         return createFetchResponse(204);
       }
     }).getWidgets({}).then(result => {
-      result.value.should.deep.equal({});
+      result.error.should.deep.equal({
+        code: 'invalidResponse',
+        message: 'Unexpected HTTP status code: 204'
+      })
     });
   });
 
