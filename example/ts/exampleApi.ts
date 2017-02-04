@@ -285,7 +285,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetWidgetsResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = result.json;
 					}
 					else if (status === 202) {
@@ -339,7 +339,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetWidgetResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = { widget: result.json };
 					}
 					else if (status === 304) {
@@ -372,7 +372,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IDeleteWidgetResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 204) {
 						value = {};
 					}
 				}
@@ -402,7 +402,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IEditWidgetResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = { widget: result.json };
 					}
 					else if (status === 202) {
@@ -428,7 +428,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetWidgetBatchResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = { results: result.json };
 					}
 				}
@@ -453,7 +453,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetWidgetWeightResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = result.json;
 					}
 				}
@@ -478,7 +478,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetPreferenceResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = { value: result.json };
 					}
 				}
@@ -505,7 +505,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: ISetPreferenceResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = { value: result.json };
 					}
 				}
@@ -526,7 +526,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IGetInfoResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = result.json;
 					}
 				}
@@ -547,7 +547,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: INotRestfulResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = {};
 					}
 				}
@@ -569,7 +569,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				const status = result.response.status;
 				let value: IKitchenResponse = null;
 				if (result.json) {
-					if (status === 200 || status === 204) {
+					if (status === 200) {
 						value = {};
 					}
 				}

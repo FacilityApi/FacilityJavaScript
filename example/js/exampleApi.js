@@ -44,7 +44,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = result.json;
           }
           else if (status === 202) {
@@ -98,7 +98,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = { widget: result.json };
           }
           else if (status === 304) {
@@ -131,7 +131,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 204) {
             value = {};
           }
         }
@@ -161,7 +161,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = { widget: result.json };
           }
           else if (status === 202) {
@@ -187,7 +187,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = { results: result.json };
           }
         }
@@ -212,7 +212,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = result.json;
           }
         }
@@ -237,7 +237,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = { value: result.json };
           }
         }
@@ -264,7 +264,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = { value: result.json };
           }
         }
@@ -285,7 +285,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = result.json;
           }
         }
@@ -306,7 +306,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = {};
           }
         }
@@ -328,7 +328,7 @@ class ExampleApiHttpClient {
         const status = result.response.status;
         let value = null;
         if (result.json) {
-          if (status === 200 || status === 204) {
+          if (status === 200) {
             value = {};
           }
         }
