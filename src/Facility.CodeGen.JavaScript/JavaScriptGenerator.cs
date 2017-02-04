@@ -197,15 +197,7 @@ namespace Facility.CodeGen.JavaScript
 									foreach (var validResponse in validResponses)
 									{
 										string statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
-										if ((validResponse.StatusCode == HttpStatusCode.OK && validResponses.All(x => x.StatusCode != HttpStatusCode.NoContent)) ||
-											(validResponse.StatusCode == HttpStatusCode.NoContent && validResponses.All(x => x.StatusCode != HttpStatusCode.OK)))
-										{
-											code.WriteLine($"{elsePrefix}if (status === 200 || status === 204) {{");
-										}
-										else
-										{
-											code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
-										}
+										code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
 										elsePrefix = "else ";
 
 										using (code.Indent())
