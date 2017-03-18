@@ -285,6 +285,7 @@ namespace Facility.CodeGen.JavaScript
 			case ServiceTypeKind.Double:
 			case ServiceTypeKind.Int32:
 			case ServiceTypeKind.Int64:
+			case ServiceTypeKind.Decimal:
 				return "number";
 			case ServiceTypeKind.Object:
 				return "{ [name: string]: any }";
@@ -318,6 +319,7 @@ namespace Facility.CodeGen.JavaScript
 			case ServiceTypeKind.Boolean:
 			case ServiceTypeKind.Int32:
 			case ServiceTypeKind.Int64:
+			case ServiceTypeKind.Decimal:
 				return $"request.{fieldName}.toString()";
 			case ServiceTypeKind.Double:
 				return $"encodeURIComponent(request.{fieldName}.toString())";

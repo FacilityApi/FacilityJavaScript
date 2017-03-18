@@ -46,6 +46,8 @@ export interface IGetWidgetsRequest {
 	desc?: boolean;
 	/** The maximum weight. */
 	maxWeight?: number;
+	/** The minimum price. */
+	minPrice?: number;
 }
 
 /** Response for GetWidgets. */
@@ -200,6 +202,8 @@ export interface IWidget {
 	name?: string;
 	/** The weight of the widget. */
 	weight?: number;
+	/** The price of the widget. */
+	price?: number;
 }
 
 /** A widget job. */
@@ -228,6 +232,8 @@ export interface IPreference {
 	results?: IServiceResult<IWidget>[];
 	bigInteger?: number;
 	bigIntegers?: number[];
+	decimal?: number;
+	decimals?: number[];
 	error?: IServiceError;
 	errors?: IServiceError[];
 	object?: { [name: string]: any };
@@ -274,6 +280,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		request.sort == null || query.push('sort=' + request.sort);
 		request.desc == null || query.push('desc=' + request.desc.toString());
 		request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight.toString()));
+		request.minPrice == null || query.push('minPrice=' + request.minPrice.toString());
 		if (query.length) {
 			uri = uri + '?' + query.join('&');
 		}

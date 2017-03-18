@@ -33,6 +33,7 @@ class ExampleApiHttpClient {
     request.sort == null || query.push('sort=' + request.sort);
     request.desc == null || query.push('desc=' + request.desc.toString());
     request.maxWeight == null || query.push('maxWeight=' + encodeURIComponent(request.maxWeight.toString()));
+    request.minPrice == null || query.push('minPrice=' + request.minPrice.toString());
     if (query.length) {
       uri = uri + '?' + query.join('&');
     }

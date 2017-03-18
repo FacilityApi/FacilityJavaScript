@@ -23,6 +23,9 @@ service ExampleApi
 		/// The maximum weight.
 		[obsolete]
 		maxWeight: double;
+
+		/// The minimum price.
+		minPrice: decimal;
 	}:
 	{
 		/// The widgets.
@@ -211,6 +214,9 @@ service ExampleApi
 		/// The weight of the widget.
 		[obsolete]
 		weight: double;
+
+		/// The price of the widget.
+		price: decimal;
 	}
 
 	/// A widget job.
@@ -260,6 +266,10 @@ service ExampleApi
 
 		bigIntegers: int64[];
 
+		decimal: decimal;
+
+		decimals: decimal[];
+
 		error: error;
 
 		errors: error[];
@@ -307,7 +317,7 @@ service ExampleApi
 
 		crazy: result<map<string[]>[]>[];
 
-		[obsolete]
+		[obsolete(message: "This field was never used.")]
 		oldField: string;
 	}
 }
