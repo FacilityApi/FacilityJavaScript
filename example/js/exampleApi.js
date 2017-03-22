@@ -24,6 +24,7 @@ class ExampleApiHttpClient {
     this._fetch = fetch;
     this._baseUri = baseUri;
   }
+
   /** Gets widgets. */
   getWidgets(request) {
     let uri = 'widgets';
@@ -58,6 +59,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Creates a new widget. */
   createWidget(request) {
     const uri = 'widgets';
@@ -81,6 +83,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Gets the specified widget. */
   getWidget(request) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -117,6 +120,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Deletes the specified widget. */
   deleteWidget(request) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -142,6 +146,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Edits widget. */
   editWidget(request) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -175,6 +180,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Gets the specified widgets. */
   getWidgetBatch(request) {
     const uri = 'widgets/get';
@@ -198,7 +204,11 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
-  /** Gets the widget weight. */
+
+  /**
+   * Gets the widget weight.
+   * @deprecated
+   */
   getWidgetWeight(request) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
     if (!uriPartId) {
@@ -223,6 +233,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Gets a widget preference. */
   getPreference(request) {
     const uriPartKey = request.key != null && encodeURIComponent(request.key);
@@ -248,6 +259,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Sets a widget preference. */
   setPreference(request) {
     const uriPartKey = request.key != null && encodeURIComponent(request.key);
@@ -275,6 +287,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Gets service info. */
   getInfo(request) {
     const uri = '';
@@ -296,6 +309,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   /** Demonstrates the default HTTP behavior. */
   notRestful(request) {
     const uri = 'notRestful';
@@ -317,6 +331,7 @@ class ExampleApiHttpClient {
         return { value: value };
       });
   }
+
   kitchen(request) {
     const uri = 'kitchen';
     const fetchRequest = {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -44,21 +45,22 @@ namespace Facility.CodeGen.JavaScript
 				code.WriteLine("import { HttpClientUtility" + IfTypeScript(", IServiceResult, IServiceError, IHttpClientOptions") + " } from 'facility-core';");
 
 				code.WriteLine();
-				WriteSummary(code, $"Provides access to {capModuleName} over HTTP via fetch.");
+				WriteJSDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
 				using (code.Block("export function createHttpClient({ fetch, baseUri }" + IfTypeScript(": IHttpClientOptions") + ")" + IfTypeScript($": I{capModuleName}") + " {", "}"))
 					code.WriteLine($"return new {capModuleName}HttpClient(fetch, baseUri);");
 
 				if (TypeScript)
 				{
 					code.WriteLine();
-					WriteSummary(code, service.Summary);
+					WriteJSDoc(code, service);
 					using (code.Block($"export interface I{capModuleName} {{", "}"))
 					{
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
 						{
 							string methodName = httpMethodInfo.ServiceMethod.Name;
 							string capMethodName = CodeGenUtility.Capitalize(methodName);
-							WriteSummary(code, httpMethodInfo.ServiceMethod.Summary);
+							code.WriteLineSkipOnce();
+							WriteJSDoc(code, httpMethodInfo.ServiceMethod);
 							code.WriteLine($"{methodName}(request: I{capMethodName}Request): Promise<IServiceResult<I{capMethodName}Response>>;");
 						}
 					}
@@ -111,7 +113,8 @@ namespace Facility.CodeGen.JavaScript
 						string methodName = httpMethodInfo.ServiceMethod.Name;
 						string capMethodName = CodeGenUtility.Capitalize(methodName);
 
-						WriteSummary(code, httpMethodInfo.ServiceMethod.Summary);
+						code.WriteLine();
+						WriteJSDoc(code, httpMethodInfo.ServiceMethod);
 						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
 						{
 							bool hasPathFields = httpMethodInfo.PathFields.Count != 0;
@@ -246,6 +249,7 @@ namespace Facility.CodeGen.JavaScript
 
 					if (TypeScript)
 					{
+						code.WriteLine();
 						code.WriteLine("private _fetch: IFetch;");
 						code.WriteLine("private _baseUri: string;");
 					}
@@ -256,12 +260,13 @@ namespace Facility.CodeGen.JavaScript
 		private void WriteDto(CodeWriter code, ServiceDtoInfo dtoInfo, ServiceInfo service)
 		{
 			code.WriteLine();
-			WriteSummary(code, dtoInfo.Summary);
+			WriteJSDoc(code, dtoInfo);
 			using (code.Block($"export interface I{CodeGenUtility.Capitalize(dtoInfo.Name)} {{", "}"))
 			{
 				foreach (var fieldInfo in dtoInfo.Fields)
 				{
-					WriteSummary(code, fieldInfo.Summary);
+					code.WriteLineSkipOnce();
+					WriteJSDoc(code, fieldInfo);
 					code.WriteLine($"{fieldInfo.Name}?: {RenderFieldType(service.GetFieldType(fieldInfo))};");
 				}
 			}
@@ -332,10 +337,34 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private static void WriteSummary(CodeWriter code, string summary)
+		private static void WriteJSDoc(CodeWriter code, IServiceElementInfo element)
 		{
+			WriteJSDoc(code, element.Summary, isObsolete: element.IsObsolete(), obsoleteMessage: element.TryGetObsoleteMessage());
+		}
+
+		private static void WriteJSDoc(CodeWriter code, string summary, bool isObsolete = false, string obsoleteMessage = null)
+		{
+			var lines = new List<string>(capacity: 2);
 			if (!string.IsNullOrWhiteSpace(summary))
-				code.WriteLine($"/** {summary} */");
+				lines.Add(summary);
+			if (isObsolete)
+				lines.Add("@deprecated" + (string.IsNullOrWhiteSpace(obsoleteMessage) ? "" : $" {obsoleteMessage}"));
+			WriteJSDoc(code, lines);
+		}
+
+		private static void WriteJSDoc(CodeWriter code, IReadOnlyList<string> lines)
+		{
+			if (lines.Count == 1)
+			{
+				code.WriteLine($"/** {lines[0]} */");
+			}
+			else if (lines.Count != 0)
+			{
+				code.WriteLine("/**");
+				foreach (string line in lines)
+					code.WriteLine($" * {line}");
+				code.WriteLine(" */");
+			}
 		}
 
 		private static string Uncapitalize(string value)

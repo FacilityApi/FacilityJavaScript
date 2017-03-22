@@ -11,26 +11,40 @@ export function createHttpClient({ fetch, baseUri }: IHttpClientOptions): IExamp
 export interface IExampleApi {
 	/** Gets widgets. */
 	getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>>;
+
 	/** Creates a new widget. */
 	createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>>;
+
 	/** Gets the specified widget. */
 	getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>>;
+
 	/** Deletes the specified widget. */
 	deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>>;
+
 	/** Edits widget. */
 	editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>>;
+
 	/** Gets the specified widgets. */
 	getWidgetBatch(request: IGetWidgetBatchRequest): Promise<IServiceResult<IGetWidgetBatchResponse>>;
-	/** Gets the widget weight. */
+
+	/**
+	 * Gets the widget weight.
+	 * @deprecated
+	 */
 	getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>>;
+
 	/** Gets a widget preference. */
 	getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>>;
+
 	/** Sets a widget preference. */
 	setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>>;
+
 	/** Gets service info. */
 	getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>>;
+
 	/** Demonstrates the default HTTP behavior. */
 	notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>>;
+
 	kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>>;
 }
 
@@ -38,14 +52,22 @@ export interface IExampleApi {
 export interface IGetWidgetsRequest {
 	/** The query. */
 	query?: string;
+
 	/** The limit of returned results. */
 	limit?: number;
+
 	/** The sort field. */
 	sort?: string;
+
 	/** True to sort descending. */
 	desc?: boolean;
-	/** The maximum weight. */
+
+	/**
+	 * The maximum weight.
+	 * @deprecated
+	 */
 	maxWeight?: number;
+
 	/** The minimum price. */
 	minPrice?: number;
 }
@@ -54,10 +76,16 @@ export interface IGetWidgetsRequest {
 export interface IGetWidgetsResponse {
 	/** The widgets. */
 	widgets?: IWidget[];
+
 	/** The total number of widgets. */
 	total?: number;
-	/** The total weight. */
+
+	/**
+	 * The total weight.
+	 * @deprecated
+	 */
 	totalWeight?: number;
+
 	/** The pending job. */
 	job?: IWidgetJob;
 }
@@ -78,6 +106,7 @@ export interface ICreateWidgetResponse {
 export interface IGetWidgetRequest {
 	/** The widget ID. */
 	id?: string;
+
 	ifNoneMatch?: string;
 }
 
@@ -85,7 +114,9 @@ export interface IGetWidgetRequest {
 export interface IGetWidgetResponse {
 	/** The requested widget. */
 	widget?: IWidget;
+
 	eTag?: string;
+
 	notModified?: boolean;
 }
 
@@ -103,9 +134,14 @@ export interface IDeleteWidgetResponse {
 export interface IEditWidgetRequest {
 	/** The widget ID. */
 	id?: string;
+
 	/** The operations. */
 	ops?: { [name: string]: any }[];
-	/** The new weight. */
+
+	/**
+	 * The new weight.
+	 * @deprecated
+	 */
 	weight?: number;
 }
 
@@ -113,6 +149,7 @@ export interface IEditWidgetRequest {
 export interface IEditWidgetResponse {
 	/** The edited widget. */
 	widget?: IWidget;
+
 	/** The pending job. */
 	job?: IWidgetJob;
 }
@@ -157,6 +194,7 @@ export interface IGetPreferenceResponse {
 export interface ISetPreferenceRequest {
 	/** The preference key. */
 	key?: string;
+
 	/** The preference value. */
 	value?: IPreference;
 }
@@ -198,10 +236,16 @@ export interface IKitchenResponse {
 export interface IWidget {
 	/** A unique identifier for the widget. */
 	id?: string;
+
 	/** The name of the widget. */
 	name?: string;
-	/** The weight of the widget. */
+
+	/**
+	 * The weight of the widget.
+	 * @deprecated
+	 */
 	weight?: number;
+
 	/** The price of the widget. */
 	price?: number;
 }
@@ -215,41 +259,72 @@ export interface IWidgetJob {
 /** A preference. */
 export interface IPreference {
 	boolean?: boolean;
+
 	booleans?: boolean[];
+
 	double?: number;
+
 	doubles?: number[];
+
 	integer?: number;
+
 	integers?: number[];
+
 	string?: string;
+
 	strings?: string[];
+
 	bytes?: string;
+
 	byteses?: string[];
+
 	widgetField?: string;
+
 	widgetFields?: string[];
+
 	widget?: IWidget;
+
 	widgets?: IWidget[];
+
 	result?: IServiceResult<IWidget>;
+
 	results?: IServiceResult<IWidget>[];
+
 	bigInteger?: number;
+
 	bigIntegers?: number[];
+
 	decimal?: number;
+
 	decimals?: number[];
+
 	error?: IServiceError;
+
 	errors?: IServiceError[];
+
 	object?: { [name: string]: any };
+
 	objects?: { [name: string]: any }[];
+
 	namedStrings?: { [name: string]: string };
+
 	namedWidgets?: { [name: string]: IWidget };
 }
 
-/** An obsolete DTO. */
+/**
+ * An obsolete DTO.
+ * @deprecated
+ */
 export interface IObsoleteData {
 	unused?: boolean;
 }
 
 export interface IKitchenSink {
 	matrix?: number[][][];
+
 	crazy?: IServiceResult<{ [name: string]: string[] }[]>[];
+
+	/** @deprecated This field was never used. */
 	oldField?: string;
 }
 
@@ -271,6 +346,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		this._fetch = fetch;
 		this._baseUri = baseUri;
 	}
+
 	/** Gets widgets. */
 	public getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>> {
 		let uri = 'widgets';
@@ -305,6 +381,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Creates a new widget. */
 	public createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>> {
 		const uri = 'widgets';
@@ -328,6 +405,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Gets the specified widget. */
 	public getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -364,6 +442,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Deletes the specified widget. */
 	public deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -389,6 +468,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Edits widget. */
 	public editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
@@ -422,6 +502,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Gets the specified widgets. */
 	public getWidgetBatch(request: IGetWidgetBatchRequest): Promise<IServiceResult<IGetWidgetBatchResponse>> {
 		const uri = 'widgets/get';
@@ -445,7 +526,11 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
-	/** Gets the widget weight. */
+
+	/**
+	 * Gets the widget weight.
+	 * @deprecated
+	 */
 	public getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
@@ -470,6 +555,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Gets a widget preference. */
 	public getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
@@ -495,6 +581,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Sets a widget preference. */
 	public setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
@@ -522,6 +609,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Gets service info. */
 	public getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
 		const uri = '';
@@ -543,6 +631,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	/** Demonstrates the default HTTP behavior. */
 	public notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>> {
 		const uri = 'notRestful';
@@ -564,6 +653,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	public kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>> {
 		const uri = 'kitchen';
 		const fetchRequest: IFetchRequest = {
@@ -586,6 +676,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				return { value: value };
 			});
 	}
+
 	private _fetch: IFetch;
 	private _baseUri: string;
 }
