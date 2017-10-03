@@ -49,7 +49,7 @@ export namespace HttpClientUtility {
 	export interface IFetchResponse {
 		status: number;
 		headers: {
-			get(name: string): string;
+			get(name: string): string | null;
 		};
 		json(): Promise<any>;
 	}
