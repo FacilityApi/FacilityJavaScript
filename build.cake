@@ -1,4 +1,4 @@
-#addin "nuget:?package=Cake.Git&version=0.10.0"
+#addin "nuget:?package=Cake.Git&version=0.16.1"
 #addin "nuget:?package=Octokit&version=0.23.0"
 #tool "nuget:?package=coveralls.io&version=1.3.4"
 #tool "nuget:?package=gitlink&version=2.3.0"
@@ -186,13 +186,20 @@ string GetSemVerFromFile(string path)
 
 void CodeGen(bool verify)
 {
-	ExecuteCodeGen(@"example\ExampleApi.fsd example\js --indent 2", verify);
-	ExecuteCodeGen(@"example\ExampleApi.fsd example\ts --typescript", verify);
+	var fsdPath = File("example/ExampleApi.fsd").ToString();
+	ExecuteCodeGen($"{fsdPath} {File("example/js")} --indent 2", verify);
+	ExecuteCodeGen($"{fsdPath} {File("example/ts")} --typescript", verify);
 }
 
 void ExecuteCodeGen(string args, bool verify)
 {
-	int exitCode = StartProcess($@"src\fsdgenjs\bin\{configuration}\fsdgenjs.exe", args + (verify ? " --verify" : ""));
+	string exePath = File($"src/fsdgenjs/bin/{configuration}/fsdgenjs.exe");
+	if (IsRunningOnUnix())
+	{
+		args = exePath + " " + args;
+		exePath = "mono";
+	}
+	int exitCode = StartProcess(exePath, args + (verify ? " --verify" : ""));
 	if (exitCode == 1 && verify)
 		throw new InvalidOperationException("Generated code doesn't match; use -target=CodeGen to regenerate.");
 	else if (exitCode != 0)
@@ -201,6 +208,11 @@ void ExecuteCodeGen(string args, bool verify)
 
 void ExecuteProcess(string exePath, string arguments)
 {
+	if (IsRunningOnUnix())
+	{
+		arguments = exePath + " " + arguments;
+		exePath = "mono";
+	}
 	int exitCode = StartProcess(exePath, arguments);
 	if (exitCode != 0)
 		throw new InvalidOperationException($"{exePath} failed with exit code {exitCode}.");
