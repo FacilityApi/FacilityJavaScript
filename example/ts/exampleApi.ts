@@ -333,7 +333,7 @@ type IFetch = HttpClientUtility.IFetch;
 type IFetchRequest = HttpClientUtility.IFetchRequest;
 
 class ExampleApiHttpClient implements IExampleApi {
-	constructor(fetch: IFetch, baseUri: string) {
+	constructor(fetch: IFetch, baseUri?: string) {
 		if (typeof fetch !== 'function') {
 			throw new TypeError('fetch must be a function.');
 		}
@@ -366,7 +366,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetWidgetsResponse = null;
+				let value: IGetWidgetsResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = result.json;
@@ -393,7 +393,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: ICreateWidgetResponse = null;
+				let value: ICreateWidgetResponse | null = null;
 				if (result.json) {
 					if (status === 201) {
 						value = { widget: result.json };
@@ -422,7 +422,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetWidgetResponse = null;
+				let value: IGetWidgetResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = { widget: result.json };
@@ -456,7 +456,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IDeleteWidgetResponse = null;
+				let value: IDeleteWidgetResponse | null = null;
 				if (result.json) {
 					if (status === 204) {
 						value = {};
@@ -487,7 +487,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IEditWidgetResponse = null;
+				let value: IEditWidgetResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = { widget: result.json };
@@ -514,7 +514,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetWidgetBatchResponse = null;
+				let value: IGetWidgetBatchResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = { results: result.json };
@@ -543,7 +543,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetWidgetWeightResponse = null;
+				let value: IGetWidgetWeightResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = result.json;
@@ -569,7 +569,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetPreferenceResponse = null;
+				let value: IGetPreferenceResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = { value: result.json };
@@ -597,7 +597,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: ISetPreferenceResponse = null;
+				let value: ISetPreferenceResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = { value: result.json };
@@ -619,7 +619,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IGetInfoResponse = null;
+				let value: IGetInfoResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = result.json;
@@ -641,7 +641,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: INotRestfulResponse = null;
+				let value: INotRestfulResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = {};
@@ -664,7 +664,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
 				const status = result.response.status;
-				let value: IKitchenResponse = null;
+				let value: IKitchenResponse | null = null;
 				if (result.json) {
 					if (status === 200) {
 						value = {};
