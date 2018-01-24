@@ -43,8 +43,11 @@ Task("Clean")
 		CleanDirectories("release");
 	});
 
-Task("Build")
+Task("Rebuild")
 	.IsDependentOn("Clean")
+	.IsDependentOn("Build");
+
+Task("Build")
 	.Does(() =>
 	{
 		NuGetRestore(solutionFileName);
@@ -174,6 +177,7 @@ Task("CoveragePublish")
 	});
 
 Task("Default")
+	.IsDependentOn("Clean")
 	.IsDependentOn("Test");
 
 string GetSemVerFromFile(string path)
