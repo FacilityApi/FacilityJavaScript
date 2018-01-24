@@ -24,6 +24,8 @@ namespace fsdgenjs
 			"      The module name used by the generated JavaScript.",
 			"   --typescript",
 			"      Generates TypeScript.",
+			"   --express",
+			"      Generates Express service.",
 		};
 
 		protected override CodeGenerator CreateGenerator(ArgsReader args)
@@ -32,6 +34,7 @@ namespace fsdgenjs
 			{
 				ModuleName = args.ReadOption("module"),
 				TypeScript = args.ReadFlag("typescript"),
+				Express = args.ReadFlag("express"),
 			};
 		}
 
