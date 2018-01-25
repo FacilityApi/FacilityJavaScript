@@ -434,7 +434,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetWidgetResponse>;
 				}
-				let headerValue: string;
+				let headerValue: string | null | undefined;
 				headerValue = result.response.headers.get('eTag');
 				if (headerValue != null) {
 					value.eTag = headerValue;

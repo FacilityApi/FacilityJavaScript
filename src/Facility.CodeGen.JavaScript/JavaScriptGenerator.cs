@@ -233,7 +233,7 @@ namespace Facility.CodeGen.JavaScript
 
 								if (httpMethodInfo.ResponseHeaderFields.Count != 0)
 								{
-									code.WriteLine("let headerValue" + IfTypeScript(": string") + ";");
+									code.WriteLine("let headerValue" + IfTypeScript(": string | null | undefined") + ";");
 									foreach (var httpHeaderField in httpMethodInfo.ResponseHeaderFields)
 									{
 										code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
