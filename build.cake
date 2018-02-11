@@ -154,10 +154,11 @@ Task("Coverage")
 
 		string filter = string.Concat(coverageAssemblies.Select(x => $@" ""-filter:+[{x}]*"""));
 
+		var nunitPath = Context.Tools.Resolve("nunit3-console.exe").ToString();
 		foreach (var testDllPath in GetFiles($"tests/**/bin/**/*.UnitTests.dll"))
 		{
-			ExecuteProcess(@"cake\OpenCover\tools\OpenCover.Console.exe",
-				$@"-register:user -mergeoutput ""-target:cake\NUnit.ConsoleRunner\tools\nunit3-console.exe"" ""-targetargs:{testDllPath} --noresult"" ""-output:release\coverage.xml"" -skipautoprops -returntargetcode" + filter);
+			ExecuteTool("OpenCover.Console.exe",
+				$@"-register:user -mergeoutput ""-target:{nunitPath}"" ""-targetargs:{testDllPath} --noresult"" ""-output:{File("release/coverage.xml")}"" -skipautoprops -returntargetcode" + filter);
 		}
 	});
 
@@ -165,14 +166,14 @@ Task("CoverageReport")
 	.IsDependentOn("Coverage")
 	.Does(() =>
 	{
-		ExecuteProcess(@"cake\ReportGenerator\tools\ReportGenerator.exe", $@"""-reports:release\coverage.xml"" ""-targetdir:release\coverage""");
+		ExecuteTool("ReportGenerator.exe", $@"""-reports:{File("release/coverage.xml")}"" ""-targetdir:{File("release/coverage")}""");
 	});
 
 Task("CoveragePublish")
 	.IsDependentOn("Coverage")
 	.Does(() =>
 	{
-		ExecuteProcess(@"cake\coveralls.io\tools\coveralls.net.exe", $@"--opencover ""release\coverage.xml"" --full-sources --repo-token {coverallsApiKey}");
+		ExecuteTool("coveralls.net.exe", $@"--opencover ""{File("release/coverage.xml")}"" --full-sources --repo-token {coverallsApiKey}");
 	});
 
 Task("Default")
@@ -208,6 +209,11 @@ void ExecuteCodeGen(string args, bool verify)
 		throw new InvalidOperationException("Generated code doesn't match; use -target=CodeGen to regenerate.");
 	else if (exitCode != 0)
 		throw new InvalidOperationException($"Code generation failed with exit code {exitCode}.");
+}
+
+void ExecuteTool(string tool, string arguments)
+{
+	ExecuteProcess(Context.Tools.Resolve(tool).ToString(), arguments);
 }
 
 void ExecuteProcess(string exePath, string arguments)

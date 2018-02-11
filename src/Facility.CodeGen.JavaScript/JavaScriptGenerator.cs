@@ -128,7 +128,7 @@ namespace Facility.CodeGen.JavaScript
 				code.WriteLine();
 				using (code.Block($"class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
 				{
-					using (code.Block("constructor(fetch" + IfTypeScript(": IFetch") + ", baseUri" + IfTypeScript(": string") + ") {", "}"))
+					using (code.Block("constructor(fetch" + IfTypeScript(": IFetch") + ", baseUri" + IfTypeScript("?: string") + ") {", "}"))
 					{
 						using (code.Block("if (typeof fetch !== 'function') {", "}"))
 							code.WriteLine("throw new TypeError('fetch must be a function.');");
@@ -225,7 +225,7 @@ namespace Facility.CodeGen.JavaScript
 							using (code.Block(".then(result => {", "});"))
 							{
 								code.WriteLine("const status = result.response.status;");
-								code.WriteLine("let value" + IfTypeScript($": I{capMethodName}Response") + " = null;");
+								code.WriteLine("let value" + IfTypeScript($": I{capMethodName}Response | null") + " = null;");
 								using (code.Block($"if (result.json) {{", "}"))
 								{
 									var validResponses = httpMethodInfo.ValidResponses;
@@ -266,7 +266,7 @@ namespace Facility.CodeGen.JavaScript
 
 								if (httpMethodInfo.ResponseHeaderFields.Count != 0)
 								{
-									code.WriteLine("let headerValue" + IfTypeScript(": string") + ";");
+									code.WriteLine("let headerValue" + IfTypeScript(": string | null | undefined") + ";");
 									foreach (var httpHeaderField in httpMethodInfo.ResponseHeaderFields)
 									{
 										code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
