@@ -325,7 +325,7 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ") {", "}"))
+					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript($": express.Application") + " {", "}"))
 					{
 						code.WriteLine("const app = express();");
 						code.WriteLine("app.use(bodyParser.json());");
@@ -347,7 +347,7 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
 
 								foreach (var httpPathField in httpMethodInfo.PathFields)
-									code.WriteLine($"request.{httpPathField.ServiceField.Name} = {RenderJsConversion(httpPathField.ServiceField, service, $"req.params.{httpPathField.Name}")};");									
+									code.WriteLine($"request.{httpPathField.ServiceField.Name} = {RenderJsConversion(httpPathField.ServiceField, service, $"req.params.{httpPathField.Name}")};");
 
 								foreach (var httpQueryField in httpMethodInfo.QueryFields)
 								{
@@ -369,7 +369,33 @@ namespace Facility.CodeGen.JavaScript
 										}
 										using (code.Block("} else {", "}"))
 										{
-											code.WriteLine("res.send(result.value);");
+											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields == null || x.NormalFields.Count == 0))
+											{
+												var bodyField = validResponse.BodyField;
+												if (bodyField != null)
+												{
+													string responseBodyFieldName = bodyField.ServiceField.Name;
+
+													using (code.Block($"if (result.value.{responseBodyFieldName}) {{", "}"))
+													{
+														var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
+														if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+															code.WriteLine($"res.sendStatus({(int)validResponse.StatusCode});");
+														else
+															code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value.{responseBodyFieldName});");
+													}
+												}
+												else
+												{
+													// TODO
+													code.WriteLine("throw new Error('TODO');");
+												}
+											}
+
+											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields != null && x.NormalFields.Count != 0))
+											{
+												code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value);");
+											}
 										}
 									}
 									code.WriteLine(".catch(next);");

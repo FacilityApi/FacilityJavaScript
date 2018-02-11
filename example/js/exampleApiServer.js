@@ -51,7 +51,10 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.job) {
+            res.status(202).send(result.value.job);
+          }
+          res.status(200).send(result.value);
         }
       })
       .catch(next);
@@ -67,7 +70,9 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.widget) {
+            res.status(201).send(result.value.widget);
+          }
         }
       })
       .catch(next);
@@ -84,7 +89,12 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.widget) {
+            res.status(200).send(result.value.widget);
+          }
+          if (result.value.notModified) {
+            res.sendStatus(304);
+          }
         }
       })
       .catch(next);
@@ -101,7 +111,7 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          throw new Error('TODO');
         }
       })
       .catch(next);
@@ -118,7 +128,12 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.widget) {
+            res.status(200).send(result.value.widget);
+          }
+          if (result.value.job) {
+            res.status(202).send(result.value.job);
+          }
         }
       })
       .catch(next);
@@ -134,7 +149,9 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.results) {
+            res.status(200).send(result.value.results);
+          }
         }
       })
       .catch(next);
@@ -154,7 +171,7 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          res.status(200).send(result.value);
         }
       })
       .catch(next);
@@ -171,7 +188,9 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.value) {
+            res.status(200).send(result.value.value);
+          }
         }
       })
       .catch(next);
@@ -188,7 +207,9 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          if (result.value.value) {
+            res.status(200).send(result.value.value);
+          }
         }
       })
       .catch(next);
@@ -204,7 +225,7 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          res.status(200).send(result.value);
         }
       })
       .catch(next);
@@ -220,7 +241,7 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          throw new Error('TODO');
         }
       })
       .catch(next);
@@ -235,7 +256,7 @@ export function createApp(service) {
           const status = standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
         } else {
-          res.send(result.value);
+          throw new Error('TODO');
         }
       })
       .catch(next);
