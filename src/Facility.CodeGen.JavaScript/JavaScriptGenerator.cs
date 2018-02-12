@@ -362,12 +362,13 @@ namespace Facility.CodeGen.JavaScript
 								{
 									using (code.Block(".then(result => {", "})"))
 									{
-										using (code.Block("if (result.error) {", null))
+										using (code.Block("if (result.error) {", "}"))
 										{
 											code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code] || 500;");
 											code.WriteLine("res.status(status).send(result.error.details);");
+											code.WriteLine("return;");
 										}
-										using (code.Block("} else if (result.value) {", null))
+										using (code.Block("if (result.value) {", "}"))
 										{
 											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields == null || x.NormalFields.Count == 0))
 											{
@@ -380,27 +381,43 @@ namespace Facility.CodeGen.JavaScript
 													{
 														var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
 														if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+														{
 															code.WriteLine($"res.sendStatus({(int)validResponse.StatusCode});");
+															code.WriteLine("return;");
+														}
 														else
+														{
 															code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value.{responseBodyFieldName});");
+															code.WriteLine("return;");
+														}
 													}
 												}
 												else
 												{
-													// TODO
-													code.WriteLine("throw new Error('TODO');");
+													if (validResponse.NormalFields.Count == 0)
+													{
+														code.WriteLine($"res.sendStatus({(int)validResponse.StatusCode});");
+														code.WriteLine("return;");
+													}
 												}
 											}
 
 											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields != null && x.NormalFields.Count != 0))
 											{
-												code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value);");
+												code.WriteLine($"res.status({(int)validResponse.StatusCode}).send({{");
+												using (code.Indent())
+												{
+													foreach (var field in validResponse.NormalFields)
+													{
+														code.WriteLine($"{field.ServiceField.Name}: result.value.{field.ServiceField.Name},");
+													}
+												}
+												code.WriteLine("});");
+												code.WriteLine("return;");
 											}
 										}
-										using (code.Block("} else {", "}"))
-										{
-											code.WriteLine("throw new Error('Result must have an error or value.');");
-										}
+
+										code.WriteLine("throw new Error('Result must have an error or value.');");
 									}
 									code.WriteLine(".catch(next);");
 								}

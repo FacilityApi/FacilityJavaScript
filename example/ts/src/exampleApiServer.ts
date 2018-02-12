@@ -51,14 +51,21 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.job) {
 						res.status(202).send(result.value.job);
+						return;
 					}
-					res.status(200).send(result.value);
-				} else {
-					throw new Error('Result must have an error or value.');
+					res.status(200).send({
+						widgets: result.value.widgets,
+						total: result.value.total,
+						totalWeight: result.value.totalWeight,
+					});
+					return;
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -72,13 +79,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.widget) {
 						res.status(201).send(result.value.widget);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -93,16 +102,19 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.widget) {
 						res.status(200).send(result.value.widget);
+						return;
 					}
 					if (result.value.notModified) {
 						res.sendStatus(304);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -117,11 +129,13 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
-					throw new Error('TODO');
-				} else {
-					throw new Error('Result must have an error or value.');
+					return;
 				}
+				if (result.value) {
+					res.sendStatus(204);
+					return;
+				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -136,16 +150,19 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.widget) {
 						res.status(200).send(result.value.widget);
+						return;
 					}
 					if (result.value.job) {
 						res.status(202).send(result.value.job);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -159,13 +176,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.results) {
 						res.status(200).send(result.value.results);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -183,11 +202,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
-					res.status(200).send(result.value);
-				} else {
-					throw new Error('Result must have an error or value.');
+					return;
 				}
+				if (result.value) {
+					res.status(200).send({
+						value: result.value.value,
+					});
+					return;
+				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -202,13 +225,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.value) {
 						res.status(200).send(result.value.value);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -223,13 +248,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
+					return;
+				}
+				if (result.value) {
 					if (result.value.value) {
 						res.status(200).send(result.value.value);
+						return;
 					}
-				} else {
-					throw new Error('Result must have an error or value.');
 				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -243,11 +270,15 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
-					res.status(200).send(result.value);
-				} else {
-					throw new Error('Result must have an error or value.');
+					return;
 				}
+				if (result.value) {
+					res.status(200).send({
+						name: result.value.name,
+					});
+					return;
+				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -261,11 +292,13 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
-					throw new Error('TODO');
-				} else {
-					throw new Error('Result must have an error or value.');
+					return;
 				}
+				if (result.value) {
+					res.sendStatus(200);
+					return;
+				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
@@ -278,11 +311,13 @@ export function createApp(service: IExampleApi): express.Application {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
 					res.status(status).send(result.error.details);
-				} else if (result.value) {
-					throw new Error('TODO');
-				} else {
-					throw new Error('Result must have an error or value.');
+					return;
 				}
+				if (result.value) {
+					res.sendStatus(200);
+					return;
+				}
+				throw new Error('Result must have an error or value.');
 			})
 			.catch(next);
 	});
