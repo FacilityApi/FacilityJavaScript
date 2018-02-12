@@ -531,24 +531,24 @@ namespace Facility.CodeGen.JavaScript
 
 			switch (fieldTypeKind)
 			{
-				case ServiceTypeKind.Enum:
-					return $"request.{fieldName}";
-				case ServiceTypeKind.String:
-				case ServiceTypeKind.Bytes:
-					return $"encodeURIComponent(request.{fieldName})";
-				case ServiceTypeKind.Boolean:
-				case ServiceTypeKind.Int32:
-				case ServiceTypeKind.Int64:
-				case ServiceTypeKind.Decimal:
-					return $"request.{fieldName}.toString()";
-				case ServiceTypeKind.Double:
-					return $"encodeURIComponent(request.{fieldName}.toString())";
-				case ServiceTypeKind.Dto:
-				case ServiceTypeKind.Error:
-				case ServiceTypeKind.Object:
-					throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
-				default:
-					throw new NotSupportedException("Unknown field type " + fieldTypeKind);
+			case ServiceTypeKind.Enum:
+				return $"request.{fieldName}";
+			case ServiceTypeKind.String:
+			case ServiceTypeKind.Bytes:
+				return $"encodeURIComponent(request.{fieldName})";
+			case ServiceTypeKind.Boolean:
+			case ServiceTypeKind.Int32:
+			case ServiceTypeKind.Int64:
+			case ServiceTypeKind.Decimal:
+				return $"request.{fieldName}.toString()";
+			case ServiceTypeKind.Double:
+				return $"encodeURIComponent(request.{fieldName}.toString())";
+			case ServiceTypeKind.Dto:
+			case ServiceTypeKind.Error:
+			case ServiceTypeKind.Object:
+				throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
+			default:
+				throw new NotSupportedException("Unknown field type " + fieldTypeKind);
 			}
 		}
 
@@ -559,24 +559,24 @@ namespace Facility.CodeGen.JavaScript
 
 			switch (fieldTypeKind)
 			{
-				case ServiceTypeKind.Enum:
-				case ServiceTypeKind.String:
-				case ServiceTypeKind.Bytes:
-					return value;
-				case ServiceTypeKind.Boolean:
-					return $"parseBoolean({value})";
-				case ServiceTypeKind.Int32:
-				case ServiceTypeKind.Int64:
-					return $"parseInt({value}, 10)";
-				case ServiceTypeKind.Decimal:
-				case ServiceTypeKind.Double:
-					return $"parseFloat({value})";
-				case ServiceTypeKind.Dto:
-				case ServiceTypeKind.Error:
-				case ServiceTypeKind.Object:
-					throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
-				default:
-					throw new NotSupportedException("Unknown field type " + fieldTypeKind);
+			case ServiceTypeKind.Enum:
+			case ServiceTypeKind.String:
+			case ServiceTypeKind.Bytes:
+				return value;
+			case ServiceTypeKind.Boolean:
+				return $"parseBoolean({value})";
+			case ServiceTypeKind.Int32:
+			case ServiceTypeKind.Int64:
+				return $"parseInt({value}, 10)";
+			case ServiceTypeKind.Decimal:
+			case ServiceTypeKind.Double:
+				return $"parseFloat({value})";
+			case ServiceTypeKind.Dto:
+			case ServiceTypeKind.Error:
+			case ServiceTypeKind.Object:
+				throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
+			default:
+				throw new NotSupportedException("Unknown field type " + fieldTypeKind);
 			}
 		}
 
