@@ -110,6 +110,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.get('/widgets/:id', function (req, res, next) {
 		const request: IGetWidgetRequest = {};
 		request.id = req.params.id;
+		request.ifNoneMatch = req.header('If-None-Match');
 
 		return service.getWidget(request)
 			.then(result => {
@@ -119,6 +120,9 @@ export function createApp(service: IExampleApi): express.Application {
 					return;
 				}
 				if (result.value) {
+					if (result.value.eTag != null) {
+						res.setHeader('eTag', result.value.eTag);
+					}
 					if (result.value.widget) {
 						res.status(200).send(result.value.widget);
 						return;
