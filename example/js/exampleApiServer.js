@@ -72,6 +72,7 @@ export function createApp(service) {
   /** Creates a new widget. */
   app.post('/widgets', function (req, res, next) {
     const request = {};
+    request.widget = req.body;
 
     return service.createWidget(request)
       .then(result => {
@@ -143,6 +144,8 @@ export function createApp(service) {
   app.post('/widgets/:id', function (req, res, next) {
     const request = {};
     request.id = req.params.id;
+    request.ops = req.body.ops;
+    request.weight = req.body.weight;
 
     return service.editWidget(request)
       .then(result => {
@@ -169,6 +172,7 @@ export function createApp(service) {
   /** Gets the specified widgets. */
   app.post('/widgets/get', function (req, res, next) {
     const request = {};
+    request.ids = req.body;
 
     return service.getWidgetBatch(request)
       .then(result => {
@@ -241,6 +245,7 @@ export function createApp(service) {
   app.put('/prefs/:key', function (req, res, next) {
     const request = {};
     request.key = req.params.key;
+    request.value = req.body;
 
     return service.setPreference(request)
       .then(result => {
@@ -304,6 +309,7 @@ export function createApp(service) {
 
   app.post('/kitchen', function (req, res, next) {
     const request = {};
+    request.sink = req.body.sink;
 
     return service.kitchen(request)
       .then(result => {

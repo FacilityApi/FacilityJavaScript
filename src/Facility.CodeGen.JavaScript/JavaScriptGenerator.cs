@@ -355,6 +355,16 @@ namespace Facility.CodeGen.JavaScript
 										code.WriteLine($"request.{httpQueryField.ServiceField.Name} = {RenderJsConversion(httpQueryField.ServiceField, service, $"req.query['{httpQueryField.Name}']")};");
 								}
 
+								if (httpMethodInfo.RequestBodyField != null)
+								{
+									code.WriteLine($"request.{httpMethodInfo.RequestBodyField.ServiceField.Name} = req.body;");
+								}
+								else if (httpMethodInfo.RequestNormalFields != null)
+								{
+									foreach (var field in httpMethodInfo.RequestNormalFields)
+										code.WriteLine($"request.{field.ServiceField.Name} = req.body.{field.ServiceField.Name};");
+								}
+
 								code.WriteLine();
 								code.WriteLine($"return service.{methodName}(request)");
 

@@ -73,6 +73,7 @@ export function createApp(service: IExampleApi): express.Application {
 	/** Creates a new widget. */
 	app.post('/widgets', function (req, res, next) {
 		const request: ICreateWidgetRequest = {};
+		request.widget = req.body;
 
 		return service.createWidget(request)
 			.then(result => {
@@ -144,6 +145,8 @@ export function createApp(service: IExampleApi): express.Application {
 	app.post('/widgets/:id', function (req, res, next) {
 		const request: IEditWidgetRequest = {};
 		request.id = req.params.id;
+		request.ops = req.body.ops;
+		request.weight = req.body.weight;
 
 		return service.editWidget(request)
 			.then(result => {
@@ -170,6 +173,7 @@ export function createApp(service: IExampleApi): express.Application {
 	/** Gets the specified widgets. */
 	app.post('/widgets/get', function (req, res, next) {
 		const request: IGetWidgetBatchRequest = {};
+		request.ids = req.body;
 
 		return service.getWidgetBatch(request)
 			.then(result => {
@@ -242,6 +246,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.put('/prefs/:key', function (req, res, next) {
 		const request: ISetPreferenceRequest = {};
 		request.key = req.params.key;
+		request.value = req.body;
 
 		return service.setPreference(request)
 			.then(result => {
@@ -305,6 +310,7 @@ export function createApp(service: IExampleApi): express.Application {
 
 	app.post('/kitchen', function (req, res, next) {
 		const request: IKitchenRequest = {};
+		request.sink = req.body.sink;
 
 		return service.kitchen(request)
 			.then(result => {
