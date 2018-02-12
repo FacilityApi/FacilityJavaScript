@@ -19,7 +19,7 @@ class ExampleApi implements IExampleApi {
 
 	async getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>> {
 		const { id } = request;
-		const name = id[0].toUpperCase() + id.substr(1);
+		const name = id && id[0].toUpperCase() + id.substr(1);
 		return {
 			value: {
 				widget: {
@@ -88,8 +88,9 @@ describe('createApp', () => {
 		return client.getWidget({
 			id: 'xyzzy'
 		}).then(result => {
-			delete result.value.eTag;
-			result.value.should.deep.equal({
+			expect(result.value).to.be.ok;
+			delete result.value!.eTag;
+			expect(result.value).to.deep.equal({
 				widget: {
 					id: 'xyzzy',
 					name: 'Xyzzy'

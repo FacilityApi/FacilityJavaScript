@@ -364,10 +364,10 @@ namespace Facility.CodeGen.JavaScript
 									{
 										using (code.Block("if (result.error) {", null))
 										{
-											code.WriteLine("const status = standardErrorCodes[result.error.code] || 500;");
+											code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code] || 500;");
 											code.WriteLine("res.status(status).send(result.error.details);");
 										}
-										using (code.Block("} else {", "}"))
+										using (code.Block("} else if (result.value) {", null))
 										{
 											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields == null || x.NormalFields.Count == 0))
 											{
@@ -396,6 +396,10 @@ namespace Facility.CodeGen.JavaScript
 											{
 												code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value);");
 											}
+										}
+										using (code.Block("} else {", "}"))
+										{
+											code.WriteLine("throw new Error('Result must have an error or value.');");
 										}
 									}
 									code.WriteLine(".catch(next);");

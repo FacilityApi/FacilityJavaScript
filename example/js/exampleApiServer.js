@@ -48,13 +48,15 @@ export function createApp(service) {
     return service.getWidgets(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.job) {
             res.status(202).send(result.value.job);
           }
           res.status(200).send(result.value);
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -67,12 +69,14 @@ export function createApp(service) {
     return service.createWidget(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.widget) {
             res.status(201).send(result.value.widget);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -86,15 +90,17 @@ export function createApp(service) {
     return service.getWidget(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.widget) {
             res.status(200).send(result.value.widget);
           }
           if (result.value.notModified) {
             res.sendStatus(304);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -108,10 +114,12 @@ export function createApp(service) {
     return service.deleteWidget(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           throw new Error('TODO');
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -125,15 +133,17 @@ export function createApp(service) {
     return service.editWidget(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.widget) {
             res.status(200).send(result.value.widget);
           }
           if (result.value.job) {
             res.status(202).send(result.value.job);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -146,12 +156,14 @@ export function createApp(service) {
     return service.getWidgetBatch(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.results) {
             res.status(200).send(result.value.results);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -168,10 +180,12 @@ export function createApp(service) {
     return service.getWidgetWeight(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           res.status(200).send(result.value);
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -185,12 +199,14 @@ export function createApp(service) {
     return service.getPreference(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.value) {
             res.status(200).send(result.value.value);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -204,12 +220,14 @@ export function createApp(service) {
     return service.setPreference(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           if (result.value.value) {
             res.status(200).send(result.value.value);
           }
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -222,10 +240,12 @@ export function createApp(service) {
     return service.getInfo(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           res.status(200).send(result.value);
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -238,10 +258,12 @@ export function createApp(service) {
     return service.notRestful(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           throw new Error('TODO');
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
@@ -253,10 +275,12 @@ export function createApp(service) {
     return service.kitchen(request)
       .then(result => {
         if (result.error) {
-          const status = standardErrorCodes[result.error.code] || 500;
+          const status = result.error.code && standardErrorCodes[result.error.code] || 500;
           res.status(status).send(result.error.details);
-        } else {
+        } else if (result.value) {
           throw new Error('TODO');
+        } else {
+          throw new Error('Result must have an error or value.');
         }
       })
       .catch(next);
