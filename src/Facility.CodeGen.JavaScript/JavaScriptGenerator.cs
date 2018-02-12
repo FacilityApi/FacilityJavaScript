@@ -325,6 +325,20 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
+					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+					{
+						using (code.Block("if (typeof value === 'string') {", "}"))
+						{
+							code.WriteLine("const lowerValue = value.toLowerCase();");
+							using (code.Block("if (lowerValue === 'true') {", "}"))
+								code.WriteLine("return true;");
+							using (code.Block("if (lowerValue === 'false') {", "}"))
+								code.WriteLine("return false;");
+						}
+						code.WriteLine("return undefined;");
+					}
+
+					code.WriteLine();
 					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript($": express.Application") + " {", "}"))
 					{
 						code.WriteLine("const app = express();");
@@ -375,7 +389,7 @@ namespace Facility.CodeGen.JavaScript
 										using (code.Block("if (result.error) {", "}"))
 										{
 											code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code] || 500;");
-											code.WriteLine("res.status(status).send(result.error.details);");
+											code.WriteLine("res.status(status).send(result.error);");
 											code.WriteLine("return;");
 										}
 										using (code.Block("if (result.value) {", "}"))
@@ -535,7 +549,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Bytes:
 					return value;
 				case ServiceTypeKind.Boolean:
-					return $"{value} === 'true'";
+					return $"parseBoolean({value})";
 				case ServiceTypeKind.Int32:
 				case ServiceTypeKind.Int64:
 					return $"parseInt({value}, 10)";

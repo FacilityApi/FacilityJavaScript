@@ -19,6 +19,19 @@ const standardErrorCodes: { [code: string]: number } = {
 	'serviceUnavailable': 503,
 };
 
+function parseBoolean(value: string | undefined) {
+	if (typeof value === 'string') {
+		const lowerValue = value.toLowerCase();
+		if (lowerValue === 'true') {
+			return true;
+		}
+		if (lowerValue === 'false') {
+			return false;
+		}
+	}
+	return undefined;
+}
+
 export function createApp(service: IExampleApi): express.Application {
 	const app = express();
 	app.use(bodyParser.json());
@@ -37,7 +50,7 @@ export function createApp(service: IExampleApi): express.Application {
 			request.sort = req.query['sort'];
 		}
 		if (req.query['desc'] != null) {
-			request.desc = req.query['desc'] === 'true';
+			request.desc = parseBoolean(req.query['desc']);
 		}
 		if (req.query['maxWeight'] != null) {
 			request.maxWeight = parseFloat(req.query['maxWeight']);
@@ -50,7 +63,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -79,7 +92,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -102,7 +115,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -129,7 +142,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -152,7 +165,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -179,7 +192,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -205,7 +218,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -228,7 +241,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -252,7 +265,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -274,7 +287,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -296,7 +309,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
@@ -316,7 +329,7 @@ export function createApp(service: IExampleApi): express.Application {
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
-					res.status(status).send(result.error.details);
+					res.status(status).send(result.error);
 					return;
 				}
 				if (result.value) {
