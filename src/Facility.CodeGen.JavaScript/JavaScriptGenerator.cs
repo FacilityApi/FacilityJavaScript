@@ -147,7 +147,9 @@ namespace Facility.CodeGen.JavaScript
 							{
 								if (httpMethodInfo.RequestBodyField == null && httpMethodInfo.RequestNormalFields.Count == 0)
 								{
-									code.WriteLine($"method: '{httpMethodInfo.Method}'");
+									code.WriteLine($"method: '{httpMethodInfo.Method}',");
+									if (httpMethodInfo.RequestHeaderFields.Count != 0)
+										code.WriteLine("headers: {},");
 								}
 								else
 								{

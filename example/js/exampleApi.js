@@ -39,7 +39,7 @@ class ExampleApiHttpClient {
       uri = uri + '?' + query.join('&');
     }
     const fetchRequest = {
-      method: 'GET'
+      method: 'GET',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -92,7 +92,8 @@ class ExampleApiHttpClient {
     }
     const uri = `widgets/${uriPartId}`;
     const fetchRequest = {
-      method: 'GET'
+      method: 'GET',
+      headers: {},
     };
     if (request.ifNoneMatch != null) {
       fetchRequest.headers['If-None-Match'] = request.ifNoneMatch;
@@ -129,7 +130,7 @@ class ExampleApiHttpClient {
     }
     const uri = `widgets/${uriPartId}`;
     const fetchRequest = {
-      method: 'DELETE'
+      method: 'DELETE',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -216,7 +217,7 @@ class ExampleApiHttpClient {
     }
     const uri = `widgets/${uriPartId}/weight`;
     const fetchRequest = {
-      method: 'GET'
+      method: 'GET',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -242,7 +243,7 @@ class ExampleApiHttpClient {
     }
     const uri = `prefs/${uriPartKey}`;
     const fetchRequest = {
-      method: 'GET'
+      method: 'GET',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -292,7 +293,7 @@ class ExampleApiHttpClient {
   getInfo(request) {
     const uri = '';
     const fetchRequest = {
-      method: 'GET'
+      method: 'GET',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
@@ -314,7 +315,7 @@ class ExampleApiHttpClient {
   notRestful(request) {
     const uri = 'notRestful';
     const fetchRequest = {
-      method: 'POST'
+      method: 'POST',
     };
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
       .then(result => {
