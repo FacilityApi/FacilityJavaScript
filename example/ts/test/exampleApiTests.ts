@@ -25,7 +25,7 @@ describe('createHttpClient', () => {
 			fetch: (uri, request) => {
 				uri.should.equal('http://local.example.com/v1/widgets/xyzzy');
 				expect(request.method).to.equal('GET');
-				expect(request.headers).to.not.exist;
+				expect(request.headers).to.be.empty;
 				expect(request.body).to.not.exist;
 				return createFetchResponse(200, {
 					id: 'xyzzy',
