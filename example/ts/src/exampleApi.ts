@@ -42,7 +42,7 @@ class ExampleApiHttpClient implements IExampleApi {
 			uri = uri + '?' + query.join('&');
 		}
 		const fetchRequest: IFetchRequest = {
-			method: 'GET'
+			method: 'GET',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
@@ -95,7 +95,8 @@ class ExampleApiHttpClient implements IExampleApi {
 		}
 		const uri = `widgets/${uriPartId}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET'
+			method: 'GET',
+			headers: {},
 		};
 		if (request.ifNoneMatch != null) {
 			fetchRequest.headers['If-None-Match'] = request.ifNoneMatch;
@@ -132,7 +133,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		}
 		const uri = `widgets/${uriPartId}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'DELETE'
+			method: 'DELETE',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
@@ -219,7 +220,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		}
 		const uri = `widgets/${uriPartId}/weight`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET'
+			method: 'GET',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
@@ -245,7 +246,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		}
 		const uri = `prefs/${uriPartKey}`;
 		const fetchRequest: IFetchRequest = {
-			method: 'GET'
+			method: 'GET',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
@@ -295,7 +296,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	public getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
 		const uri = '';
 		const fetchRequest: IFetchRequest = {
-			method: 'GET'
+			method: 'GET',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {
@@ -317,7 +318,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	public notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>> {
 		const uri = 'notRestful';
 		const fetchRequest: IFetchRequest = {
-			method: 'POST'
+			method: 'POST',
 		};
 		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
 			.then(result => {

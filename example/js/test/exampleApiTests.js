@@ -25,6 +25,37 @@ describe('createHttpClient', () => {
       .should.throw('fetch must be a function.');
   });
 
+  it('get widget returns 200', () => {
+    return createHttpClient({
+      fetch: (uri, request) => {
+        uri.should.equal('http://local.example.com/v1/widgets/xyzzy');
+        request.method.should.equal('GET');
+        expect(request.headers).to.be.empty;
+        expect(request.body).to.not.exist;
+        return createFetchResponse(200, { id: 'xyzzy', name: 'Xyzzy' });
+      }
+    }).getWidget({ id: 'xyzzy' }).then(result => {
+      result.value.should.deep.equal({
+        widget: { id: 'xyzzy', name: 'Xyzzy' },
+      });
+    });
+  });
+
+  it('get widget with etag returns 304', () => {
+    return createHttpClient({
+      fetch: (uri, request) => {
+        uri.should.equal('http://local.example.com/v1/widgets/xyzzy');
+        request.method.should.equal('GET');
+        expect(request.headers).to.be.ok;
+        expect(request.headers['If-None-Match']).to.equal('"foo"');
+        expect(request.body).to.not.exist;
+        return createFetchResponse(304);
+      }
+    }).getWidget({ id: 'xyzzy', ifNoneMatch: '"foo"' }).then(result => {
+      result.value.notModified.should.be.true;
+    });
+  });
+
   it('get widgets returns 200', () => {
     return createHttpClient({
       fetch: (uri, request) => {
