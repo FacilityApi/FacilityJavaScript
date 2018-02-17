@@ -1,4 +1,4 @@
-import { createHttpClient } from '../exampleApi';
+import { createHttpClient } from '../src/exampleApi';
 import { expect, should } from 'chai';
 
 should();

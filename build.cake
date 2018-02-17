@@ -192,8 +192,8 @@ string GetSemVerFromFile(string path)
 void CodeGen(bool verify)
 {
 	var fsdPath = File("example/ExampleApi.fsd").ToString();
-	ExecuteCodeGen($"{fsdPath} {File("example/js")} --indent 2", verify);
-	ExecuteCodeGen($"{fsdPath} {File("example/ts")} --typescript", verify);
+	ExecuteCodeGen($"{fsdPath} {File("example/js")} --indent 2 --express", verify);
+	ExecuteCodeGen($"{fsdPath} {File("example/ts/src")} --typescript --express", verify);
 }
 
 void ExecuteCodeGen(string args, bool verify)
