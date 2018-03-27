@@ -1,14 +1,12 @@
 .vs/
-.vscode/
 bin/
 cake/
-node_modules/
 obj/
-packages/
 release/
 
 *.cache
-*.log
 *.ncrunchproject
 *.ncrunchsolution
 *.user
+nCrunchTemp*
+*.log

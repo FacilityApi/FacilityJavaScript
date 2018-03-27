@@ -351,7 +351,7 @@ namespace Facility.CodeGen.JavaScript
 						{
 							string methodName = httpMethodInfo.ServiceMethod.Name;
 							string capMethodName = CodeGenUtility.Capitalize(methodName);
-							string expressMethod = httpMethodInfo.Method.Method.ToLowerInvariant();
+							string expressMethod = httpMethodInfo.Method.ToLowerInvariant();
 							string expressPath = httpMethodInfo.Path;
 							foreach (var httpPathField in httpMethodInfo.PathFields)
 								expressPath = expressPath.Replace("{" + httpPathField.Name + "}", $":{httpPathField.Name}");
@@ -423,12 +423,12 @@ namespace Facility.CodeGen.JavaScript
 														var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
 														if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
 														{
-															code.WriteLine($"res.sendStatus({(int)validResponse.StatusCode});");
+															code.WriteLine($"res.sendStatus({(int) validResponse.StatusCode});");
 															code.WriteLine("return;");
 														}
 														else
 														{
-															code.WriteLine($"res.status({(int)validResponse.StatusCode}).send(result.value.{responseBodyFieldName});");
+															code.WriteLine($"res.status({(int) validResponse.StatusCode}).send(result.value.{responseBodyFieldName});");
 															code.WriteLine("return;");
 														}
 													}
@@ -437,7 +437,7 @@ namespace Facility.CodeGen.JavaScript
 												{
 													if (validResponse.NormalFields.Count == 0)
 													{
-														code.WriteLine($"res.sendStatus({(int)validResponse.StatusCode});");
+														code.WriteLine($"res.sendStatus({(int) validResponse.StatusCode});");
 														code.WriteLine("return;");
 													}
 												}
@@ -445,7 +445,7 @@ namespace Facility.CodeGen.JavaScript
 
 											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields != null && x.NormalFields.Count != 0))
 											{
-												code.WriteLine($"res.status({(int)validResponse.StatusCode}).send({{");
+												code.WriteLine($"res.status({(int) validResponse.StatusCode}).send({{");
 												using (code.Indent())
 												{
 													foreach (var field in validResponse.NormalFields)
