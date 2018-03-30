@@ -1,6 +1,7 @@
 .vs/
 bin/
 cake/
+node_modules/
 obj/
 release/
 
