@@ -63,7 +63,7 @@ Task("NuGetPackage")
 	.Does(() =>
 	{
 		if (string.IsNullOrEmpty(versionSuffix) && !string.IsNullOrEmpty(trigger))
-			versionSuffix = Regex.Match(trigger, @"^v[^\.]+\.[^\.]+\.[^\.]+-(.+)").Groups[1].ToString();
+			versionSuffix = Regex.Match(trigger, @"^nuget-v[^\.]+\.[^\.]+\.[^\.]+-(.+)").Groups[1].ToString();
 
 		foreach (var projectPath in GetFiles("src/**/*.csproj").Select(x => x.FullPath))
 			DotNetCorePack(projectPath, new DotNetCorePackSettings { Configuration = configuration, OutputDirectory = "release", VersionSuffix = versionSuffix });
