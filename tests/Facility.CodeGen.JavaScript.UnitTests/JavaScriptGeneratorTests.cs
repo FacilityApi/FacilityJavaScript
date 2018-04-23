@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using Facility.Definition;
 using Facility.Definition.Fsd;
@@ -18,7 +18,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName);
 			Assert.IsNotNull(stream);
 			using (var reader = new StreamReader(stream))
-				service = parser.ParseDefinition(new NamedText(Path.GetFileName(fileName), reader.ReadToEnd()));
+				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
 
 			var generator = new JavaScriptGenerator
 			{
