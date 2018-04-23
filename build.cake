@@ -53,7 +53,7 @@ Task("Test")
 	.IsDependentOn("VerifyCodeGen")
 	.Does(() =>
 	{
-		foreach (var projectPath in GetFiles("tests/**/*Tests.csproj").Select(x => x.FullPath))
+		foreach (var projectPath in GetFiles("tests/**/*.csproj").Select(x => x.FullPath))
 			DotNetCoreTest(projectPath, new DotNetCoreTestSettings { Configuration = configuration });
 	});
 
@@ -80,7 +80,7 @@ Task("UpdateDocs")
 
 		var outputPath = $"release/{docsRepoBranch}/reference";
 		var buildBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
-		var isPreview = buildBranch != "master" || !Regex.IsMatch(trigger, @"^(v[0-9]+\.[0-9]+\.[0-9]+|update-docs)$");
+		var isPreview = buildBranch != "master" || !Regex.IsMatch(trigger, @"^(nuget-v[0-9]+\.[0-9]+\.[0-9]+|update-docs)$");
 		if (isPreview)
 			outputPath += $"/preview/{buildBranch}";
 
@@ -127,9 +127,9 @@ Task("NuGetPublish")
 				throw new InvalidOperationException($"Mismatched package versions '{version}' and '{nupkgVersion}'.");
 		}
 
-		if (!string.IsNullOrEmpty(nugetApiKey) && (trigger == null || Regex.IsMatch(trigger, "^v[0-9]")))
+		if (!string.IsNullOrEmpty(nugetApiKey) && (trigger == null || Regex.IsMatch(trigger, "^nuget-v[0-9]")))
 		{
-			if (trigger != null && trigger != $"v{version}")
+			if (trigger != null && trigger != $"nuget-v{version}")
 				throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
 
 			var pushSettings = new NuGetPushSettings { ApiKey = nugetApiKey, Source = nugetSource };
@@ -138,7 +138,7 @@ Task("NuGetPublish")
 		}
 		else
 		{
-			Information("To publish NuGet packages, push this git tag: v" + version);
+			Information("To publish NuGet packages, push this git tag: nuget-v" + version);
 		}
 	});
 
