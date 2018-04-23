@@ -4,7 +4,7 @@ image:
 - Ubuntu
 environment:
   NUGETAPIKEY:
-    secure: eBKIUm4YxcrbL3oVC/ZCBUA/inEu+7OMbKpgftpOc18ievKNwH8UAUB2t4w+89Xv
+    secure: QEn16fxymoBroWnkHAsN94ARrAA8tX/L48Ue90x3zfxN0YMgwczJEVtTs/71HR5A
   BUILD_BOT_PASSWORD:
     secure: U2EQbBdxNIC2FL8YeOP3bVixlZ4xLBdN71Szraw+ATqAhYZwEd6JCjCJZLJPu9kN
   APPVEYOR_YML_DISABLE_PS_LINUX: true
