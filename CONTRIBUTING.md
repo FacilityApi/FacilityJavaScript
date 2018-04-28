@@ -1,4 +1,4 @@
-# Contributing to FacilityJavaScript
+# Contributing
 
 ## Prerequisites
 
@@ -13,6 +13,4 @@
 
 ## How to Build
 
-* Clone the repository: `git clone https://github.com/FacilityApi/FacilityJavaScript.git`
-* `cd FacilityJavaScript`
-* `.\build.ps1 --target=Test` or `./build.sh --target=Test`
+Clone the repository and run `.\build.ps1` or `./build.sh`
