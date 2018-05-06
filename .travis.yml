@@ -1,14 +1,15 @@
 language: node_js
 node_js:
-- "8"
+- '8'
 script:
-- "./build-js.sh"
+- build-js.sh
 deploy:
-  provider: npm
-  email: me@davedunkin.com
-  api_key:
-    secure: fSflJccovHZnv52pc6J8d1urWa4yuCCjbZ4Ii0tY7kE5XNW/IGxO6xh4jWfcgCl/siFfCvmuB90f6tlXNSMUkvjEdVe7902PljWeEAFLNeFoGZ/ptxD3ho4hMFC22H6o2zVdX31hsm1MbI6UkYolGnEgHa5fHOLKkeY+5GdMGSjt4ibArwOlJOCjyw1DykTOQcGE89D0SCGx0HlGcj7pYRkMFv3p0qVBDro0lO3f2PLSReN8H6b6I4P9pmaX+w1JzxyRuLYlAxcITSrZvGrlcr3f8B9m5/cNDcoN29ki/0IZGv7RXrVE7IhjN3PzHDl2HFPPTynCW7VMXBeujFv5jJLAaJvn6YshcZujCXoiB85jhHqh9a+nBAJkgpDqLVdg1bQ4VhNvMsE14ZOCLxOgzDAagvmUJPchb578VnCBJnlyqsshM3RTxGkvu3Fo9Rmmy7bUleE7olaSgItHdwi1mmXXGX2eoUZZFPtv8t+e/bKndbF9a4Pa3rYgfxinvyxJ1CDa6wp5APcsfWtJkhg4idcSlr8tpaURadLY+CXUoGqT+GG68xjOyBBFilWbykfjeFGuI/PRHBL5fLpdu9Xn+KbKJpjCZBs/dU3YMz8E6lYivpV1KubRHMTuymjmTw+u13nWeNsh1/33L9Hxko5fkDukFxO9I9ga7q1elX7PESI=
+  provider: script
+  script: publish-js.sh
   on:
     tags: true
     repo: FacilityApi/FacilityJavaScript
-    condition: $TRAVIS_TAG =~ ^npm-v[0-9]+\.[0-9]+\.[0-9]+(-.*)?$
+    condition: "$TRAVIS_TAG =~ ^npm-v[0-9]+\\.[0-9]+\\.[0-9]+(-.*)?$"
+env:
+  global:
+    secure: MqLcC2DzaZg7e5SteElFQGKKAyyDTpH3OVlLAKDh4l9Ou0jZvZOdD3ooawTZkPQyhSdy1vrNBxu6aaoSibB8aQfJRdxXE+Jt4U2h1zE836XLqUotSc1WENLzxcqBmgYBIbJa+54n/9FdxHHHmfgBfSkr+qLHHG1oPS+is28RoQvaoi5DKcbWxtUZqXGzhOH4s5s/9A67mKc1r+jfyT/pzNZ8e+dyq+siB0yGExtd+mGkScsT3McjWytTA3uxA28FRx8jD4ylmUVgB/bTxIfOAZbtwunXnKXDUGxWLYW0TES8J61PQciAAuWwmCGpQ+2vQJnNDtLoc4+sEvbzHHEiIeXRk2OWKMBoGCwsISQHknc8b4iCqQ+ZC5aSep+QlIFugI+dLVK23qRTB7O4xdJyCUN0avoCeO80mpfKkaXNv/ybHOR+5TvDCuxDlp0c0+bfDzzVdiky7xHzjx54JEv/YlQPQvKCTWB/TACAP3a79yQaP/oHqUwrnqKuXhzAdN+DTEok8kN/if78742aGlKadOhO+SqdjssV9kwZUqCZuXVYkOT5AC44EoIofKIdxZ6VXGYtrYmIT4QXkRTxx9DUDZRBA/0wBj5xBxqaOlyNN42k6VPe2EC7/mPGIYKiWFpPhpLtU/Dla2S+UPVk5OsU9bWZmuhIuPIN6kXO/sE4rzc=
