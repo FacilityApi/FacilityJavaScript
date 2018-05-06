@@ -2,8 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
+    "strict": true,
     "newLine": "LF",
     "declaration": true,
     "sourceMap": true,

@@ -2,12 +2,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "strictNullChecks": true,
+    "strict": true,
     "newLine": "LF",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": [ "es2015.promise", "es5" ]
   },
   "include": [
     "*.ts",

@@ -3,6 +3,7 @@ bin/
 cake/
 obj/
 release/
+node_modules/
 
 *.cache
 *.log
