@@ -6,6 +6,7 @@ script:
 deploy:
   provider: script
   script: ./publish-js.sh
+  skip_cleanup: true
   on:
     tags: true
     repo: FacilityApi/FacilityJavaScript
