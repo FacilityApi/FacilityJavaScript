@@ -11,4 +11,4 @@ deploy:
   on:
     tags: true
     repo: FacilityApi/FacilityJavaScript
-    condition: $TRAVIS_TAG =~ ^npm-v\d+\.\d+\.\d+(-.*)?$
+    condition: $TRAVIS_TAG =~ ^npm-v[0-9]+\.[0-9]+\.[0-9]+(-.*)?$
