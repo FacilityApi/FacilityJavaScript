@@ -3,3 +3,14 @@ node_js:
   - "8"
 script:
   - ./build-js.sh
+deploy:
+  provider: script
+  script: ./publish-js.sh
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: FacilityApi/FacilityJavaScript
+    condition: "$TRAVIS_TAG =~ ^npm-v[0-9]+\\.[0-9]+\\.[0-9]+(-.*)?$"
+env:
+  global:
+    secure: MqLcC2DzaZg7e5SteElFQGKKAyyDTpH3OVlLAKDh4l9Ou0jZvZOdD3ooawTZkPQyhSdy1vrNBxu6aaoSibB8aQfJRdxXE+Jt4U2h1zE836XLqUotSc1WENLzxcqBmgYBIbJa+54n/9FdxHHHmfgBfSkr+qLHHG1oPS+is28RoQvaoi5DKcbWxtUZqXGzhOH4s5s/9A67mKc1r+jfyT/pzNZ8e+dyq+siB0yGExtd+mGkScsT3McjWytTA3uxA28FRx8jD4ylmUVgB/bTxIfOAZbtwunXnKXDUGxWLYW0TES8J61PQciAAuWwmCGpQ+2vQJnNDtLoc4+sEvbzHHEiIeXRk2OWKMBoGCwsISQHknc8b4iCqQ+ZC5aSep+QlIFugI+dLVK23qRTB7O4xdJyCUN0avoCeO80mpfKkaXNv/ybHOR+5TvDCuxDlp0c0+bfDzzVdiky7xHzjx54JEv/YlQPQvKCTWB/TACAP3a79yQaP/oHqUwrnqKuXhzAdN+DTEok8kN/if78742aGlKadOhO+SqdjssV9kwZUqCZuXVYkOT5AC44EoIofKIdxZ6VXGYtrYmIT4QXkRTxx9DUDZRBA/0wBj5xBxqaOlyNN42k6VPe2EC7/mPGIYKiWFpPhpLtU/Dla2S+UPVk5OsU9bWZmuhIuPIN6kXO/sE4rzc=
