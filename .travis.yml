@@ -2,10 +2,10 @@ language: node_js
 node_js:
 - '8'
 script:
-- build-js.sh
+- ./build-js.sh
 deploy:
   provider: script
-  script: publish-js.sh
+  script: ./publish-js.sh
   on:
     tags: true
     repo: FacilityApi/FacilityJavaScript
