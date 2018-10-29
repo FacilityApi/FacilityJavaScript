@@ -32,10 +32,11 @@ function parseBoolean(value: string | undefined) {
 	return undefined;
 }
 
-export function createApp(service: IExampleApi): express.Application {
+export function createApp(service: IExampleApi, middleware: ((...args: any[]) => void)[]): express.Application {
 	const app = express();
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
+	middleware.forEach(func => app.use(func));
 
 	/** Gets widgets. */
 	app.get('/widgets', function (req, res, next) {

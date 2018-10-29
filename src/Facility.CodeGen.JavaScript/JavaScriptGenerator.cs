@@ -338,11 +338,12 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript(": express.Application") + " {", "}"))
+					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ", middleware" + IfTypeScript(": ((...args: any[]) => void)[]") + ")" + IfTypeScript(": express.Application") + " {", "}"))
 					{
 						code.WriteLine("const app = express();");
 						code.WriteLine("app.use(bodyParser.json());");
 						code.WriteLine("app.use(bodyParser.urlencoded({ extended: true }));");
+						code.WriteLine("middleware.forEach(func => app.use(func));");
 
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
 						{
