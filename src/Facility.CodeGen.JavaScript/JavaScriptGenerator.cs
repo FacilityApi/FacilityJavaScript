@@ -307,6 +307,30 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
 					}
 
+					if (TypeScript)
+					{
+						code.WriteLine();
+						using (code.Block("export interface IRequestContext {", "}"))
+						{
+							code.WriteLine("request: express.Request;");
+							code.WriteLine("response: express.Response;");
+						}
+
+						code.WriteLine();
+						using (code.Block($"declare module './{Uncapitalize(moduleName)}Types' {{", "}"))
+						using (code.Block($"export interface I{capModuleName} {{", "}"))
+						{
+							foreach (var httpMethodInfo in httpServiceInfo.Methods)
+							{
+								string methodName = httpMethodInfo.ServiceMethod.Name;
+								string capMethodName = CodeGenUtility.Capitalize(methodName);
+								code.WriteLineSkipOnce();
+								WriteJsDoc(code, httpMethodInfo.ServiceMethod);
+								code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: IRequestContext): Promise<IServiceResult<I{capMethodName}Response>>;");
+							}
+						}
+					}
+
 					// TODO: export this from facility-core
 					code.WriteLine();
 					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
@@ -385,7 +409,7 @@ namespace Facility.CodeGen.JavaScript
 								}
 
 								code.WriteLine();
-								code.WriteLine($"return service.{methodName}(request)");
+								code.WriteLine($"return service.{methodName}(request, {{ request: req, response: res }})");
 
 								using (code.Indent())
 								{

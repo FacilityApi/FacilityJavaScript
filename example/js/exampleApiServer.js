@@ -58,7 +58,7 @@ export function createApp(service) {
       request.minPrice = parseFloat(req.query['minPrice']);
     }
 
-    return service.getWidgets(request)
+    return service.getWidgets(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -87,7 +87,7 @@ export function createApp(service) {
     const request = {};
     request.widget = req.body;
 
-    return service.createWidget(request)
+    return service.createWidget(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -111,7 +111,7 @@ export function createApp(service) {
     request.id = req.params.id;
     request.ifNoneMatch = req.header('If-None-Match');
 
-    return service.getWidget(request)
+    return service.getWidget(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -141,7 +141,7 @@ export function createApp(service) {
     const request = {};
     request.id = req.params.id;
 
-    return service.deleteWidget(request)
+    return service.deleteWidget(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -164,7 +164,7 @@ export function createApp(service) {
     request.ops = req.body.ops;
     request.weight = req.body.weight;
 
-    return service.editWidget(request)
+    return service.editWidget(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -191,7 +191,7 @@ export function createApp(service) {
     const request = {};
     request.ids = req.body;
 
-    return service.getWidgetBatch(request)
+    return service.getWidgetBatch(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -217,7 +217,7 @@ export function createApp(service) {
     const request = {};
     request.id = req.params.id;
 
-    return service.getWidgetWeight(request)
+    return service.getWidgetWeight(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -240,7 +240,7 @@ export function createApp(service) {
     const request = {};
     request.key = req.params.key;
 
-    return service.getPreference(request)
+    return service.getPreference(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -264,7 +264,7 @@ export function createApp(service) {
     request.key = req.params.key;
     request.value = req.body;
 
-    return service.setPreference(request)
+    return service.setPreference(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -286,7 +286,7 @@ export function createApp(service) {
   app.get('/', function (req, res, next) {
     const request = {};
 
-    return service.getInfo(request)
+    return service.getInfo(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -308,7 +308,7 @@ export function createApp(service) {
   app.post('/notRestful', function (req, res, next) {
     const request = {};
 
-    return service.notRestful(request)
+    return service.notRestful(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -328,7 +328,7 @@ export function createApp(service) {
     const request = {};
     request.sink = req.body.sink;
 
-    return service.kitchen(request)
+    return service.kitchen(request, { request: req, response: res })
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
