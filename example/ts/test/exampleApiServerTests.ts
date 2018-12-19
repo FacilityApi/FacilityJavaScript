@@ -124,7 +124,7 @@ describe('createApp', () => {
 	let client: IExampleApi;
 
 	before(() => {
-		const server = app.listen(0, '127.0.0.1', () => {
+		server = app.listen(0, '127.0.0.1', () => {
 			const { address, port } = server.address();
 
 			client = createHttpClient({
@@ -133,6 +133,10 @@ describe('createApp', () => {
 			});
 		});
 	});
+
+	after(() => {
+		server.close();
+	})
 
 	it('get widget with ID', async () => {
 		const result = await client.getWidget({
