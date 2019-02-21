@@ -6,53 +6,6 @@ import { IServiceResult, IServiceError } from 'facility-core';
 import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IEditWidgetRequest, IEditWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IGetWidgetWeightRequest, IGetWidgetWeightResponse, IGetPreferenceRequest, IGetPreferenceResponse, ISetPreferenceRequest, ISetPreferenceResponse, IGetInfoRequest, IGetInfoResponse, INotRestfulRequest, INotRestfulResponse, IKitchenRequest, IKitchenResponse, IWidget, IWidgetJob, IPreference, IObsoleteData, IKitchenSink } from './exampleApiTypes';
 export * from './exampleApiTypes';
 
-export interface IRequestContext {
-	request: express.Request;
-	response: express.Response;
-}
-
-declare module './exampleApiTypes' {
-	export interface IExampleApi {
-		/** Gets widgets. */
-		getWidgets(request: IGetWidgetsRequest, context?: IRequestContext): Promise<IServiceResult<IGetWidgetsResponse>>;
-
-		/** Creates a new widget. */
-		createWidget(request: ICreateWidgetRequest, context?: IRequestContext): Promise<IServiceResult<ICreateWidgetResponse>>;
-
-		/** Gets the specified widget. */
-		getWidget(request: IGetWidgetRequest, context?: IRequestContext): Promise<IServiceResult<IGetWidgetResponse>>;
-
-		/** Deletes the specified widget. */
-		deleteWidget(request: IDeleteWidgetRequest, context?: IRequestContext): Promise<IServiceResult<IDeleteWidgetResponse>>;
-
-		/** Edits widget. */
-		editWidget(request: IEditWidgetRequest, context?: IRequestContext): Promise<IServiceResult<IEditWidgetResponse>>;
-
-		/** Gets the specified widgets. */
-		getWidgetBatch(request: IGetWidgetBatchRequest, context?: IRequestContext): Promise<IServiceResult<IGetWidgetBatchResponse>>;
-
-		/**
-		 * Gets the widget weight.
-		 * @deprecated
-		 */
-		getWidgetWeight(request: IGetWidgetWeightRequest, context?: IRequestContext): Promise<IServiceResult<IGetWidgetWeightResponse>>;
-
-		/** Gets a widget preference. */
-		getPreference(request: IGetPreferenceRequest, context?: IRequestContext): Promise<IServiceResult<IGetPreferenceResponse>>;
-
-		/** Sets a widget preference. */
-		setPreference(request: ISetPreferenceRequest, context?: IRequestContext): Promise<IServiceResult<ISetPreferenceResponse>>;
-
-		/** Gets service info. */
-		getInfo(request: IGetInfoRequest, context?: IRequestContext): Promise<IServiceResult<IGetInfoResponse>>;
-
-		/** Demonstrates the default HTTP behavior. */
-		notRestful(request: INotRestfulRequest, context?: IRequestContext): Promise<IServiceResult<INotRestfulResponse>>;
-
-		kitchen(request: IKitchenRequest, context?: IRequestContext): Promise<IServiceResult<IKitchenResponse>>;
-	}
-}
-
 const standardErrorCodes: { [code: string]: number } = {
 	'notModified': 304,
 	'invalidRequest': 400,
@@ -106,7 +59,7 @@ export function createApp(service: IExampleApi): express.Application {
 			request.minPrice = parseFloat(req.query['minPrice']);
 		}
 
-		return service.getWidgets(request, { request: req, response: res })
+		return service.getWidgets(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -135,7 +88,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: ICreateWidgetRequest = {};
 		request.widget = req.body;
 
-		return service.createWidget(request, { request: req, response: res })
+		return service.createWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -159,7 +112,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.id = req.params.id;
 		request.ifNoneMatch = req.header('If-None-Match');
 
-		return service.getWidget(request, { request: req, response: res })
+		return service.getWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -189,7 +142,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IDeleteWidgetRequest = {};
 		request.id = req.params.id;
 
-		return service.deleteWidget(request, { request: req, response: res })
+		return service.deleteWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -212,7 +165,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.ops = req.body.ops;
 		request.weight = req.body.weight;
 
-		return service.editWidget(request, { request: req, response: res })
+		return service.editWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -239,7 +192,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetWidgetBatchRequest = {};
 		request.ids = req.body;
 
-		return service.getWidgetBatch(request, { request: req, response: res })
+		return service.getWidgetBatch(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -265,7 +218,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetWidgetWeightRequest = {};
 		request.id = req.params.id;
 
-		return service.getWidgetWeight(request, { request: req, response: res })
+		return service.getWidgetWeight(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -288,7 +241,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetPreferenceRequest = {};
 		request.key = req.params.key;
 
-		return service.getPreference(request, { request: req, response: res })
+		return service.getPreference(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -312,7 +265,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.key = req.params.key;
 		request.value = req.body;
 
-		return service.setPreference(request, { request: req, response: res })
+		return service.setPreference(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -334,7 +287,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.get('/', function (req, res, next) {
 		const request: IGetInfoRequest = {};
 
-		return service.getInfo(request, { request: req, response: res })
+		return service.getInfo(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -356,7 +309,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.post('/notRestful', function (req, res, next) {
 		const request: INotRestfulRequest = {};
 
-		return service.notRestful(request, { request: req, response: res })
+		return service.notRestful(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -376,7 +329,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IKitchenRequest = {};
 		request.sink = req.body.sink;
 
-		return service.kitchen(request, { request: req, response: res })
+		return service.kitchen(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
