@@ -12,3 +12,4 @@ node_modules/
 *.user
 launchSettings.json
 nCrunchTemp*
+_ReSharper*
