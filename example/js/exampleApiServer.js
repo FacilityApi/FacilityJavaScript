@@ -31,10 +31,12 @@ function parseBoolean(value) {
   return undefined;
 }
 
-export function createApp(service) {
+export function createApp(serviceOrFactory) {
   const app = express();
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
   /** Gets widgets. */
   app.get('/widgets', function (req, res, next) {
@@ -58,7 +60,7 @@ export function createApp(service) {
       request.minPrice = parseFloat(req.query['minPrice']);
     }
 
-    return service.getWidgets(request)
+    return getService(req, res).getWidgets(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -87,7 +89,7 @@ export function createApp(service) {
     const request = {};
     request.widget = req.body;
 
-    return service.createWidget(request)
+    return getService(req, res).createWidget(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -111,7 +113,7 @@ export function createApp(service) {
     request.id = req.params.id;
     request.ifNoneMatch = req.header('If-None-Match');
 
-    return service.getWidget(request)
+    return getService(req, res).getWidget(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -141,7 +143,7 @@ export function createApp(service) {
     const request = {};
     request.id = req.params.id;
 
-    return service.deleteWidget(request)
+    return getService(req, res).deleteWidget(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -164,7 +166,7 @@ export function createApp(service) {
     request.ops = req.body.ops;
     request.weight = req.body.weight;
 
-    return service.editWidget(request)
+    return getService(req, res).editWidget(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -191,7 +193,7 @@ export function createApp(service) {
     const request = {};
     request.ids = req.body;
 
-    return service.getWidgetBatch(request)
+    return getService(req, res).getWidgetBatch(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -217,7 +219,7 @@ export function createApp(service) {
     const request = {};
     request.id = req.params.id;
 
-    return service.getWidgetWeight(request)
+    return getService(req, res).getWidgetWeight(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -240,7 +242,7 @@ export function createApp(service) {
     const request = {};
     request.key = req.params.key;
 
-    return service.getPreference(request)
+    return getService(req, res).getPreference(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -264,7 +266,7 @@ export function createApp(service) {
     request.key = req.params.key;
     request.value = req.body;
 
-    return service.setPreference(request)
+    return getService(req, res).setPreference(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -286,7 +288,7 @@ export function createApp(service) {
   app.get('/', function (req, res, next) {
     const request = {};
 
-    return service.getInfo(request)
+    return getService(req, res).getInfo(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -308,7 +310,7 @@ export function createApp(service) {
   app.post('/notRestful', function (req, res, next) {
     const request = {};
 
-    return service.notRestful(request)
+    return getService(req, res).notRestful(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -328,7 +330,7 @@ export function createApp(service) {
     const request = {};
     request.sink = req.body.sink;
 
-    return service.kitchen(request)
+    return getService(req, res).kitchen(request)
       .then(result => {
         if (result.error) {
           const status = result.error.code && standardErrorCodes[result.error.code] || 500;
