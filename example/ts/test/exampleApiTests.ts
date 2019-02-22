@@ -51,7 +51,7 @@ describe('createHttpClient', () => {
 			}
 		}).getWidget({}).then(result => {
 			expect(result.error).to.deep.equal({
-				code: 'invalidRequest',
+				code: 'InvalidRequest',
 				message: 'The request field \'id\' is required.'
 			})
 		});
@@ -66,7 +66,7 @@ describe('createHttpClient', () => {
 			id: ''
 		}).then(result => {
 			expect(result.error).to.deep.equal({
-				code: 'invalidRequest',
+				code: 'InvalidRequest',
 				message: 'The request field \'id\' is required.'
 			})
 		});

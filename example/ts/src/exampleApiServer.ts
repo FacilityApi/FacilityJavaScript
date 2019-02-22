@@ -7,16 +7,16 @@ import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequ
 export * from './exampleApiTypes';
 
 const standardErrorCodes: { [code: string]: number } = {
-	'notModified': 304,
-	'invalidRequest': 400,
-	'notAuthenticated': 401,
-	'notAuthorized': 403,
-	'notFound': 404,
-	'conflict': 409,
-	'requestTooLarge': 413,
-	'tooManyRequests': 429,
-	'internalError': 500,
-	'serviceUnavailable': 503,
+	'NotModified': 304,
+	'InvalidRequest': 400,
+	'NotAuthenticated': 401,
+	'NotAuthorized': 403,
+	'NotFound': 404,
+	'Conflict': 409,
+	'RequestTooLarge': 413,
+	'TooManyRequests': 429,
+	'InternalError': 500,
+	'ServiceUnavailable': 503,
 };
 
 function parseBoolean(value: string | undefined) {

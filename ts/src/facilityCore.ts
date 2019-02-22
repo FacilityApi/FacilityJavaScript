@@ -63,16 +63,16 @@ export namespace HttpClientUtility {
 	}
 
 	const standardErrorCodes: { [index: number]: string } = {
-		'304': 'notModified',
-		'400': 'invalidRequest',
-		'401': 'notAuthenticated',
-		'403': 'notAuthorized',
-		'404': 'notFound',
-		'409': 'conflict',
-		'413': 'requestTooLarge',
-		'429': 'tooManyRequests',
-		'500': 'internalError',
-		'503': 'serviceUnavailable'
+		'304': 'NotModified',
+		'400': 'InvalidRequest',
+		'401': 'NotAuthenticated',
+		'403': 'NotAuthorized',
+		'404': 'NotFound',
+		'409': 'Conflict',
+		'413': 'RequestTooLarge',
+		'429': 'TooManyRequests',
+		'500': 'InternalError',
+		'503': 'ServiceUnavailable'
 	};
 
 	const jsonContentType = 'application/json';
@@ -106,13 +106,13 @@ export namespace HttpClientUtility {
 		}
 		const isClientError = status >= 400 && status <= 499;
 		const isServerError = status >= 500 && status <= 599;
-		const errorCode = standardErrorCodes[status] || (isClientError ? 'invalidRequest' : 'invalidResponse');
+		const errorCode = standardErrorCodes[status] || (isClientError ? 'InvalidRequest' : 'InvalidResponse');
 		const message = isServerError ? 'HTTP server error' : isClientError ? 'HTTP client error' : 'Unexpected HTTP status code';
 		return { error: { code: errorCode, message: `${message}: ${status}` } };
 	}
 
 	/** Creates an error result for a required request field. */
 	export function createRequiredRequestFieldError(name: string): IServiceResultBase {
-		return { error: { code: 'invalidRequest', message: `The request field '${name}' is required.` } };
+		return { error: { code: 'InvalidRequest', message: `The request field '${name}' is required.` } };
 	}
 }
