@@ -311,16 +311,16 @@ namespace Facility.CodeGen.JavaScript
 					code.WriteLine();
 					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
 					{
-						code.WriteLine("'notModified': 304,");
-						code.WriteLine("'invalidRequest': 400,");
-						code.WriteLine("'notAuthenticated': 401,");
-						code.WriteLine("'notAuthorized': 403,");
-						code.WriteLine("'notFound': 404,");
-						code.WriteLine("'conflict': 409,");
-						code.WriteLine("'requestTooLarge': 413,");
-						code.WriteLine("'tooManyRequests': 429,");
-						code.WriteLine("'internalError': 500,");
-						code.WriteLine("'serviceUnavailable': 503,");
+						code.WriteLine("'NotModified': 304,");
+						code.WriteLine("'InvalidRequest': 400,");
+						code.WriteLine("'NotAuthenticated': 401,");
+						code.WriteLine("'NotAuthorized': 403,");
+						code.WriteLine("'NotFound': 404,");
+						code.WriteLine("'Conflict': 409,");
+						code.WriteLine("'RequestTooLarge': 413,");
+						code.WriteLine("'TooManyRequests': 429,");
+						code.WriteLine("'InternalError': 500,");
+						code.WriteLine("'ServiceUnavailable': 503,");
 					}
 
 					code.WriteLine();

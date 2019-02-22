@@ -77,7 +77,7 @@ describe('createHttpClient', () => {
       }
     }).getWidgets({}).then(result => {
       result.error.should.deep.equal({
-        code: 'invalidResponse',
+        code: 'InvalidResponse',
         message: 'Unexpected HTTP status code: 201'
       })
     });
@@ -102,7 +102,7 @@ describe('createHttpClient', () => {
       }
     }).getWidgets({}).then(result => {
       result.error.should.deep.equal({
-        code: 'invalidResponse',
+        code: 'InvalidResponse',
         message: 'Unexpected HTTP status code: 204'
       })
     });
@@ -115,7 +115,7 @@ describe('createHttpClient', () => {
       }
     }).getWidgets({}).then(result => {
       result.error.should.deep.equal({
-        code: 'notFound',
+        code: 'NotFound',
         message: 'HTTP client error: 404'
       })
     });
@@ -128,7 +128,7 @@ describe('createHttpClient', () => {
       }
     }).getWidgets({}).then(result => {
       result.error.should.deep.equal({
-        code: 'internalError',
+        code: 'InternalError',
         message: 'HTTP server error: 500'
       })
     });
@@ -141,7 +141,7 @@ describe('createHttpClient', () => {
       }
     }).getWidgets({}).then(result => {
       result.error.should.deep.equal({
-        code: 'invalidResponse',
+        code: 'InvalidResponse',
         message: 'Unexpected HTTP status code: 202'
       })
     });

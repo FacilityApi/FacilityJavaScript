@@ -9,7 +9,7 @@ describe('createRequiredRequestFieldError', () => {
 
 	it('should return error result', () => {
 		createRequiredRequestFieldError('id')
-			.should.deep.equal({ error: { code: 'invalidRequest', message: 'The request field \'id\' is required.' } });
+			.should.deep.equal({ error: { code: 'InvalidRequest', message: 'The request field \'id\' is required.' } });
 	});
 
 });
