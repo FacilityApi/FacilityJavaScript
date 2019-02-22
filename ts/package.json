@@ -1,6 +1,6 @@
 {
   "name": "facility-core",
-  "version": "1.0.2",
+  "version": "1.4.0",
   "description": "Common code for the Facility API Framework.",
   "scripts": {
     "build": "tsc && tslint --exclude **/*.d.ts src/*.ts",
