@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <Copyright>Copyright 2016-2018 Ed Ball</Copyright>
     <Authors>Ed Ball</Authors>
+    <Copyright>Copyright $(Authors)</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/FacilityApi/FacilityJavaScript/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/FacilityApi/FacilityJavaScript</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/FacilityApi/FacilityJavaScript/blob/master/VersionHistory.md#released</PackageReleaseNotes>
