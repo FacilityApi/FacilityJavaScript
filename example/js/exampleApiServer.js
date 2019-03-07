@@ -3,7 +3,6 @@
 
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import { } from 'facility-core';
 
 const standardErrorCodes = {
   'NotModified': 304,
