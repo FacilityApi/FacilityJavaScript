@@ -12,3 +12,4 @@ release/
 *.ncrunchproject
 *.ncrunchsolution
 *.user
+_ReSharper*
