@@ -118,6 +118,7 @@ Task("NuGetPackage")
 	});
 
 Task("NuGetPublish")
+	.IsDependentOn("Clean")
 	.IsDependentOn("NuGetPackage")
 	.WithCriteria(() => !string.IsNullOrEmpty(nugetApiKey) && !string.IsNullOrEmpty(githubApiKey))
 	.Does(() =>
