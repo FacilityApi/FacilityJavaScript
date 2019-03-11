@@ -42,7 +42,9 @@ namespace Facility.CodeGen.JavaScript
 			string serverFileName = Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
 
 			var namedTexts = new List<CodeGenFile>();
-			var typeNames = new List<string>();
+			var requestTypeNames = new List<string>();
+			var responseTypeNames = new List<string>();
+			var dtoTypeNames = new List<string>();
 			if (TypeScript)
 			{
 				namedTexts.Add(CreateFile(typesFileName, code =>
@@ -61,7 +63,7 @@ namespace Facility.CodeGen.JavaScript
 
 					code.WriteLine();
 					WriteJsDoc(code, service);
-					typeNames.Add($"I{capModuleName}");
+					requestTypeNames.Add($"I{capModuleName}");
 					using (code.Block($"export interface I{capModuleName} {{", "}"))
 					{
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
@@ -77,14 +79,14 @@ namespace Facility.CodeGen.JavaScript
 					foreach (var methodInfo in service.Methods)
 					{
 						var requestDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Request";
-						typeNames.Add($"I{requestDtoName}");
+						requestTypeNames.Add($"I{requestDtoName}");
 						WriteDto(code, new ServiceDtoInfo(
 							name: requestDtoName,
 							fields: methodInfo.RequestFields,
 							summary: $"Request for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
 
 						var responseDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Response";
-						typeNames.Add($"I{responseDtoName}");
+						responseTypeNames.Add($"I{responseDtoName}");
 						WriteDto(code, new ServiceDtoInfo(
 							name: responseDtoName,
 							fields: methodInfo.ResponseFields,
@@ -93,7 +95,7 @@ namespace Facility.CodeGen.JavaScript
 
 					foreach (var dtoInfo in service.Dtos)
 					{
-						typeNames.Add($"I{dtoInfo.Name}");
+						dtoTypeNames.Add($"I{dtoInfo.Name}");
 						WriteDto(code, dtoInfo, service);
 					}
 					code.WriteLine();
@@ -119,7 +121,7 @@ namespace Facility.CodeGen.JavaScript
 
 				if (TypeScript)
 				{
-					WriteImports(code, typeNames, $"./{Uncapitalize(moduleName)}Types");
+					WriteImports(code, requestTypeNames.Concat(responseTypeNames).ToList(), $"./{Uncapitalize(moduleName)}Types");
 					code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
 				}
 
@@ -314,13 +316,9 @@ namespace Facility.CodeGen.JavaScript
 					code.WriteLine();
 					code.WriteLine("import * as bodyParser from 'body-parser';");
 					code.WriteLine("import * as express from 'express';");
-					var facilityImports = new List<string>();
-					if (TypeScript)
-						facilityImports.Add("IServiceResult");
-					WriteImports(code, facilityImports, "facility-core");
 					if (TypeScript)
 					{
-						WriteImports(code, typeNames, $"./{Uncapitalize(moduleName)}Types");
+						WriteImports(code, requestTypeNames, $"./{Uncapitalize(moduleName)}Types");
 						code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
 					}
 
