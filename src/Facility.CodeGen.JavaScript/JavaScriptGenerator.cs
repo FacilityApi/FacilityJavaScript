@@ -626,7 +626,7 @@ namespace Facility.CodeGen.JavaScript
 		private static void WriteImports(CodeWriter code, IReadOnlyList<string> imports, string from)
 		{
 			if (imports.Count != 0)
-				code.WriteLine($"import {{ {string.Join(", ", imports)} }} from '{from}';");
+				code.WriteLine($"import {{ {string.Join(", ", imports.OrderBy(x => x))} }} from '{from}';");
 		}
 
 		private static string Uncapitalize(string value)
