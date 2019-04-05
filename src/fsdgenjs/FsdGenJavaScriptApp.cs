@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using ArgsReading;
 using Facility.CodeGen.Console;
 using Facility.CodeGen.JavaScript;
@@ -26,6 +26,8 @@ namespace fsdgenjs
 			"      Generates TypeScript.",
 			"   --express",
 			"      Generates Express service.",
+			"   --disable-eslint",
+			"      Disables ESLint via code comment.",
 		};
 
 		protected override CodeGenerator CreateGenerator(ArgsReader args)
@@ -35,6 +37,7 @@ namespace fsdgenjs
 				ModuleName = args.ReadOption("module"),
 				TypeScript = args.ReadFlag("typescript"),
 				Express = args.ReadFlag("express"),
+				DisableESLint = args.ReadFlag("disable-eslint"),
 			};
 		}
 

@@ -2,11 +2,12 @@
 
 ## Pending
 
-Add changes here when they're committed to the `master` branch. To publish, update the version number in [Directory.Build.props](Directory.Build.props), move the pending changes below to a new [Released](#released) section, and [create a new release](https://github.com/FacilityApi/Facility/releases) using the version number, e.g. `v2.3.4`.
+Add changes here when they're committed to the `master` branch. To publish, update the version number in [Directory.Build.props](Directory.Build.props), move the pending changes below to a new [Released](#released) section, and [create a new release](https://github.com/FacilityApi/FacilityJavaScript/releases) using the version number, e.g. `nuget-v2.3.4`.
 
 Prefix the description of each change with `[major]`, `[minor]`, or `[patch]` in accordance with [SemVer](http://semver.org).
 
 * [major] Upgrade to .NET Standard 2.0 and .NET 4.6.1. Upgrade NuGet dependencies.
+* [minor] Support disabling ESLint.
 
 ## Released
 

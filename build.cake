@@ -25,8 +25,8 @@ var buildBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
 
 void CodeGen(bool verify)
 {
-	ExecuteCodeGen("example/ExampleApi.fsd example/js/ --indent 2 --express", verify);
-	ExecuteCodeGen("example/ExampleApi.fsd example/ts/src/ --typescript --express", verify);
+	ExecuteCodeGen("example/ExampleApi.fsd example/js/ --indent 2 --express --disable-eslint", verify);
+	ExecuteCodeGen("example/ExampleApi.fsd example/ts/src/ --typescript --express --disable-eslint", verify);
 }
 
 Task("Clean")
