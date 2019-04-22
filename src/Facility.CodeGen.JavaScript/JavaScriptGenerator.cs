@@ -14,6 +14,14 @@ namespace Facility.CodeGen.JavaScript
 	public sealed class JavaScriptGenerator : CodeGenerator
 	{
 		/// <summary>
+		/// Generates JavaScript/TypeScript.
+		/// </summary>
+		/// <param name="settings">The settings.</param>
+		/// <returns>The number of updated files.</returns>
+		public static int GenerateJavaScript(JavaScriptGeneratorSettings settings) =>
+			FileGenerator.GenerateFiles(new JavaScriptGenerator { GeneratorName = nameof(JavaScriptGenerator) }, settings);
+
+		/// <summary>
 		/// The name of the module (optional).
 		/// </summary>
 		public string ModuleName { get; set; }
@@ -34,9 +42,9 @@ namespace Facility.CodeGen.JavaScript
 		public bool DisableESLint { get; set; }
 
 		/// <summary>
-		/// Generates the C# output.
+		/// Generates the JavaScript/TypeScript output.
 		/// </summary>
-		protected override CodeGenOutput GenerateOutputCore(ServiceInfo service)
+		public override CodeGenOutput GenerateOutput(ServiceInfo service)
 		{
 			var httpServiceInfo = HttpServiceInfo.Create(service);
 
@@ -492,6 +500,17 @@ namespace Facility.CodeGen.JavaScript
 
 			return new CodeGenOutput(namedTexts, new List<CodeGenPattern>());
 		}
+
+		public override void ApplySettings(FileGeneratorSettings settings)
+		{
+			var ourSettings = (JavaScriptGeneratorSettings) settings;
+			ModuleName = ourSettings.ModuleName;
+			TypeScript = ourSettings.TypeScript;
+			Express = ourSettings.Express;
+			DisableESLint = ourSettings.DisableESLint;
+		}
+
+		public override bool SupportsSingleOutput => true;
 
 		private void WriteFileHeader(CodeWriter code)
 		{

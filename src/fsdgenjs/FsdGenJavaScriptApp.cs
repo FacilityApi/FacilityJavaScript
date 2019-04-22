@@ -30,17 +30,15 @@ namespace fsdgenjs
 			"      Disables ESLint via code comment.",
 		};
 
-		protected override CodeGenerator CreateGenerator(ArgsReader args)
-		{
-			return new JavaScriptGenerator
+		protected override CodeGenerator CreateGenerator() => new JavaScriptGenerator();
+
+		protected override FileGeneratorSettings CreateSettings(ArgsReader args) =>
+			new JavaScriptGeneratorSettings
 			{
 				ModuleName = args.ReadOption("module"),
 				TypeScript = args.ReadFlag("typescript"),
 				Express = args.ReadFlag("express"),
 				DisableESLint = args.ReadFlag("disable-eslint"),
 			};
-		}
-
-		protected override bool SupportsSingleOutput => true;
 	}
 }
