@@ -501,6 +501,9 @@ namespace Facility.CodeGen.JavaScript
 			return new CodeGenOutput(namedTexts, new List<CodeGenPattern>());
 		}
 
+		/// <summary>
+		/// Applies generator-specific settings.
+		/// </summary>
 		public override void ApplySettings(FileGeneratorSettings settings)
 		{
 			var ourSettings = (JavaScriptGeneratorSettings) settings;
@@ -510,6 +513,9 @@ namespace Facility.CodeGen.JavaScript
 			DisableESLint = ourSettings.DisableESLint;
 		}
 
+		/// <summary>
+		/// Supports writing output to a single file.
+		/// </summary>
 		public override bool SupportsSingleOutput => true;
 
 		private void WriteFileHeader(CodeWriter code)
