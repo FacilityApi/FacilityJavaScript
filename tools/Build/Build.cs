@@ -17,14 +17,19 @@ internal static class Build
 
 		var dotNetBuildSettings = new DotNetBuildSettings
 		{
+			NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
 			DocsSettings = new DotNetDocsSettings
 			{
 				GitLogin = new GitLoginInfo("FacilityApiBot", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
 				GitAuthor = new GitAuthorInfo("FacilityApiBot", "facilityapi@gmail.com"),
+				GitBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH"),
 				SourceCodeUrl = "https://github.com/FacilityApi/FacilityJavaScript/tree/master/src",
 			},
 			DotNetTools = dotNetTools,
-			ProjectUsesSourceLink = name => !name.StartsWith("fsdgen", StringComparison.Ordinal),
+			SourceLinkSettings = new SourceLinkSettings
+			{
+				ShouldTestPackage = name => !name.StartsWith("fsdgen", StringComparison.Ordinal),
+			},
 		};
 
 		build.AddDotNetTargets(dotNetBuildSettings);
@@ -55,8 +60,8 @@ internal static class Build
 
 			string verifyOption = verify ? "--verify" : null;
 
-			RunApp(toolPath, "example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", verifyOption);
-			RunApp(toolPath, "example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", verifyOption);
+			RunApp(toolPath, "example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+			RunApp(toolPath, "example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
 		}
 	});
 }
