@@ -5,7 +5,8 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Description>A .NET Core Global Tool that generates JavaScript or TypeScript for a Facility Service Definition.</Description>
     <PackageTags>Facility FSD JavaScript TypeScript CodeGen</PackageTags>
-    <PackAsTool>True</PackAsTool>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
   </PropertyGroup>
 
   <ItemGroup>

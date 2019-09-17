@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		build.sh = build.sh
+		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
 		README.md = README.md
 		VersionHistory.md = VersionHistory.md
@@ -29,20 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{3A88
 		example\ExampleApi.fsd = example\ExampleApi.fsd
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A5B489C2-B001-4F3D-94ED-62DB3FA8106D}"
-	ProjectSection(SolutionItems) = preProject
-		src\Directory.Build.props = src\Directory.Build.props
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7F884B8E-BD32-4940-A1D6-CA9987DF519B}"
-	ProjectSection(SolutionItems) = preProject
-		tests\Directory.Build.props = tests\Directory.Build.props
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{4839A660-1B17-46A1-910A-9DEC39CC9709}"
-	ProjectSection(SolutionItems) = preProject
-		tools\Directory.Build.props = tools\Directory.Build.props
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocTarget", "tools\XmlDocTarget\XmlDocTarget.csproj", "{59609610-A4A7-40AF-B147-63BEA7C6BE69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,15 +54,16 @@ Global
 		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3A881397-73AC-426F-B31A-94EE463117C4} = {A219E328-B15A-41FF-BAA5-5F46679EF9C8}
-		{A5B489C2-B001-4F3D-94ED-62DB3FA8106D} = {A219E328-B15A-41FF-BAA5-5F46679EF9C8}
-		{7F884B8E-BD32-4940-A1D6-CA9987DF519B} = {A219E328-B15A-41FF-BAA5-5F46679EF9C8}
-		{4839A660-1B17-46A1-910A-9DEC39CC9709} = {A219E328-B15A-41FF-BAA5-5F46679EF9C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {258EAD6F-902F-4B6D-83A2-EA3AD001A385}
