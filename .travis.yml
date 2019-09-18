@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-  - "8"
+- '8'
 script:
-  - ./build-js.sh
+- "./build-js.sh"
 deploy:
   provider: script
-  script: ./publish-js.sh
+  script: "./publish-js.sh"
   skip_cleanup: true
   on:
     tags: true
@@ -13,4 +13,4 @@ deploy:
     condition: "$TRAVIS_TAG =~ ^npm-v[0-9]+\\.[0-9]+\\.[0-9]+(-.*)?$"
 env:
   global:
-    secure: MqLcC2DzaZg7e5SteElFQGKKAyyDTpH3OVlLAKDh4l9Ou0jZvZOdD3ooawTZkPQyhSdy1vrNBxu6aaoSibB8aQfJRdxXE+Jt4U2h1zE836XLqUotSc1WENLzxcqBmgYBIbJa+54n/9FdxHHHmfgBfSkr+qLHHG1oPS+is28RoQvaoi5DKcbWxtUZqXGzhOH4s5s/9A67mKc1r+jfyT/pzNZ8e+dyq+siB0yGExtd+mGkScsT3McjWytTA3uxA28FRx8jD4ylmUVgB/bTxIfOAZbtwunXnKXDUGxWLYW0TES8J61PQciAAuWwmCGpQ+2vQJnNDtLoc4+sEvbzHHEiIeXRk2OWKMBoGCwsISQHknc8b4iCqQ+ZC5aSep+QlIFugI+dLVK23qRTB7O4xdJyCUN0avoCeO80mpfKkaXNv/ybHOR+5TvDCuxDlp0c0+bfDzzVdiky7xHzjx54JEv/YlQPQvKCTWB/TACAP3a79yQaP/oHqUwrnqKuXhzAdN+DTEok8kN/if78742aGlKadOhO+SqdjssV9kwZUqCZuXVYkOT5AC44EoIofKIdxZ6VXGYtrYmIT4QXkRTxx9DUDZRBA/0wBj5xBxqaOlyNN42k6VPe2EC7/mPGIYKiWFpPhpLtU/Dla2S+UPVk5OsU9bWZmuhIuPIN6kXO/sE4rzc=
+  - secure: b4nfbN3UIuAnNtM2+hxXs4TRGpTevXwOxeuSozAkBJXgGWnCbbZtRt9u3eKug6fCgxtXMrmyHXfG890oTfW1QNZW3PeRo5/TvCgFs/kV5roRWCNwY/DOkAkaB1aVlVmdGouF1lTRHqQRNJx2ZD8Quqr0/Sf2+iI1dZPeqcXQER51hBeOuSKrxmOnAuOys3RJ61GHE9aPc4qIttxl0l3c5sElbqneI64jA64U4NFIwE6kIJxepv0EYJMGCqyXP3VBIwl4/L5Sj6gq8A6yC2HL3rDocl6Ju916mjQY+pUeVALHp95zwBjkjnJL0EWTijrnUBQcWDQp7Yzvb8YML9ZpbBSoH1xOqDDjXCwTjS/CbCbnUZFyJ6Rt5N423Cu7OIBzLo9xmGHG/FHAruZChuJcarczUeV5Jgf2gdmmkbS0an4AumykceYy7kUMlxFBEBh/j/B073v92qs2dZKY4JeeEXdy2yLsy0oxM2XlHl0JVVkISZUaHZeGHoy5GXlNd/UHy/5239/YQHBKyK/3wHYnbxYzLq/ggpUjzc6UYTZimag+ToEN1IyqEjXNlzJqu8km6EN7v+2BONlhDqIOAnrYEmCaJslDGGP2rOhxGKNaZp73/C6HoIsL9u2vZGeSRbdURkbclk7MuU7Eal/aMyAy3aS0KTEeC8F8jcTvc1CiIE8=
