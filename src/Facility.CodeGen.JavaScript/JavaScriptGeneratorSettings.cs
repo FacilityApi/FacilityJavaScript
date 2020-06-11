@@ -10,7 +10,7 @@ namespace Facility.CodeGen.JavaScript
 		/// <summary>
 		/// The name of the module (optional).
 		/// </summary>
-		public string ModuleName { get; set; }
+		public string? ModuleName { get; set; }
 
 		/// <summary>
 		/// True to generate TypeScript.

@@ -24,7 +24,7 @@ namespace Facility.CodeGen.JavaScript
 		/// <summary>
 		/// The name of the module (optional).
 		/// </summary>
-		public string ModuleName { get; set; }
+		public string? ModuleName { get; set; }
 
 		/// <summary>
 		/// True to generate TypeScript.
@@ -48,11 +48,11 @@ namespace Facility.CodeGen.JavaScript
 		{
 			var httpServiceInfo = HttpServiceInfo.Create(service);
 
-			string moduleName = ModuleName ?? service.Name;
-			string capModuleName = CodeGenUtility.Capitalize(moduleName);
-			string typesFileName = Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
-			string clientFileName = Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
-			string serverFileName = Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
+			var moduleName = ModuleName ?? service.Name;
+			var capModuleName = CodeGenUtility.Capitalize(moduleName);
+			var typesFileName = Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
+			var clientFileName = Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
+			var serverFileName = Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
 
 			var namedTexts = new List<CodeGenFile>();
 			var typeNames = new List<string>();
@@ -79,8 +79,8 @@ namespace Facility.CodeGen.JavaScript
 					{
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
 						{
-							string methodName = httpMethodInfo.ServiceMethod.Name;
-							string capMethodName = CodeGenUtility.Capitalize(methodName);
+							var methodName = httpMethodInfo.ServiceMethod.Name;
+							var capMethodName = CodeGenUtility.Capitalize(methodName);
 							code.WriteLineSkipOnce();
 							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
 							code.WriteLine($"{methodName}(request: I{capMethodName}Request): Promise<IServiceResult<I{capMethodName}Response>>;");
@@ -167,16 +167,16 @@ namespace Facility.CodeGen.JavaScript
 
 					foreach (var httpMethodInfo in httpServiceInfo.Methods)
 					{
-						string methodName = httpMethodInfo.ServiceMethod.Name;
-						string capMethodName = CodeGenUtility.Capitalize(methodName);
+						var methodName = httpMethodInfo.ServiceMethod.Name;
+						var capMethodName = CodeGenUtility.Capitalize(methodName);
 
 						code.WriteLine();
 						WriteJsDoc(code, httpMethodInfo.ServiceMethod);
 						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
 						{
-							bool hasPathFields = httpMethodInfo.PathFields.Count != 0;
-							string jsUriDelim = hasPathFields ? "`" : "'";
-							string jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
+							var hasPathFields = httpMethodInfo.PathFields.Count != 0;
+							var jsUriDelim = hasPathFields ? "`" : "'";
+							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
 							if (hasPathFields)
 							{
 								foreach (var httpPathField in httpMethodInfo.PathFields)
@@ -189,7 +189,7 @@ namespace Facility.CodeGen.JavaScript
 									jsUri = jsUri.Replace("{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
 							}
 
-							bool hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
+							var hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
 							code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
 							if (hasQueryFields)
 							{
@@ -225,11 +225,11 @@ namespace Facility.CodeGen.JavaScript
 									{
 										using (code.Block("body: JSON.stringify({", "})"))
 										{
-											for (int httpFieldIndex = 0; httpFieldIndex < httpMethodInfo.RequestNormalFields.Count; httpFieldIndex++)
+											for (var httpFieldIndex = 0; httpFieldIndex < httpMethodInfo.RequestNormalFields.Count; httpFieldIndex++)
 											{
 												var httpFieldInfo = httpMethodInfo.RequestNormalFields[httpFieldIndex];
-												bool isLastField = httpFieldIndex == httpMethodInfo.RequestNormalFields.Count - 1;
-												string fieldName = httpFieldInfo.ServiceField.Name;
+												var isLastField = httpFieldIndex == httpMethodInfo.RequestNormalFields.Count - 1;
+												var fieldName = httpFieldInfo.ServiceField.Name;
 												code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
 											}
 										}
@@ -255,10 +255,10 @@ namespace Facility.CodeGen.JavaScript
 								using (code.Block("if (result.json) {", "}"))
 								{
 									var validResponses = httpMethodInfo.ValidResponses;
-									string elsePrefix = "";
+									var elsePrefix = "";
 									foreach (var validResponse in validResponses)
 									{
-										string statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
+										var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
 										code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
 										elsePrefix = "else ";
 
@@ -267,9 +267,9 @@ namespace Facility.CodeGen.JavaScript
 											var bodyField = validResponse.BodyField;
 											if (bodyField != null)
 											{
-												string responseBodyFieldName = bodyField.ServiceField.Name;
+												var responseBodyFieldName = bodyField.ServiceField.Name;
 
-												var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
+												var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
 												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
 													code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
 												else
@@ -277,7 +277,7 @@ namespace Facility.CodeGen.JavaScript
 											}
 											else
 											{
-												if (validResponse.NormalFields.Count == 0)
+												if (validResponse.NormalFields!.Count == 0)
 													code.WriteLine("value = {};");
 												else
 													code.WriteLine("value = result.json;");
@@ -376,10 +376,10 @@ namespace Facility.CodeGen.JavaScript
 
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
 						{
-							string methodName = httpMethodInfo.ServiceMethod.Name;
-							string capMethodName = CodeGenUtility.Capitalize(methodName);
-							string expressMethod = httpMethodInfo.Method.ToLowerInvariant();
-							string expressPath = httpMethodInfo.Path;
+							var methodName = httpMethodInfo.ServiceMethod.Name;
+							var capMethodName = CodeGenUtility.Capitalize(methodName);
+							var expressMethod = httpMethodInfo.Method.ToLowerInvariant();
+							var expressPath = httpMethodInfo.Path;
 							foreach (var httpPathField in httpMethodInfo.PathFields)
 								expressPath = expressPath.Replace("{" + httpPathField.Name + "}", $":{httpPathField.Name}");
 
@@ -443,11 +443,11 @@ namespace Facility.CodeGen.JavaScript
 												var bodyField = validResponse.BodyField;
 												if (bodyField != null)
 												{
-													string responseBodyFieldName = bodyField.ServiceField.Name;
+													var responseBodyFieldName = bodyField.ServiceField.Name;
 
 													using (code.Block($"if (result.value.{responseBodyFieldName}) {{", "}"))
 													{
-														var bodyFieldType = service.GetFieldType(bodyField.ServiceField);
+														var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
 														if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
 														{
 															code.WriteLine($"res.sendStatus({(int) validResponse.StatusCode});");
@@ -462,7 +462,7 @@ namespace Facility.CodeGen.JavaScript
 												}
 												else
 												{
-													if (validResponse.NormalFields.Count == 0)
+													if (validResponse.NormalFields!.Count == 0)
 													{
 														code.WriteLine($"res.sendStatus({(int) validResponse.StatusCode});");
 														code.WriteLine("return;");
@@ -475,7 +475,7 @@ namespace Facility.CodeGen.JavaScript
 												code.WriteLine($"res.status({(int) validResponse.StatusCode}).send({{");
 												using (code.Indent())
 												{
-													foreach (var field in validResponse.NormalFields)
+													foreach (var field in validResponse.NormalFields!)
 													{
 														code.WriteLine($"{field.ServiceField.Name}: result.value.{field.ServiceField.Name},");
 													}
@@ -535,7 +535,7 @@ namespace Facility.CodeGen.JavaScript
 				{
 					code.WriteLineSkipOnce();
 					WriteJsDoc(code, fieldInfo);
-					code.WriteLine($"{fieldInfo.Name}?: {RenderFieldType(service.GetFieldType(fieldInfo))};");
+					code.WriteLine($"{fieldInfo.Name}?: {RenderFieldType(service.GetFieldType(fieldInfo)!)};");
 				}
 			}
 		}
@@ -565,13 +565,13 @@ namespace Facility.CodeGen.JavaScript
 			case ServiceTypeKind.Error:
 				return "IServiceError";
 			case ServiceTypeKind.Dto:
-				return $"I{CodeGenUtility.Capitalize(fieldType.Dto.Name)}";
+				return $"I{CodeGenUtility.Capitalize(fieldType.Dto!.Name)}";
 			case ServiceTypeKind.Result:
-				return $"IServiceResult<{RenderFieldType(fieldType.ValueType)}>";
+				return $"IServiceResult<{RenderFieldType(fieldType.ValueType!)}>";
 			case ServiceTypeKind.Array:
-				return $"{RenderFieldType(fieldType.ValueType)}[]";
+				return $"{RenderFieldType(fieldType.ValueType!)}[]";
 			case ServiceTypeKind.Map:
-				return $"{{ [name: string]: {RenderFieldType(fieldType.ValueType)} }}";
+				return $"{{ [name: string]: {RenderFieldType(fieldType.ValueType!)} }}";
 			default:
 				throw new NotSupportedException("Unknown field type " + fieldType.Kind);
 			}
@@ -579,7 +579,7 @@ namespace Facility.CodeGen.JavaScript
 
 		private string RenderUriComponent(ServiceFieldInfo field, ServiceInfo service)
 		{
-			var fieldTypeKind = service.GetFieldType(field).Kind;
+			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 			var fieldName = field.Name;
 
 			switch (fieldTypeKind)
@@ -607,7 +607,7 @@ namespace Facility.CodeGen.JavaScript
 
 		private string RenderJsConversion(ServiceFieldInfo field, ServiceInfo service, string value)
 		{
-			var fieldTypeKind = service.GetFieldType(field).Kind;
+			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 
 			switch (fieldTypeKind)
 			{
@@ -637,11 +637,11 @@ namespace Facility.CodeGen.JavaScript
 			WriteJsDoc(code, (element as IServiceHasSummary)?.Summary, isObsolete: element.IsObsolete, obsoleteMessage: element.ObsoleteMessage);
 		}
 
-		private static void WriteJsDoc(CodeWriter code, string summary, bool isObsolete = false, string obsoleteMessage = null)
+		private static void WriteJsDoc(CodeWriter code, string? summary, bool isObsolete = false, string? obsoleteMessage = null)
 		{
 			var lines = new List<string>(capacity: 2);
-			if (!string.IsNullOrWhiteSpace(summary))
-				lines.Add(summary);
+			if (summary != null && summary.Trim().Length != 0)
+				lines.Add(summary.Trim());
 			if (isObsolete)
 				lines.Add("@deprecated" + (string.IsNullOrWhiteSpace(obsoleteMessage) ? "" : $" {obsoleteMessage}"));
 			WriteJsDoc(code, lines);
@@ -656,7 +656,7 @@ namespace Facility.CodeGen.JavaScript
 			else if (lines.Count != 0)
 			{
 				code.WriteLine("/**");
-				foreach (string line in lines)
+				foreach (var line in lines)
 					code.WriteLine($" * {line}");
 				code.WriteLine(" */");
 			}
@@ -675,7 +675,7 @@ namespace Facility.CodeGen.JavaScript
 
 		private static bool FieldUsesKind(ServiceInfo service, ServiceFieldInfo field, ServiceTypeKind kind)
 		{
-			var type = service.GetFieldType(field);
+			var type = service.GetFieldType(field)!;
 			if (type.Kind == kind)
 				return true;
 
