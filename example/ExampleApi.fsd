@@ -75,6 +75,9 @@ service ExampleApi
 		[http(from: header)]
 		eTag: string;
 
+		[http(from: header, name: "Cache-Control")]
+		cacheControl: string;
+
 		[http(from: body, code: 304)]
 		notModified: boolean;
 	}

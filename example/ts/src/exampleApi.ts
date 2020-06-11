@@ -122,6 +122,10 @@ class ExampleApiHttpClient implements IExampleApi {
 				if (headerValue != null) {
 					value.eTag = headerValue;
 				}
+				headerValue = result.response.headers.get('Cache-Control');
+				if (headerValue != null) {
+					value.cacheControl = headerValue;
+				}
 				return { value: value };
 			});
 	}

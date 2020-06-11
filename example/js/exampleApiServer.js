@@ -122,6 +122,9 @@ export function createApp(service) {
           if (result.value.eTag != null) {
             res.setHeader('eTag', result.value.eTag);
           }
+          if (result.value.cacheControl != null) {
+            res.setHeader('Cache-Control', result.value.cacheControl);
+          }
           if (result.value.widget) {
             res.status(200).send(result.value.widget);
             return;

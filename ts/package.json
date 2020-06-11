@@ -1,6 +1,6 @@
 {
   "name": "facility-core",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Common code for the Facility API Framework.",
   "scripts": {
     "build": "tsc && tslint --exclude **/*.d.ts src/*.ts",
@@ -11,7 +11,7 @@
     "url": "https://github.com/FacilityApi/FacilityJavaScript.git"
   },
   "author": "Ed Ball",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "files": [
     "src"
   ],

@@ -297,7 +297,7 @@ namespace Facility.CodeGen.JavaScript
 									{
 										code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
 										using (code.Block("if (headerValue != null) {", "}"))
-											code.WriteLine($"value.{httpHeaderField.Name} = headerValue;");
+											code.WriteLine($"value.{httpHeaderField.ServiceField.Name} = headerValue;");
 									}
 								}
 

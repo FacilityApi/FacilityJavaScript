@@ -113,6 +113,8 @@ export interface IGetWidgetResponse {
 
 	eTag?: string;
 
+	cacheControl?: string;
+
 	notModified?: boolean;
 }
 
