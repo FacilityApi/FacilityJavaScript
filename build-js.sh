@@ -17,7 +17,7 @@ npm run test
 popd >/dev/null
 
 pushd ts >/dev/null
-if [[ "${APPVEYOR_REPO_BRANCH}" == "master" ]] && [[ -z "${APPVEYOR_PULL_REQUEST_NUMBER}" ]]
+if [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]
 then
 echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
 npm publish || true
