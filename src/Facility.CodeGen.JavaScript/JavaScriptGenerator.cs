@@ -682,9 +682,9 @@ namespace Facility.CodeGen.JavaScript
 			var valueType = type;
 			while (true)
 			{
-				valueType = valueType.ValueType;
-				if (valueType == null)
+				if (valueType.ValueType == null)
 					break;
+				valueType = valueType.ValueType;
 				if (valueType.Kind == kind)
 					return true;
 			}
