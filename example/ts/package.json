@@ -21,7 +21,7 @@
     "@types/node-fetch": "^1.6.7",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "node-fetch": "^1.7.1",
+    "node-fetch": "^2.6.1",
     "source-map-support": "^0.5.3",
     "typescript": "^2.0.9"
   },
