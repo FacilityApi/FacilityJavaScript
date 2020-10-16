@@ -8,7 +8,7 @@ Name | Description | npm/NuGet
 --- | --- | ---
 facility-core | Common code for the Facility API Framework. | [![npm](https://img.shields.io/npm/v/facility-core.svg)](https://www.npmjs.com/package/facility-core)
 fsdgenjs | A tool that generates JavaScript or TypeScript for a Facility Service Definition. | [![NuGet](https://img.shields.io/nuget/v/fsdgenjs.svg)](https://www.nuget.org/packages/fsdgenjs)
-Facility.CodeGen.JavaScript | Used by fsdgenjs to generate JavaScript or TypeScript for a Facility Service Definition. | [![NuGet](https://img.shields.io/nuget/v/Facility.CodeGen.JavaScript.svg)](https://www.nuget.org/packages/Facility.CodeGen.JavaScript)
+Facility.CodeGen.JavaScript | A library that generates JavaScript or TypeScript for a Facility Service Definition. | [![NuGet](https://img.shields.io/nuget/v/Facility.CodeGen.JavaScript.svg)](https://www.nuget.org/packages/Facility.CodeGen.JavaScript)
 
 * Documentation: https://facilityapi.github.io/
 * License: [MIT](LICENSE)
