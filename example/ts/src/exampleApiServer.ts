@@ -3,8 +3,7 @@
 
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import { IServiceResult } from 'facility-core';
-import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IEditWidgetRequest, IEditWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IGetWidgetWeightRequest, IGetWidgetWeightResponse, IGetPreferenceRequest, IGetPreferenceResponse, ISetPreferenceRequest, ISetPreferenceResponse, IGetInfoRequest, IGetInfoResponse, INotRestfulRequest, INotRestfulResponse, IKitchenRequest, IKitchenResponse, IWidget, IWidgetJob, IPreference, IObsoleteData, IKitchenSink } from './exampleApiTypes';
+import { ICreateWidgetRequest, IDeleteWidgetRequest, IEditWidgetRequest, IExampleApi, IGetInfoRequest, IGetPreferenceRequest, IGetWidgetBatchRequest, IGetWidgetRequest, IGetWidgetsRequest, IGetWidgetWeightRequest, IKitchenRequest, INotRestfulRequest, ISetPreferenceRequest } from './exampleApiTypes';
 export * from './exampleApiTypes';
 
 const standardErrorCodes: { [code: string]: number } = {
