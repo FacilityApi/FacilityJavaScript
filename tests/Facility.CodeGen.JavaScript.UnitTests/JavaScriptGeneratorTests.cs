@@ -55,16 +55,16 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 /** Identifies a widget field. */
 export enum WidgetField {
 	/** The 'id' field. */
-	id = ""id"",
+	id = 'id',
 
 	/** The 'name' field. */
-	name = ""name"",
+	name = 'name',
 
 	/**
 	 * The 'weight' field.
 	 * @deprecated
 	 */
-	weight = ""weight"",
+	weight = 'weight',
 }
 
 /**
@@ -72,7 +72,7 @@ export enum WidgetField {
  * @deprecated
  */
 export enum ObsoleteEnum {
-	unused = ""unused"",
+	unused = 'unused',
 }";
 			Assert.That(typesFile.Text, Contains.Substring(expectedEnums));
 

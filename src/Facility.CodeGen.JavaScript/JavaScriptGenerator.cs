@@ -121,7 +121,7 @@ namespace Facility.CodeGen.JavaScript
 							{
 								code.WriteLineSkipOnce();
 								WriteJsDoc(code, value);
-								code.WriteLine($@"{value.Name} = ""{value.Name}"",");
+								code.WriteLine($"{value.Name} = '{value.Name}',");
 							}
 						}
 					}
