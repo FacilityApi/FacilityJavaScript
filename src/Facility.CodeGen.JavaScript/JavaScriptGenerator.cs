@@ -115,7 +115,7 @@ namespace Facility.CodeGen.JavaScript
 						typeNames.Add(enumInfo.Name);
 						code.WriteLine();
 						WriteJsDoc(code, enumInfo);
-						using (code.Block($"export enum {CodeGenUtility.Capitalize(enumInfo.Name)} {{", "}"))
+						using (code.Block($"export enum {enumInfo.Name} {{", "}"))
 						{
 							foreach (var value in enumInfo.Values)
 							{
