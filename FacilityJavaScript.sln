@@ -9,13 +9,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		.travis.yml = .travis.yml
-		appveyor.yml = appveyor.yml
-		build.sh = build.sh
+		build.ps1 = build.ps1
+		.github\workflows\build.yaml = .github\workflows\build.yaml
 		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
+		nuget.config = nuget.config
 		ts\package.json = ts\package.json
 		README.md = README.md
-		VersionHistory.md = VersionHistory.md
+		ReleaseNotes.md = ReleaseNotes.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facility.CodeGen.JavaScript", "src\Facility.CodeGen.JavaScript\Facility.CodeGen.JavaScript.csproj", "{89B9867C-5124-49BE-B201-0F1D8E9F7738}"
@@ -24,14 +25,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fsdgenjs", "src\fsdgenjs\fs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facility.CodeGen.JavaScript.UnitTests", "tests\Facility.CodeGen.JavaScript.UnitTests\Facility.CodeGen.JavaScript.UnitTests.csproj", "{E4E67F1B-A9E3-47A9-A05B-D517A50EA606}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "tools\Build\Build.csproj", "{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{3A881397-73AC-426F-B31A-94EE463117C4}"
 	ProjectSection(SolutionItems) = preProject
 		example\ExampleApi.fsd = example\ExampleApi.fsd
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocTarget", "tools\XmlDocTarget\XmlDocTarget.csproj", "{59609610-A4A7-40AF-B147-63BEA7C6BE69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "tools\Build\Build.csproj", "{9D6DC519-8908-4D3A-B16B-118D682BD170}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocGen", "tools\XmlDocGen\XmlDocGen.csproj", "{636E5B36-4AA8-47D8-884C-AE4D80B49A14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,14 +52,14 @@ Global
 		{E4E67F1B-A9E3-47A9-A05B-D517A50EA606}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4E67F1B-A9E3-47A9-A05B-D517A50EA606}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4E67F1B-A9E3-47A9-A05B-D517A50EA606}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1DB8FEAA-01BF-4387-B9A1-4CBA900232B3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59609610-A4A7-40AF-B147-63BEA7C6BE69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D6DC519-8908-4D3A-B16B-118D682BD170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D6DC519-8908-4D3A-B16B-118D682BD170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D6DC519-8908-4D3A-B16B-118D682BD170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D6DC519-8908-4D3A-B16B-118D682BD170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{636E5B36-4AA8-47D8-884C-AE4D80B49A14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{636E5B36-4AA8-47D8-884C-AE4D80B49A14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{636E5B36-4AA8-47D8-884C-AE4D80B49A14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{636E5B36-4AA8-47D8-884C-AE4D80B49A14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

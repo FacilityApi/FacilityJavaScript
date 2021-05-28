@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
     <Description>A tool that generates JavaScript or TypeScript for a Facility Service Definition.</Description>
     <PackageTags>Facility FSD JavaScript TypeScript CodeGen</PackageTags>
     <IsPackable>true</IsPackable>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Facility.CodeGen.Console" Version="2.2.0" />
+    <PackageReference Include="Facility.CodeGen.Console" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

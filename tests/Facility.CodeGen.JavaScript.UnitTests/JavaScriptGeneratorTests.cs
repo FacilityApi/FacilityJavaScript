@@ -16,7 +16,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
-			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName);
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.IsNotNull(stream);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
@@ -36,7 +36,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
-			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName);
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.IsNotNull(stream);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
@@ -45,7 +45,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			{
 				GeneratorName = "JavaScriptGeneratorTests",
 				TypeScript = true,
-				NewLine = "\n"
+				NewLine = "\n",
 			};
 			var result = generator.GenerateOutput(service);
 			Assert.IsNotNull(result);
