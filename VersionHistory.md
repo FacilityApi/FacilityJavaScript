@@ -1,6 +1,6 @@
 # Version History
 
-### 2.2
+### 2.2.0
 
 * Include string enums for enums when generating TypeScript.
 
