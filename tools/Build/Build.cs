@@ -17,7 +17,7 @@ return BuildRunner.Execute(args, build =>
 		{
 			GitLogin = gitLogin,
 			GitAuthor = new GitAuthorInfo("FacilityApiBot", "facilityapi@gmail.com"),
-			SourceCodeUrl = "https://github.com/FacilityApi/RepoTemplate/tree/master/src",
+			SourceCodeUrl = "https://github.com/FacilityApi/FacilityJavaScript/tree/master/src",
 			ProjectHasDocs = name => !name.StartsWith("fsdgen", StringComparison.Ordinal),
 		},
 		PackageSettings = new DotNetPackageSettings
