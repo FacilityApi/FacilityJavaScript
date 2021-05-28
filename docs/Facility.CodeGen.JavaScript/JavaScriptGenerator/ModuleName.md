@@ -3,7 +3,7 @@
 The name of the module (optional).
 
 ```csharp
-public string ModuleName { get; set; }
+public string? ModuleName { get; set; }
 ```
 
 ## See Also
