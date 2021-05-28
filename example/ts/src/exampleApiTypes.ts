@@ -53,7 +53,7 @@ export interface IGetWidgetsRequest {
 	limit?: number;
 
 	/** The sort field. */
-	sort?: string;
+	sort?: WidgetField;
 
 	/** True to sort descending. */
 	desc?: boolean;
@@ -276,9 +276,9 @@ export interface IPreference {
 
 	byteses?: string[];
 
-	widgetField?: string;
+	widgetField?: WidgetField;
 
-	widgetFields?: string[];
+	widgetFields?: WidgetField[];
 
 	widget?: IWidget;
 
@@ -324,5 +324,28 @@ export interface IKitchenSink {
 
 	/** @deprecated This field was never used. */
 	oldField?: string;
+}
+
+/** Identifies a widget field. */
+export enum WidgetField {
+	/** The 'id' field. */
+	id = "id",
+
+	/** The 'name' field. */
+	name = "name",
+
+	/**
+	 * The 'weight' field.
+	 * @deprecated
+	 */
+	weight = "weight",
+}
+
+/**
+ * An obsolete enum.
+ * @deprecated
+ */
+export enum ObsoleteEnum {
+	unused = "unused",
 }
 
