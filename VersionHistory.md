@@ -1,5 +1,9 @@
 # Version History
 
+### 2.2
+
+* Include string enums for enums when generating TypeScript.
+
 ### 2.1.1
 
 * Fix bug with response headers.

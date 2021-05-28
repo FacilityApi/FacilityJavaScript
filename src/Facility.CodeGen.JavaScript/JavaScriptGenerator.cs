@@ -109,6 +109,23 @@ namespace Facility.CodeGen.JavaScript
 						typeNames.Add($"I{dtoInfo.Name}");
 						WriteDto(code, dtoInfo, service);
 					}
+
+					foreach (var enumInfo in service.Enums)
+					{
+						typeNames.Add(enumInfo.Name);
+						code.WriteLine();
+						WriteJsDoc(code, enumInfo);
+						using (code.Block($"export enum {CodeGenUtility.Capitalize(enumInfo.Name)} {{", "}"))
+						{
+							foreach (var value in enumInfo.Values)
+							{
+								code.WriteLineSkipOnce();
+								WriteJsDoc(code, value);
+								code.WriteLine($@"{value.Name} = ""{value.Name}"",");
+							}
+						}
+					}
+
 					code.WriteLine();
 				}));
 			}
@@ -551,8 +568,9 @@ namespace Facility.CodeGen.JavaScript
 			{
 			case ServiceTypeKind.String:
 			case ServiceTypeKind.Bytes:
-			case ServiceTypeKind.Enum:
 				return "string";
+			case ServiceTypeKind.Enum:
+				return fieldType.Enum!.Name;
 			case ServiceTypeKind.Boolean:
 				return "boolean";
 			case ServiceTypeKind.Double:
