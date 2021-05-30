@@ -7,6 +7,8 @@ import { IServiceResult } from 'facility-core';
 import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IEditWidgetRequest, IEditWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IGetWidgetWeightRequest, IGetWidgetWeightResponse, IGetPreferenceRequest, IGetPreferenceResponse, ISetPreferenceRequest, ISetPreferenceResponse, IGetInfoRequest, IGetInfoResponse, INotRestfulRequest, INotRestfulResponse, IKitchenRequest, IKitchenResponse, IWidget, IWidgetJob, IPreference, IObsoleteData, IKitchenSink, WidgetField, ObsoleteEnum } from './exampleApiTypes';
 export * from './exampleApiTypes';
 
+type ServiceFactory<TService> = (req: express.Request, res: express.Response) => TService;
+
 const standardErrorCodes: { [code: string]: number } = {
 	'NotModified': 304,
 	'InvalidRequest': 400,
@@ -33,10 +35,12 @@ function parseBoolean(value: string | undefined) {
 	return undefined;
 }
 
-export function createApp(service: IExampleApi): express.Application {
+export function createApp(serviceOrFactory: IExampleApi | ServiceFactory<IExampleApi>): express.Application {
 	const app = express();
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
+
+	const getService: ServiceFactory<IExampleApi> = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
 	/** Gets widgets. */
 	app.get('/widgets', function (req, res, next) {
@@ -60,7 +64,7 @@ export function createApp(service: IExampleApi): express.Application {
 			request.minPrice = parseFloat(req.query['minPrice']);
 		}
 
-		return service.getWidgets(request)
+		return getService(req, res).getWidgets(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -89,7 +93,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: ICreateWidgetRequest = {};
 		request.widget = req.body;
 
-		return service.createWidget(request)
+		return getService(req, res).createWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -113,7 +117,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.id = req.params.id;
 		request.ifNoneMatch = req.header('If-None-Match');
 
-		return service.getWidget(request)
+		return getService(req, res).getWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -146,7 +150,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IDeleteWidgetRequest = {};
 		request.id = req.params.id;
 
-		return service.deleteWidget(request)
+		return getService(req, res).deleteWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -169,7 +173,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.ops = req.body.ops;
 		request.weight = req.body.weight;
 
-		return service.editWidget(request)
+		return getService(req, res).editWidget(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -196,7 +200,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetWidgetBatchRequest = {};
 		request.ids = req.body;
 
-		return service.getWidgetBatch(request)
+		return getService(req, res).getWidgetBatch(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -222,7 +226,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetWidgetWeightRequest = {};
 		request.id = req.params.id;
 
-		return service.getWidgetWeight(request)
+		return getService(req, res).getWidgetWeight(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -245,7 +249,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IGetPreferenceRequest = {};
 		request.key = req.params.key;
 
-		return service.getPreference(request)
+		return getService(req, res).getPreference(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -269,7 +273,7 @@ export function createApp(service: IExampleApi): express.Application {
 		request.key = req.params.key;
 		request.value = req.body;
 
-		return service.setPreference(request)
+		return getService(req, res).setPreference(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -291,7 +295,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.get('/', function (req, res, next) {
 		const request: IGetInfoRequest = {};
 
-		return service.getInfo(request)
+		return getService(req, res).getInfo(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -313,7 +317,7 @@ export function createApp(service: IExampleApi): express.Application {
 	app.post('/notRestful', function (req, res, next) {
 		const request: INotRestfulRequest = {};
 
-		return service.notRestful(request)
+		return getService(req, res).notRestful(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;
@@ -333,7 +337,7 @@ export function createApp(service: IExampleApi): express.Application {
 		const request: IKitchenRequest = {};
 		request.sink = req.body.sink;
 
-		return service.kitchen(request)
+		return getService(req, res).kitchen(request)
 			.then(result => {
 				if (result.error) {
 					const status = result.error.code && standardErrorCodes[result.error.code] || 500;

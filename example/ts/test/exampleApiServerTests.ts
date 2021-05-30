@@ -1,9 +1,10 @@
 import { createHttpClient } from '../src/exampleApi';
 import { createApp } from '../src/exampleApiServer';
-import { IServiceResult, IServiceError } from 'facility-core';
+import { IServiceResult, IServiceError, IHttpClientOptions, HttpClientUtility } from 'facility-core';
 import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IEditWidgetRequest, IEditWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IGetWidgetWeightRequest, IGetWidgetWeightResponse, IGetPreferenceRequest, IGetPreferenceResponse, ISetPreferenceRequest, ISetPreferenceResponse, IGetInfoRequest, IGetInfoResponse, INotRestfulRequest, INotRestfulResponse, IKitchenRequest, IKitchenResponse, IWidget, IWidgetJob, IPreference, IObsoleteData, IKitchenSink } from '../src/exampleApiTypes';
 import * as crypto from 'crypto';
 import { expect, should } from 'chai';
+import * as express from 'express';
 import * as http from 'http';
 import fetch from 'node-fetch';
 
@@ -16,6 +17,14 @@ function md5(data: string | Buffer): string {
 }
 
 class ExampleApi implements IExampleApi {
+	private req?: express.Request;
+	private res?: express.Response;
+
+	constructor(req?: express.Request, res?: express.Response) {
+		this.req = req;
+		this.res = res;
+	}
+
 	getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>> {
 		throw new Error('Method not implemented.');
 	}
@@ -104,8 +113,12 @@ class ExampleApi implements IExampleApi {
 		throw new Error('Method not implemented.');
 	}
 
-	getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
-		throw new Error('Method not implemented.');
+	async getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
+		return {
+			value: {
+				name: this.req!.header('x-name')
+			}
+		};
 	}
 
 	notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>> {
@@ -117,7 +130,7 @@ class ExampleApi implements IExampleApi {
 	}
 }
 
-describe('createApp', () => {
+describe('singleton service', () => {
 
 	const app = createApp(new ExampleApi());
 	let server: http.Server;
@@ -210,5 +223,38 @@ describe('createApp', () => {
 
 		expect(result.error).to.be.ok;
 		expect(result.error!.code).to.equal('invalidRequest');
+	});
+});
+
+function fetchWithHeaders(headers: object): HttpClientUtility.IFetch {
+	return async (uri, request) => fetch(uri, { ...request, headers: { ...request.headers, ...headers }});
+}
+
+describe('create service per request', () => {
+
+	const app = createApp((req, res) => new ExampleApi(req, res));
+	let server: http.Server;
+	let client: IExampleApi;
+
+	before(() => {
+		server = app.listen(0, '127.0.0.1', () => {
+			const { address, port } = server.address();
+
+			client = createHttpClient({
+				fetch: fetchWithHeaders({ 'x-name': 'Steve' }),
+				baseUri: `http://${address}:${port}`
+			});
+		});
+	});
+
+	after(() => {
+		server.close();
+	})
+
+	it('get info with header', async () => {
+		const result = await client.getInfo({});
+
+		expect(result.value).to.be.ok;
+		expect(result.value!.name).to.equal('Steve');
 	});
 });

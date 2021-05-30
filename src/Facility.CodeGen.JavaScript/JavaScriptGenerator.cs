@@ -352,6 +352,8 @@ namespace Facility.CodeGen.JavaScript
 					{
 						WriteImports(code, typeNames, $"./{Uncapitalize(moduleName)}Types");
 						code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
+						code.WriteLine();
+						code.WriteLine("type ServiceFactory<TService> = (req: express.Request, res: express.Response) => TService;");
 					}
 
 					// TODO: export this from facility-core
@@ -385,11 +387,14 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript(": express.Application") + " {", "}"))
+					using (code.Block("export function createApp(serviceOrFactory" + IfTypeScript($": I{capModuleName} | ServiceFactory<I{capModuleName}>") + ")" + IfTypeScript(": express.Application") + " {", "}"))
 					{
 						code.WriteLine("const app = express();");
 						code.WriteLine("app.use(bodyParser.json());");
 						code.WriteLine("app.use(bodyParser.urlencoded({ extended: true }));");
+
+						code.WriteLine();
+						code.WriteLine("const getService" + IfTypeScript($": ServiceFactory<I{capModuleName}>") + " = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
 
 						foreach (var httpMethodInfo in httpServiceInfo.Methods)
 						{
@@ -432,7 +437,7 @@ namespace Facility.CodeGen.JavaScript
 								}
 
 								code.WriteLine();
-								code.WriteLine($"return service.{methodName}(request)");
+								code.WriteLine($"return getService(req, res).{methodName}(request)");
 
 								using (code.Indent())
 								{
