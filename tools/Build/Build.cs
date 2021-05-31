@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Faithlife.Build;
 using static Faithlife.Build.AppRunner;
@@ -81,6 +82,11 @@ return BuildRunner.Execute(args, build =>
 		.Describe("Publishes the npm package.")
 		.Does(() =>
 		{
+			var token = Environment.GetEnvironmentVariable("NPM_ACCESS_TOKEN");
+			if (token is null)
+				throw new BuildException("Missing NPM_ACCESS_TOKEN.");
+			File.WriteAllText("./ts/.npmrc", $"//registry.npmjs.org/:_authToken={token}");
+
 			RunNpmFrom("./ts", "publish");
 		});
 
