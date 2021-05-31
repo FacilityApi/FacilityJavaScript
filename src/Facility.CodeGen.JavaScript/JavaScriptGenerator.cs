@@ -56,6 +56,7 @@ namespace Facility.CodeGen.JavaScript
 
 			var namedTexts = new List<CodeGenFile>();
 			var typeNames = new List<string>();
+
 			if (TypeScript)
 			{
 				namedTexts.Add(CreateFile(typesFileName, code =>
@@ -419,17 +420,14 @@ namespace Facility.CodeGen.JavaScript
 								{
 									code.WriteLine($"request.{httpMethodInfo.RequestBodyField.ServiceField.Name} = req.body;");
 								}
-								else if (httpMethodInfo.RequestNormalFields != null)
+								else
 								{
 									foreach (var field in httpMethodInfo.RequestNormalFields)
 										code.WriteLine($"request.{field.ServiceField.Name} = req.body.{field.ServiceField.Name};");
 								}
 
-								if (httpMethodInfo.RequestHeaderFields != null)
-								{
-									foreach (var field in httpMethodInfo.RequestHeaderFields)
-										code.WriteLine($"request.{field.ServiceField.Name} = req.header('{field.Name}');");
-								}
+								foreach (var field in httpMethodInfo.RequestHeaderFields)
+									code.WriteLine($"request.{field.ServiceField.Name} = req.header('{field.Name}');");
 
 								code.WriteLine();
 								code.WriteLine($"return service.{methodName}(request)");
@@ -446,13 +444,10 @@ namespace Facility.CodeGen.JavaScript
 										}
 										using (code.Block("if (result.value) {", "}"))
 										{
-											if (httpMethodInfo.ResponseHeaderFields != null)
+											foreach (var field in httpMethodInfo.ResponseHeaderFields)
 											{
-												foreach (var field in httpMethodInfo.ResponseHeaderFields)
-												{
-													using (code.Block($"if (result.value.{field.ServiceField.Name} != null) {{", "}"))
-														code.WriteLine($"res.setHeader('{field.Name}', result.value.{field.ServiceField.Name});");
-												}
+												using (code.Block($"if (result.value.{field.ServiceField.Name} != null) {{", "}"))
+													code.WriteLine($"res.setHeader('{field.Name}', result.value.{field.ServiceField.Name});");
 											}
 
 											foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.NormalFields == null || x.NormalFields.Count == 0))
