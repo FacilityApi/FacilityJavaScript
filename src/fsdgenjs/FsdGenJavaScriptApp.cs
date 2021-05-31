@@ -8,10 +8,7 @@ namespace fsdgenjs
 {
 	public sealed class FsdGenJavaScriptApp : CodeGeneratorApp
 	{
-		public static int Main(string[] args)
-		{
-			return new FsdGenJavaScriptApp().Run(args);
-		}
+		public static int Main(string[] args) => new FsdGenJavaScriptApp().Run(args);
 
 		protected override IReadOnlyList<string> Description => new[]
 		{
