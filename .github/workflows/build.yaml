@@ -44,11 +44,11 @@ jobs:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: .\build.ps1 publish --skip test
     - name: Build NPM
-      if: runner.os == 'Ubuntu'
+      if: runner.os == 'Linux'
       run: .\build.ps1 build-npm
     - name: Test NPM
-      if: runner.os == 'Ubuntu'
+      if: runner.os == 'Linux'
       run: .\build.ps1 test-npm --skip build-npm
     - name: Publish NPM
-      if: runner.os == 'Ubuntu' && github.repository_owner == 'FacilityApi' && github.ref == 'refs/heads/master'
+      if: runner.os == 'Linux' && github.repository_owner == 'FacilityApi' && github.ref == 'refs/heads/master'
       run: .\build.ps1 publish-npm --skip test-npm
