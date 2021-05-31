@@ -537,7 +537,7 @@ namespace Facility.CodeGen.JavaScript
 				code.WriteLine("/* eslint-disable */");
 		}
 
-		private void WriteDto(CodeWriter code, ServiceDtoInfo dtoInfo, ServiceInfo service)
+		private static void WriteDto(CodeWriter code, ServiceDtoInfo dtoInfo, ServiceInfo service)
 		{
 			code.WriteLine();
 			WriteJsDoc(code, dtoInfo);
@@ -552,12 +552,9 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private string IfTypeScript(string value)
-		{
-			return TypeScript ? value : "";
-		}
+		private string IfTypeScript(string value) => TypeScript ? value : "";
 
-		private string RenderFieldType(ServiceTypeInfo fieldType)
+		private static string RenderFieldType(ServiceTypeInfo fieldType)
 		{
 			switch (fieldType.Kind)
 			{
@@ -590,7 +587,7 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private string RenderUriComponent(ServiceFieldInfo field, ServiceInfo service)
+		private static string RenderUriComponent(ServiceFieldInfo field, ServiceInfo service)
 		{
 			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 			var fieldName = field.Name;
@@ -618,7 +615,7 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private string RenderJsConversion(ServiceFieldInfo field, ServiceInfo service, string value)
+		private static string RenderJsConversion(ServiceFieldInfo field, ServiceInfo service, string value)
 		{
 			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 
@@ -645,10 +642,8 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private static void WriteJsDoc(CodeWriter code, ServiceElementWithAttributesInfo element)
-		{
+		private static void WriteJsDoc(CodeWriter code, ServiceElementWithAttributesInfo element) =>
 			WriteJsDoc(code, (element as IServiceHasSummary)?.Summary, isObsolete: element.IsObsolete, obsoleteMessage: element.ObsoleteMessage);
-		}
 
 		private static void WriteJsDoc(CodeWriter code, string? summary, bool isObsolete = false, string? obsoleteMessage = null)
 		{
