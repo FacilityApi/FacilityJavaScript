@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Faithlife.Build;
+using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
 
@@ -52,4 +53,43 @@ return BuildRunner.Execute(args, build =>
 		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
 		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
 	}
+
+	build.Target("build-npm")
+		.Describe("Builds the npm package.")
+		.Does(() =>
+		{
+			RunNpmFrom("./ts", "install");
+			RunNpmFrom("./ts", "run", "build");
+		});
+
+	build.Target("test-npm")
+		.DependsOn("build-npm")
+		.Describe("Tests the npm package.")
+		.Does(() =>
+		{
+			RunNpmFrom("./ts", "run", "test");
+
+			RunNpmFrom("./example/js", "install");
+			RunNpmFrom("./example/js", "run", "test");
+
+			RunNpmFrom("./example/ts", "install");
+			RunNpmFrom("./example/ts", "run", "test");
+		});
+
+	build.Target("publish-npm")
+		.DependsOn("test-npm")
+		.Describe("Publishes the npm package.")
+		.Does(() =>
+		{
+			RunNpmFrom("./ts", "publish");
+		});
+
+	void RunNpmFrom(string directory, params string[] args) =>
+		RunApp("npm",
+			new AppRunnerSettings
+			{
+				Arguments = args,
+				WorkingDirectory = directory,
+				UseCmdOnWindows = true,
+			});
 });
