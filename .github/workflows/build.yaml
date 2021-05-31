@@ -51,4 +51,6 @@ jobs:
       run: .\build.ps1 test-npm --skip build-npm
     - name: Publish NPM
       if: runner.os == 'Linux' && github.repository_owner == 'FacilityApi' && github.ref == 'refs/heads/master'
+      env:
+        NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       run: .\build.ps1 publish-npm --skip test-npm
