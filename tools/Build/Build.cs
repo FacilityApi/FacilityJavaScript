@@ -68,7 +68,11 @@ return BuildRunner.Execute(args, build =>
 		.Does(() =>
 		{
 			RunNpmFrom("./ts", "run", "test");
+
+			RunNpmFrom("./example/js", "install");
 			RunNpmFrom("./example/js", "run", "test");
+
+			RunNpmFrom("./example/ts", "install");
 			RunNpmFrom("./example/ts", "run", "test");
 		});
 
