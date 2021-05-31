@@ -97,5 +97,6 @@ return BuildRunner.Execute(args, build =>
 				Arguments = args,
 				WorkingDirectory = directory,
 				UseCmdOnWindows = true,
+				IsExitCodeSuccess = x => args[0] == "publish" ? x is 0 or 1 : x is 0,
 			});
 });
