@@ -50,9 +50,9 @@ namespace Facility.CodeGen.JavaScript
 
 			var moduleName = ModuleName ?? service.Name;
 			var capModuleName = CodeGenUtility.Capitalize(moduleName);
-			var typesFileName = Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
-			var clientFileName = Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
-			var serverFileName = Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
+			var typesFileName = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
+			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
+			var serverFileName = CodeGenUtility.Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
 
 			var namedTexts = new List<CodeGenFile>();
 			var typeNames = new List<string>();
@@ -150,8 +150,8 @@ namespace Facility.CodeGen.JavaScript
 
 				if (TypeScript)
 				{
-					WriteImports(code, typeNames, $"./{Uncapitalize(moduleName)}Types");
-					code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
+					WriteImports(code, typeNames, $"./{CodeGenUtility.Uncapitalize(moduleName)}Types");
+					code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
 				}
 
 				code.WriteLine();
@@ -351,8 +351,8 @@ namespace Facility.CodeGen.JavaScript
 					WriteImports(code, facilityImports, "facility-core");
 					if (TypeScript)
 					{
-						WriteImports(code, typeNames, $"./{Uncapitalize(moduleName)}Types");
-						code.WriteLine($"export * from './{Uncapitalize(moduleName)}Types';");
+						WriteImports(code, typeNames, $"./{CodeGenUtility.Uncapitalize(moduleName)}Types");
+						code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
 					}
 
 					// TODO: export this from facility-core
@@ -679,11 +679,6 @@ namespace Facility.CodeGen.JavaScript
 		{
 			if (imports.Count != 0)
 				code.WriteLine($"import {{ {string.Join(", ", imports)} }} from '{from}';");
-		}
-
-		private static string Uncapitalize(string value)
-		{
-			return value.Length == 0 ? "" : value.Substring(0, 1).ToLowerInvariant() + value.Substring(1);
 		}
 
 		private static bool FieldUsesKind(ServiceInfo service, ServiceFieldInfo field, ServiceTypeKind kind)
