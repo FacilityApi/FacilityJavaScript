@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build.ps1 = build.ps1
 		.github\workflows\build.yaml = .github\workflows\build.yaml
 		Directory.Build.props = Directory.Build.props
+		dotnet-tools.json = dotnet-tools.json
+		example\ExampleApi.fsd = example\ExampleApi.fsd
 		LICENSE = LICENSE
 		nuget.config = nuget.config
 		ts\package.json = ts\package.json
@@ -24,11 +26,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fsdgenjs", "src\fsdgenjs\fsdgenjs.csproj", "{7AA54CE8-D908-4FBB-9D81-111DE0C29E8F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facility.CodeGen.JavaScript.UnitTests", "tests\Facility.CodeGen.JavaScript.UnitTests\Facility.CodeGen.JavaScript.UnitTests.csproj", "{E4E67F1B-A9E3-47A9-A05B-D517A50EA606}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{3A881397-73AC-426F-B31A-94EE463117C4}"
-	ProjectSection(SolutionItems) = preProject
-		example\ExampleApi.fsd = example\ExampleApi.fsd
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "tools\Build\Build.csproj", "{9D6DC519-8908-4D3A-B16B-118D682BD170}"
 EndProject
@@ -63,9 +60,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{3A881397-73AC-426F-B31A-94EE463117C4} = {A219E328-B15A-41FF-BAA5-5F46679EF9C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {258EAD6F-902F-4B6D-83A2-EA3AD001A385}
