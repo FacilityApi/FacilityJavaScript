@@ -44,6 +44,10 @@ return BuildRunner.Execute(args, build =>
 		RunCodeGen("example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint");
 		RunCodeGen("example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint");
 
+		RunDotNet("FacilityConformance", "fsd", "--output", "conformance/ConformanceApi.fsd", verifyOption);
+		RunDotNet("FacilityConformance", "json", "--output", "conformance/ConformanceTests.json", verifyOption);
+		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/ts/src/", "--typescript", "--indent", "2", "--disable-eslint");
+
 		void RunCodeGen(params string?[] args) =>
 			RunDotNet(new[] { "run", "--no-build", "--project", $"src/{codegen}", "-f", "net6.0", "-c", configuration, "--", "--newline", "lf", verifyOption }.Concat(args));
 	}

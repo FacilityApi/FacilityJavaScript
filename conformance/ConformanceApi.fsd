@@ -1,0 +1,407 @@
+/// API for a Facility test server.
+[csharp(namespace: Facility.ConformanceApi)]
+service ConformanceApi
+{
+	/// Gets API information.
+	[http(method: get, path: "/")]
+	method getApiInfo
+	{
+	}:
+	{
+		/// The name of the service.
+		service: string;
+
+		/// The version of the service.
+		version: string;
+	}
+
+	/// Gets widgets.
+	[http(method: GET, path: "/widgets")]
+	[tag(name: widgets)]
+	method getWidgets
+	{
+		/// The query.
+		[http(name: "q")]
+		query: string;
+	}:
+	{
+		/// The widgets.
+		widgets: Widget[];
+	}
+
+	/// Creates a new widget.
+	[http(method: POST, path: "/widgets")]
+	[tag(name: widgets)]
+	method createWidget
+	{
+		/// The widget to create.
+		[http(from: body)]
+		widget: Widget;
+	}:
+	{
+		/// The created widget.
+		[http(from: body, code: 201)]
+		widget: Widget;
+
+		/// The URL of the created widget.
+		[http(from: header, name: Location)]
+		url: string;
+
+		/// The ETag of the created widget.
+		[http(from: header)]
+		eTag: string;
+	}
+
+	/// Gets the specified widget.
+	[http(method: GET, path: "/widgets/{id}")]
+	[tag(name: widgets)]
+	method getWidget
+	{
+		/// The widget ID.
+		[required, validate(value: 0..)]
+		id: int32;
+
+		/// Don't get the widget if it has this ETag.
+		[http(from: header, name: If-None-Match)]
+		ifNotETag: string;
+	}:
+	{
+		/// The requested widget.
+		[http(from: body)]
+		widget: Widget;
+
+		/// The ETag of the widget.
+		[http(from: header)]
+		eTag: string;
+
+		/// The widget still has the specified ETag.
+		[http(from: body, code: 304)]
+		notModified: boolean;
+	}
+
+	/// Deletes the specified widget.
+	[http(method: DELETE, path: "/widgets/{id}", code: 204)]
+	[tag(name: widgets)]
+	method deleteWidget
+	{
+		/// The widget ID.
+		[validate(value: 0..)]
+		id: int32;
+
+		/// Don't delete the widget unless it has this ETag.
+		[http(from: header, name: If-Match)]
+		ifETag: string;
+	}:
+	{
+		/// The widget was not found.
+		[http(from: body, code: 404)]
+		notFound: boolean;
+
+		/// The widget no longer has the specified ETag.
+		[http(from: body, code: 409)]
+		conflict: boolean;
+	}
+
+	/// Gets the specified widgets.
+	[http(method: POST, path: "/widgets/get")]
+	[tag(name: widgets)]
+	method getWidgetBatch
+	{
+		/// The IDs of the widgets to return.
+		[http(from: body), required, validate(count: ..10)]
+		ids: int32[];
+	}:
+	{
+		/// The widget results.
+		[http(from: body)]
+		results: result<Widget>[];
+	}
+
+	/// A widget.
+	[tag(name: widgets)]
+	data Widget
+	{
+		/// A unique identifier for the widget.
+		[validate(value: 0..)]
+		id: int32;
+
+		/// The name of the widget.
+		[required, validate(regex: "^[_a-zA-Z0-9]+$", length: 1..10)]
+		name: string;
+	}
+
+	method mirrorFields
+	{
+		field: Any;
+		matrix: double[][][];
+	}:
+	{
+		field: Any;
+		matrix: double[][][];
+	}
+
+	[http(method: GET)]
+	method checkQuery
+	{
+		string: string;
+		boolean: boolean;
+		double: double;
+		int32: int32;
+		int64: int64;
+		decimal: decimal;
+
+		[validate]
+		enum: Answer;
+	}:
+	{
+	}
+
+	[http(method: GET, path: "/checkPath/{string}/{boolean}/{double}/{int32}/{int64}/{decimal}/{enum}")]
+	method checkPath
+	{
+		string: string;
+		boolean: boolean;
+		double: double;
+		int32: int32;
+		int64: int64;
+		decimal: decimal;
+
+		[validate]
+		enum: Answer;
+	}:
+	{
+	}
+
+	[http(method: GET)]
+	method mirrorHeaders
+	{
+		[http(from: header)] string: string;
+		[http(from: header)] boolean: boolean;
+		[http(from: header)] double: double;
+		[http(from: header)] int32: int32;
+		[http(from: header)] int64: int64;
+		[http(from: header)] decimal: decimal;
+		[http(from: header)] enum: Answer;
+	}:
+	{
+		[http(from: header)] string: string;
+		[http(from: header)] boolean: boolean;
+		[http(from: header)] double: double;
+		[http(from: header)] int32: int32;
+		[http(from: header)] int64: int64;
+		[http(from: header)] decimal: decimal;
+		[http(from: header)] enum: Answer;
+	}
+
+	[http(path: "/mixed/{path}")]
+	method mixed
+	{
+		[http(from: path)] path: string;
+		[http(from: query)] query: string;
+		[http(from: header)] header: string;
+		[http(from: normal)] normal: string;
+	}:
+	{
+		[http(from: header)] header: string;
+		[http(from: normal)] normal: string;
+		[http(from: body, code: 202)] body: object;
+		[http(from: body, code: 204)] empty: boolean;
+	}
+
+	method required
+	{
+		[http(from: query), required] query: string;
+		[required] normal: string;
+		widget: Widget;
+		widgets: Widget[];
+		widgetMatrix: Widget[][];
+		widgetResult: result<Widget>;
+		widgetResults: result<Widget>[];
+		widgetMap: map<Widget>;
+		hasWidget: HasWidget;
+		[validate(count: 2)] point: double[];
+	}:
+	{
+		[required] normal: string;
+	}
+
+	method mirrorBytes
+	{
+		[http(from: body)] content: bytes;
+		[http(from: header, name: Content-Type)] type: string;
+	}:
+	{
+		[http(from: body)] content: bytes;
+		[http(from: header, name: Content-Type)] type: string;
+	}
+
+	method mirrorText
+	{
+		[http(from: body)] content: string;
+		[http(from: header, name: Content-Type)] type: string;
+	}:
+	{
+		[http(from: body)] content: string;
+		[http(from: header, name: Content-Type)] type: string;
+	}
+
+	method bodyTypes
+	{
+		[http(from: body, type: "text/x-input")] content: string;
+	}:
+	{
+		[http(from: body, type: "application/x-output")] content: bytes;
+	}
+
+	data Any
+	{
+		string: string;
+		boolean: boolean;
+		double: double;
+		int32: int32;
+		int64: int64;
+		decimal: decimal;
+		bytes: bytes;
+		object: object;
+		error: error;
+		data: Any;
+		enum: Answer;
+		array: AnyArray;
+		map: AnyMap;
+		result: AnyResult;
+	}
+
+	data AnyArray
+	{
+		string: string[];
+		boolean: boolean[];
+		double: double[];
+		int32: int32[];
+		int64: int64[];
+		decimal: decimal[];
+		bytes: bytes[];
+		object: object[];
+		error: error[];
+		data: Any[];
+		enum: Answer[];
+		array: int32[][];
+		map: map<int32>[];
+		result: result<int32>[];
+	}
+
+	data AnyMap
+	{
+		string: map<string>;
+		boolean: map<boolean>;
+		double: map<double>;
+		int32: map<int32>;
+		int64: map<int64>;
+		decimal: map<decimal>;
+		bytes: map<bytes>;
+		object: map<object>;
+		error: map<error>;
+		data: map<Any>;
+		enum: map<Answer>;
+		array: map<int32[]>;
+		map: map<map<int32>>;
+		result: map<result<int32>>;
+	}
+
+	data AnyResult
+	{
+		string: result<string>;
+		boolean: result<boolean>;
+		double: result<double>;
+		int32: result<int32>;
+		int64: result<int64>;
+		decimal: result<decimal>;
+		bytes: result<bytes>;
+		object: result<object>;
+		error: result<error>;
+		data: result<Any>;
+		enum: result<Answer>;
+		array: result<int32[]>;
+		map: result<map<int32>>;
+		result: result<result<int32>>;
+	}
+
+	data HasWidget
+	{
+		widget: Widget;
+	}
+
+	/// One of three answers.
+	enum Answer
+	{
+		/// Affirmative.
+		yes,
+
+		/// Negative.
+		no,
+
+		/// Unknown.
+		maybe,
+	}
+
+	/// Custom errors.
+	errors ApiErrors
+	{
+		/// The user is not an administrator.
+		[http(code: 403)]
+		NotAdmin,
+
+		/// I'm "too" 😄!
+		TooHappy,
+	}
+}
+
+# ConformanceApi
+
+The Facility Conformance API allows clients and servers in various languages and platforms
+to test one another for conformance.
+
+## Conformance Web Server
+
+A conformance web server should leverage a Facility server code generator and/or library.
+On each request, the web server should determine the conformance test being executed by
+looking at the `FacilityTest` HTTP header. The web server should find the test data for the
+specified test, ensure that the request matches, and return the specified response or error.
+
+The web server should return `InvalidRequest` if:
+
+* The `FacilityTest` HTTP header is missing.
+* The API method called does not match the method specified by the test data.
+* The actual request is not an exact match of the request specified by the test data.
+* The server fails to create a response or error that is an exact match of the specified
+  response or error.
+
+When checking for an exact match, the only thing that can be ignored is the order of the
+properties of an object. There should be no missing properties, no extra properties, and
+all property names and other strings should use the same letter case.
+
+## Conformance Tester
+
+A conformance tester should leverage a Facility client generator and/or library. The tester
+should enumerate through all of the conformance tests. For each test, it should create a
+client that adds the `FacilityTest` HTTP header to any request. It should use that client to
+call the method specified by the test data with the request specified by the test data. The
+tester should verify that the result matches the response or error specified by the test data.
+
+The tester should report a test failure if:
+
+* The method specified by the test data is missing.
+* The client fails to create a request that is an exact match of the specified request.
+* The client receives a response or error that is not an exact match of the specified
+  response or error.
+
+# getApiInfo
+
+The name of the service should be `ConformanceApi`.
+
+# Widget
+
+Widgets are useful for conformance tests.
+
+# Answer
+
+Use `maybe` if you aren't sure.

@@ -1,0 +1,787 @@
+{
+  "tests": [
+    {
+      "test": "checkPath",
+      "method": "checkPath",
+      "request": {
+        "string": "string",
+        "boolean": true,
+        "double": 0.375,
+        "int32": 42,
+        "int64": 12345678910,
+        "decimal": 1.5,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "checkQuery",
+      "method": "checkQuery",
+      "request": {
+        "string": "string",
+        "boolean": true,
+        "double": 0.375,
+        "int32": 42,
+        "int64": 12345678910,
+        "decimal": 1.5,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "createWidget",
+      "method": "createWidget",
+      "request": {
+        "widget": {
+          "name": "shiny"
+        }
+      },
+      "response": {
+        "widget": {
+          "id": 1337,
+          "name": "shiny"
+        },
+        "url": "/widgets/1337",
+        "eTag": "\"initial\""
+      }
+    },
+    {
+      "test": "createWidgetNoName",
+      "method": "createWidget",
+      "request": {
+        "widget": {}
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widget' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "createWidgetNoWidget",
+      "method": "createWidget",
+      "request": {},
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widget' is required."
+      }
+    },
+    {
+      "test": "deleteWidget",
+      "method": "deleteWidget",
+      "request": {
+        "id": 1337
+      },
+      "response": {}
+    },
+    {
+      "test": "deleteWidgetConflict",
+      "method": "deleteWidget",
+      "request": {
+        "id": 1337,
+        "ifETag": "\"not-initial\""
+      },
+      "response": {
+        "conflict": true
+      }
+    },
+    {
+      "test": "deleteWidgetNotFound",
+      "method": "deleteWidget",
+      "request": {
+        "id": 1338
+      },
+      "response": {
+        "notFound": true
+      }
+    },
+    {
+      "test": "getApiInfo",
+      "method": "getApiInfo",
+      "request": {},
+      "response": {
+        "service": "ConformanceApi",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "test": "getWidget",
+      "method": "getWidget",
+      "request": {
+        "id": 1337
+      },
+      "response": {
+        "widget": {
+          "id": 1337,
+          "name": "shiny"
+        },
+        "eTag": "\"initial\""
+      }
+    },
+    {
+      "test": "getWidgetBatch",
+      "method": "getWidgetBatch",
+      "request": {
+        "ids": [
+          1337,
+          42
+        ]
+      },
+      "response": {
+        "results": [
+          {
+            "value": {
+              "id": 1337,
+              "name": "shiny"
+            }
+          },
+          {
+            "error": {
+              "code": "NotFound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "test": "getWidgetNotFound",
+      "method": "getWidget",
+      "request": {
+        "id": 1338
+      },
+      "error": {
+        "code": "NotFound",
+        "message": "The specified widget was not found."
+      }
+    },
+    {
+      "test": "getWidgetNotModified",
+      "method": "getWidget",
+      "request": {
+        "id": 1337,
+        "ifNotETag": "\"initial\""
+      },
+      "response": {
+        "notModified": true
+      }
+    },
+    {
+      "test": "getWidgets",
+      "method": "getWidgets",
+      "request": {
+        "query": "shiny"
+      },
+      "response": {
+        "widgets": [
+          {
+            "id": 1337,
+            "name": "shiny"
+          },
+          {
+            "id": 7331,
+            "name": "shinier"
+          }
+        ]
+      }
+    },
+    {
+      "test": "getWidgetsNone",
+      "method": "getWidgets",
+      "request": {
+        "query": "none"
+      },
+      "response": {
+        "widgets": []
+      }
+    },
+    {
+      "test": "mirrorArrayFields",
+      "method": "mirrorFields",
+      "request": {
+        "field": {
+          "array": {
+            "string": ["string", "\n"],
+            "boolean": [true, false],
+            "double": [0.375, -1.5],
+            "int32": [42, 24],
+            "int64": [12345678910, -987654321],
+            "decimal": [1.5, 6.875],
+            "bytes": ["aGk=", ""],
+            "object": [{ "": null, " ": [null] }, {}],
+            "error": [{ "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } }],
+            "data": [{ "data": { "data": {} } }, {}],
+            "enum": ["yes", "no"],
+            "array": [[42, 24], [24, 42]],
+            "map": [{ "": 42 }, { " ": 24 }],
+            "result": [{ "value": 42 }, { "error": { "code": "code" } }]
+          }
+        },
+        "matrix": [[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]]]
+      },
+      "response": {
+        "field": {
+          "array": {
+            "string": ["string", "\n"],
+            "boolean": [true, false],
+            "double": [0.375, -1.5],
+            "int32": [42, 24],
+            "int64": [12345678910, -987654321],
+            "decimal": [1.5, 6.875],
+            "bytes": ["aGk=", ""],
+            "object": [{ "": null, " ": [null] }, {}],
+            "error": [{ "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } }],
+            "data": [{ "data": { "data": {} } }, {}],
+            "enum": ["yes", "no"],
+            "array": [[42, 24], [24, 42]],
+            "map": [{ "": 42 }, { " ": 24 }],
+            "result": [{ "value": 42 }, { "error": { "code": "code" } }]
+          }
+        },
+        "matrix": [[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]]]
+      }
+    },
+    {
+      "test": "mirrorFields",
+      "method": "mirrorFields",
+      "request": {
+        "field": {
+          "string": "string",
+          "boolean": true,
+          "double": 0.375,
+          "int32": 42,
+          "int64": 12345678910,
+          "decimal": 1.5,
+          "bytes": "aGk=",
+          "object": { "": null, " ": [null] },
+          "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } },
+          "data": { "data": { "data": {} } },
+          "enum": "yes"
+        }
+      },
+      "response": {
+        "field": {
+          "string": "string",
+          "boolean": true,
+          "double": 0.375,
+          "int32": 42,
+          "int64": 12345678910,
+          "decimal": 1.5,
+          "bytes": "aGk=",
+          "object": { "": null, " ": [null] },
+          "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } },
+          "data": { "data": { "data": {} } },
+          "enum": "yes"
+        }
+      }
+    },
+    {
+      "test": "mirrorHeaders",
+      "method": "mirrorHeaders",
+      "request": {
+        "string": "string",
+        "boolean": true,
+        "double": 0.375,
+        "int32": 42,
+        "int64": 12345678910,
+        "decimal": 1.5,
+        "enum": "yes"
+      },
+      "response": {
+        "string": "string",
+        "boolean": true,
+        "double": 0.375,
+        "int32": 42,
+        "int64": 12345678910,
+        "decimal": 1.5,
+        "enum": "yes"
+      }
+    },
+    {
+      "test": "mirrorHeadersMissing",
+      "method": "mirrorHeaders",
+      "request": {},
+      "response": {}
+    },
+    {
+      "test": "mirrorMapFields",
+      "method": "mirrorFields",
+      "request": {
+        "field": {
+          "map": {
+            "string": { "": "string", " ": "\n" },
+            "boolean": { "": true, " ": false },
+            "double": { "": 0.375, " ": -1.5 },
+            "int32": { "": 42, " ": 24 },
+            "int64": { "": 12345678910, " ": -987654321 },
+            "decimal": { "": 1.5, " ": 6.875 },
+            "bytes": { "": "aGk=", " ": "" },
+            "object": { "": { "": null, " ": [null] }, " ": {} },
+            "error": { "": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } }, " ": {} },
+            "data": { "": { "data": { "data": {} } }, " ": {} },
+            "enum": { "": "yes", " ": "no" },
+            "array": { "": [42, 24], " ": [24, 42] },
+            "map": { "": { "": 42 }, " ": { " ": 24 } },
+            "result": { "": { "value": 42 }, " ": { "error": { "code": "24" } } }
+          }
+        }
+      },
+      "response": {
+        "field": {
+          "map": {
+            "string": { "": "string", " ": "\n" },
+            "boolean": { "": true, " ": false },
+            "double": { "": 0.375, " ": -1.5 },
+            "int32": { "": 42, " ": 24 },
+            "int64": { "": 12345678910, " ": -987654321 },
+            "decimal": { "": 1.5, " ": 6.875 },
+            "bytes": { "": "aGk=", " ": "" },
+            "object": { "": { "": null, " ": [null] }, " ": {} },
+            "error": { "": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } }, " ": {} },
+            "data": { "": { "data": { "data": {} } }, " ": {} },
+            "enum": { "": "yes", " ": "no" },
+            "array": { "": [42, 24], " ": [24, 42] },
+            "map": { "": { "": 42 }, " ": { " ": 24 } },
+            "result": { "": { "value": 42 }, " ": { "error": { "code": "24" } } }
+          }
+        }
+      }
+    },
+    {
+      "test": "mirrorResultErrorFields",
+      "method": "mirrorFields",
+      "request": {
+        "field": {
+          "result": {
+            "string": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "boolean": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "double": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "int32": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "int64": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "decimal": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "bytes": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "object": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "error": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "data": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "enum": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "array": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "map": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "result": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } }
+          }
+        }
+      },
+      "response": {
+        "field": {
+          "result": {
+            "string": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "boolean": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "double": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "int32": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "int64": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "decimal": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "bytes": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "object": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "error": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "data": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "enum": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "array": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "map": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "result": { "error": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } }
+          }
+        }
+      }
+    },
+    {
+      "test": "mirrorResultValueFields",
+      "method": "mirrorFields",
+      "request": {
+        "field": {
+          "result": {
+            "string": { "value": "string" },
+            "boolean": { "value": true },
+            "double": { "value": 0.375 },
+            "int32": { "value": 42 },
+            "int64": { "value": 12345678910 },
+            "decimal": { "value": 1.5 },
+            "bytes": { "value": "aGk=" },
+            "object": { "value": { "": null, " ": [null] } },
+            "error": { "value": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "data": { "value": { "data": { "data": {} } } },
+            "enum": { "value": "yes" },
+            "array": { "value": [42] },
+            "map": { "value": { "": 42 } },
+            "result": { "value": { "value": 42 } }
+          }
+        }
+      },
+      "response": {
+        "field": {
+          "result": {
+            "string": { "value": "string" },
+            "boolean": { "value": true },
+            "double": { "value": 0.375 },
+            "int32": { "value": 42 },
+            "int64": { "value": 12345678910 },
+            "decimal": { "value": 1.5 },
+            "bytes": { "value": "aGk=" },
+            "object": { "value": { "": null, " ": [null] } },
+            "error": { "value": { "code": "code", "message": "message", "innerError": { "code": "code" }, "details": { "": null, " ": [null] } } },
+            "data": { "value": { "data": { "data": {} } } },
+            "enum": { "value": "yes" },
+            "array": { "value": [42] },
+            "map": { "value": { "": 42 } },
+            "result": { "value": { "value": 42 } }
+          }
+        }
+      }
+    },
+    {
+      "test": "mixedOk",
+      "method": "mixed",
+      "request": {
+        "path": "string",
+        "query": "string",
+        "header": "string",
+        "normal": "ok"
+      },
+      "response": {
+        "header": "string",
+        "normal": "string"
+      }
+    },
+    {
+      "test": "mixedAccepted",
+      "method": "mixed",
+      "request": {
+        "path": "string",
+        "query": "string",
+        "header": "string",
+        "normal": "accepted"
+      },
+      "response": {
+        "header": "string",
+        "body": {}
+      }
+    },
+    {
+      "test": "mixedNoContent",
+      "method": "mixed",
+      "request": {
+        "path": "string",
+        "query": "string",
+        "header": "string",
+        "normal": "noContent"
+      },
+      "response": {
+        "header": "string",
+        "empty": true
+      }
+    },
+    {
+      "test": "requiredSuccess",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string"
+      },
+      "response": {
+        "normal": "string"
+      }
+    },
+    {
+      "test": "requiredNoQuery",
+      "method": "required",
+      "request": {
+        "normal": "string"
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'query' is required."
+      }
+    },
+    {
+      "test": "requiredNoNormal",
+      "method": "required",
+      "request": {
+        "query": "string"
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'normal' is required."
+      }
+    },
+    {
+      "test": "requiredSuccessWidgets",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widget": { "name": "string" },
+        "widgets": [{ "name": "string" }],
+        "widgetMatrix": [[{ "name": "string" }]],
+        "widgetResult": { "value": { "name": "string" } },
+        "widgetResults": [{ "value": { "name": "string" } }],
+        "widgetMap": { "name": { "name": "string" } },
+        "hasWidget": { "widget": { "name": "string" } },
+        "point": [ 0.0, 1.0 ]
+      },
+      "response": {
+        "normal": "string"
+      }
+    },
+    {
+      "test": "requiredNoNameWidget",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widget": {}
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widget' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameWidgets",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widgets": [{ "name": "string" }, {}]
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widgets[1]' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameWidgetMatrix",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widgetMatrix": [[{}]]
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widgetMatrix[0][0]' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameWidgetResult",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widgetResult": { "value": {} }
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widgetResult' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameWidgetResults",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widgetResults": [{ "value": {} }]
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widgetResults[0]' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameWidgetMap",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "widgetMap": { "key": {} }
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widgetMap.key' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "requiredNoNameHasWidget",
+      "method": "required",
+      "request": {
+        "query": "string",
+        "normal": "string",
+        "hasWidget": { "widget": {} }
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'hasWidget' is invalid: 'widget' is invalid: 'name' is required."
+      }
+    },
+    {
+      "test": "mirrorBytes",
+      "method": "mirrorBytes",
+      "request": {
+        "content": "NDI=",
+        "type": "application/binary"
+      },
+      "response": {
+        "content": "NDI=",
+        "type": "application/binary"
+      }
+    },
+    {
+      "test": "mirrorText",
+      "method": "mirrorText",
+      "request": {
+        "content": "forty-two",
+        "type": "text/number"
+      },
+      "response": {
+        "content": "forty-two",
+        "type": "text/number"
+      }
+    },
+    {
+      "test": "bodyTypes",
+      "method": "bodyTypes",
+      "request": {
+        "content": "forty-two"
+      },
+      "response": {
+        "content": "NDI="
+      }
+    },
+    {
+      "test": "checkPathHttpPathCase",
+      "method": "checkPath",
+      "httpRequest": {
+        "method": "GET",
+        "path": "/CHECKPATH/pathCase/true/1.5/3/4/0.625/yes"
+      },
+      "request": {
+        "string": "pathCase",
+        "boolean": true,
+        "double": 1.5,
+        "int32": 3,
+        "int64": 4,
+        "decimal": 0.625,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "checkPathHttpBooleanCase",
+      "method": "checkPath",
+      "httpRequest": {
+        "method": "GET",
+        "path": "/checkPath/booleanCase/TRUE/1.5/3/4/0.625/yes"
+      },
+      "request": {
+        "string": "booleanCase",
+        "boolean": true,
+        "double": 1.5,
+        "int32": 3,
+        "int64": 4,
+        "decimal": 0.625,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "checkQueryHttpPathCase",
+      "method": "checkQuery",
+      "httpRequest": {
+        "method": "GET",
+        "path": "/CHECKQUERY?string=pathCase&boolean=true&double=1.5&int32=3&int64=4&decimal=0.625&enum=yes"
+      },
+      "request": {
+        "string": "pathCase",
+        "boolean": true,
+        "double": 1.5,
+        "int32": 3,
+        "int64": 4,
+        "decimal": 0.625,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "checkQueryHttpQueryCase",
+      "method": "checkQuery",
+      "httpRequest": {
+        "method": "GET",
+        "path": "/checkQuery?STRING=queryCase&boolean=true&double=1.5&int32=3&int64=4&decimal=0.625&enum=yes"
+      },
+      "request": {
+        "string": "queryCase",
+        "boolean": true,
+        "double": 1.5,
+        "int32": 3,
+        "int64": 4,
+        "decimal": 0.625,
+        "enum": "yes"
+      },
+      "response": {}
+    },
+    {
+      "test": "getWidgetInvalidId",
+      "method": "getWidget",
+      "request": {
+        "id": -1
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'id' is invalid: Must be at least 0."
+      }
+    },
+    {
+      "test": "createWidgetInvalidName",
+      "method": "createWidget",
+      "request": {
+        "widget": {
+          "name": "*order"
+        }
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widget' is invalid: 'name' is invalid: Must match regular expression: ^[_a-zA-Z0-9]+$"
+      }
+    },
+    {
+      "test": "getWidgetBatchTooLarge",
+      "method": "getWidgetBatch",
+      "request": {
+        "ids": [0, 1, 2, 31, 231, 10011, 10213, 20014, 120001, 120003, 120032, 1000000001]
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'ids' is invalid: Count must be at most 10."
+      }
+    },
+    {
+      "test": "createWidgetNameTooLong",
+      "method": "createWidget",
+      "request": {
+        "widget": {
+          "name": "FacilityServiceWidget"
+        }
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'widget' is invalid: 'name' is invalid: Length must be at most 10."
+      }
+    },
+    {
+      "test": "checkQueryInvalidAnswer",
+      "method": "checkQuery",
+      "request": {
+        "enum": "negative"
+      },
+      "error": {
+        "code": "InvalidRequest",
+        "message": "'enum' is invalid: Must be an expected enum value."
+      }
+    }
+  ]
+}
