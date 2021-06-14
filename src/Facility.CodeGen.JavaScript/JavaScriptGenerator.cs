@@ -412,7 +412,7 @@ namespace Facility.CodeGen.JavaScript
 
 								foreach (var httpQueryField in httpMethodInfo.QueryFields)
 								{
-									using (code.Block($"if (req.query['{httpQueryField.Name}'] != null) {{", "}"))
+									using (code.Block($"if (typeof req.query['{httpQueryField.Name}'] === 'string') {{", "}"))
 										code.WriteLine($"request.{httpQueryField.ServiceField.Name} = {RenderJsConversion(httpQueryField.ServiceField, service, $"req.query['{httpQueryField.Name}']")};");
 								}
 
@@ -622,6 +622,7 @@ namespace Facility.CodeGen.JavaScript
 			switch (fieldTypeKind)
 			{
 			case ServiceTypeKind.Enum:
+				return $"{value} as {field.TypeName}";
 			case ServiceTypeKind.String:
 			case ServiceTypeKind.Bytes:
 				return value;
