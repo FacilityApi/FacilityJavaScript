@@ -33,7 +33,6 @@ export interface IHttpClientOptions {
 /** Helpers for HTTP clients. */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace HttpClientUtility {
-
 	/** The fetch function. */
 	export interface IFetch {
 		(uri: string, request: IFetchRequest): Promise<IFetchResponse>;
@@ -73,31 +72,37 @@ export namespace HttpClientUtility {
 		'413': 'RequestTooLarge',
 		'429': 'TooManyRequests',
 		'500': 'InternalError',
-		'503': 'ServiceUnavailable'
+		'503': 'ServiceUnavailable',
 	};
 
 	const jsonContentType = 'application/json';
 
 	/** Fetch JSON using the specified fetch, URI, and request. */
-	export function fetchResponse(fetch: IFetch, uri: string, request: IFetchRequest): Promise<IFetchedResponseWithContent> {
-		return fetch(uri, request)
-			.then(response => {
-				if (!response.headers || !response.status || typeof response.json !== 'function') {
-					throw new TypeError('fetch must resolve Promise with { status, headers, json() }.');
+	export function fetchResponse(
+		fetch: IFetch,
+		uri: string,
+		request: IFetchRequest
+	): Promise<IFetchedResponseWithContent> {
+		return fetch(uri, request).then((response) => {
+			if (!response.headers || !response.status || typeof response.json !== 'function') {
+				throw new TypeError('fetch must resolve Promise with { status, headers, json() }.');
+			}
+			const contentType = response.headers.get('content-type');
+			if (!contentType) {
+				return Promise.resolve({ response: response, json: {} });
+			}
+			if (contentType.toLowerCase().substr(0, jsonContentType.length) === jsonContentType) {
+				const jsonPromise = response.json();
+				if (!jsonPromise || typeof jsonPromise.then !== 'function') {
+					throw new TypeError('json() of fetch response must return a Promise.');
 				}
-				const contentType = response.headers.get('content-type');
-				if (!contentType) {
-					return Promise.resolve({ response: response, json: {} });
-				}
-				if (contentType.toLowerCase().substr(0, jsonContentType.length) === jsonContentType) {
-					const jsonPromise = response.json();
-					if (!jsonPromise || typeof jsonPromise.then !== 'function') {
-						throw new TypeError('json() of fetch response must return a Promise.');
-					}
-					return jsonPromise.then(json => ({ response: response, json: json }));
-				}
-				return Promise.resolve({ response: response });
-			});
+				return jsonPromise.then((json) => ({
+					response: response,
+					json: json,
+				}));
+			}
+			return Promise.resolve({ response: response });
+		});
 	}
 
 	/** Creates an error result for the specified response. */
@@ -108,13 +113,22 @@ export namespace HttpClientUtility {
 		const isClientError = status >= 400 && status <= 499;
 		const isServerError = status >= 500 && status <= 599;
 		const errorCode = standardErrorCodes[status] || (isClientError ? 'InvalidRequest' : 'InvalidResponse');
-		const message = isServerError ? 'HTTP server error' : isClientError ? 'HTTP client error' : 'Unexpected HTTP status code';
+		const message = isServerError
+			? 'HTTP server error'
+			: isClientError
+			? 'HTTP client error'
+			: 'Unexpected HTTP status code';
 		return { error: { code: errorCode, message: `${message}: ${status}` } };
 	}
 
 	/** Creates an error result for a required request field. */
 	export function createRequiredRequestFieldError(name: string): IServiceResultBase {
-		return { error: { code: 'InvalidRequest', message: `The request field '${name}' is required.` } };
+		return {
+			error: {
+				code: 'InvalidRequest',
+				message: `The request field '${name}' is required.`,
+			},
+		};
 	}
 }
 
