@@ -17,7 +17,7 @@ export interface IServiceError {
 	/** The error message. (For developers, not end users.) */
 	message?: string;
 	/** Advanced error details. */
-	details?: any;
+	details?: Record<string, unknown>;
 	/** The inner error. */
 	innerError?: IServiceError;
 }
@@ -41,7 +41,7 @@ export namespace HttpClientUtility {
 	/** The minimal fetch request. */
 	export interface IFetchRequest {
 		method?: string;
-		headers?: any;
+		headers?: Record<string, string>;
 		body?: string;
 	}
 
@@ -51,7 +51,7 @@ export namespace HttpClientUtility {
 		headers: {
 			get(name: string): string | null;
 		};
-		json(): Promise<any>;
+		json(): Promise<unknown>;
 	}
 
 	/** A fetch response with any fetched content. */
@@ -59,7 +59,7 @@ export namespace HttpClientUtility {
 		/** The fetch response. */
 		response: IFetchResponse;
 		/** The fetched JSON, if any. */
-		json?: any;
+		json?: unknown;
 	}
 
 	const standardErrorCodes: { [index: number]: string } = {
@@ -100,8 +100,8 @@ export namespace HttpClientUtility {
 	}
 
 	/** Creates an error result for the specified response. */
-	export function createResponseError(status: number, json?: any): IServiceResultBase {
-		if (json && json.code) {
+	export function createResponseError(status: number, json?: unknown): IServiceResultBase {
+		if (isServiceError(json)) {
 			return { error: json };
 		}
 		const isClientError = status >= 400 && status <= 499;
@@ -115,4 +115,8 @@ export namespace HttpClientUtility {
 	export function createRequiredRequestFieldError(name: string): IServiceResultBase {
 		return { error: { code: 'InvalidRequest', message: `The request field '${name}' is required.` } };
 	}
+}
+
+function isServiceError(json: unknown): json is IServiceError {
+	return typeof json === 'object' && json != null && typeof (json as Record<string, unknown>).code === 'string';
 }
