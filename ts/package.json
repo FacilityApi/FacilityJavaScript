@@ -3,7 +3,7 @@
   "version": "2.1.1",
   "description": "Common code for the Facility API Framework.",
   "scripts": {
-    "build": "tsc && tslint --exclude **/*.d.ts src/*.ts",
+    "build": "tsc && eslint src --ext .ts",
     "test": "npm run --silent build && mocha"
   },
   "repository": {
@@ -20,9 +20,11 @@
   "devDependencies": {
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
     "chai": "^4.3.4",
+    "eslint": "^7.28.0",
     "mocha": "^8.4.0",
-    "tslint": "^5.20.1",
     "typescript": "~3.9.9"
   }
 }

@@ -31,6 +31,7 @@ export interface IHttpClientOptions {
 }
 
 /** Helpers for HTTP clients. */
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace HttpClientUtility {
 
 	/** The fetch function. */
