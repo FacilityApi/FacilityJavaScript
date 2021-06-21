@@ -260,7 +260,7 @@ namespace Facility.CodeGen.JavaScript
 								foreach (var httpHeaderField in httpMethodInfo.RequestHeaderFields)
 								{
 									using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
-										code.WriteLine($"fetchRequest.headers['{httpHeaderField.Name}'] = request.{httpHeaderField.ServiceField.Name};");
+										code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = request.{httpHeaderField.ServiceField.Name};");
 								}
 							}
 
@@ -269,7 +269,8 @@ namespace Facility.CodeGen.JavaScript
 							using (code.Block(".then(result => {", "});"))
 							{
 								code.WriteLine("const status = result.response.status;");
-								code.WriteLine("let value" + IfTypeScript($": I{capMethodName}Response | null") + " = null;");
+								var responseValueType = $"I{capMethodName}Response";
+								code.WriteLine("let value" + IfTypeScript($": {responseValueType} | null") + " = null;");
 								using (code.Block("if (result.json) {", "}"))
 								{
 									var validResponses = httpMethodInfo.ValidResponses;
@@ -291,14 +292,14 @@ namespace Facility.CodeGen.JavaScript
 												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
 													code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
 												else
-													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }};");
+													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }}" + IfTypeScript($" as {responseValueType}") + ";");
 											}
 											else
 											{
 												if (validResponse.NormalFields!.Count == 0)
 													code.WriteLine("value = {};");
 												else
-													code.WriteLine("value = result.json;");
+													code.WriteLine("value = result.json" + IfTypeScript($" as {responseValueType} | null") + ";");
 											}
 										}
 										code.WriteLine("}");
@@ -412,7 +413,7 @@ namespace Facility.CodeGen.JavaScript
 
 								foreach (var httpQueryField in httpMethodInfo.QueryFields)
 								{
-									using (code.Block($"if (req.query['{httpQueryField.Name}'] != null) {{", "}"))
+									using (code.Block($"if (typeof req.query['{httpQueryField.Name}'] === 'string') {{", "}"))
 										code.WriteLine($"request.{httpQueryField.ServiceField.Name} = {RenderJsConversion(httpQueryField.ServiceField, service, $"req.query['{httpQueryField.Name}']")};");
 								}
 
@@ -622,6 +623,7 @@ namespace Facility.CodeGen.JavaScript
 			switch (fieldTypeKind)
 			{
 			case ServiceTypeKind.Enum:
+				return $"{value} as {field.TypeName}";
 			case ServiceTypeKind.String:
 			case ServiceTypeKind.Bytes:
 				return value;

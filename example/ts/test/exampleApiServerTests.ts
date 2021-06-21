@@ -1,10 +1,11 @@
 import { createHttpClient } from '../src/exampleApi';
 import { createApp } from '../src/exampleApiServer';
-import { IServiceResult, IServiceError } from 'facility-core';
+import { IServiceResult } from 'facility-core';
 import { IExampleApi, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IEditWidgetRequest, IEditWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IGetWidgetWeightRequest, IGetWidgetWeightResponse, IGetPreferenceRequest, IGetPreferenceResponse, ISetPreferenceRequest, ISetPreferenceResponse, IGetInfoRequest, IGetInfoResponse, INotRestfulRequest, INotRestfulResponse, IKitchenRequest, IKitchenResponse, IWidget, IWidgetJob, IPreference, IObsoleteData, IKitchenSink } from '../src/exampleApiTypes';
 import * as crypto from 'crypto';
 import { expect, should } from 'chai';
 import * as http from 'http';
+import { AddressInfo } from 'net';
 import fetch from 'node-fetch';
 
 should();
@@ -125,7 +126,7 @@ describe('createApp', () => {
 
 	before(() => {
 		server = app.listen(0, '127.0.0.1', () => {
-			const { address, port } = server.address();
+			const { address, port } = server.address() as AddressInfo;
 
 			client = createHttpClient({
 				fetch,

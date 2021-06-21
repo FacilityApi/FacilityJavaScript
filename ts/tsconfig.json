@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
+    "target": "ES2019",
     "strict": true,
     "newLine": "LF",
     "declaration": true,
     "sourceMap": true,
-    "lib": [ "es2015.promise", "es5" ]
+    "lib": [ "ES2019" ]
   },
   "include": [
     "src/*.ts",

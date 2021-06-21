@@ -39,22 +39,22 @@ export function createApp(service) {
   /** Gets widgets. */
   app.get('/widgets', function (req, res, next) {
     const request = {};
-    if (req.query['q'] != null) {
+    if (typeof req.query['q'] === 'string') {
       request.query = req.query['q'];
     }
-    if (req.query['limit'] != null) {
+    if (typeof req.query['limit'] === 'string') {
       request.limit = parseInt(req.query['limit'], 10);
     }
-    if (req.query['sort'] != null) {
-      request.sort = req.query['sort'];
+    if (typeof req.query['sort'] === 'string') {
+      request.sort = req.query['sort'] as WidgetField;
     }
-    if (req.query['desc'] != null) {
+    if (typeof req.query['desc'] === 'string') {
       request.desc = parseBoolean(req.query['desc']);
     }
-    if (req.query['maxWeight'] != null) {
+    if (typeof req.query['maxWeight'] === 'string') {
       request.maxWeight = parseFloat(req.query['maxWeight']);
     }
-    if (req.query['minPrice'] != null) {
+    if (typeof req.query['minPrice'] === 'string') {
       request.minPrice = parseFloat(req.query['minPrice']);
     }
 
