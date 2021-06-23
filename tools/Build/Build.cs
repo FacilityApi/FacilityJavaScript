@@ -53,6 +53,14 @@ return BuildRunner.Execute(args, build =>
 
 		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
 		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+
+		RunDotNet("FacilityConformance", "fsd", "--output", "conformance/ConformanceApi.fsd", verifyOption);
+		RunDotNet("FacilityConformance", "json", "--output", "conformance/ConformanceTests.json", verifyOption);
+
+		RunDotNet(toolPath, "conformance/ConformanceApi.fsd", "conformance/js",
+			"--express", "--indent", "2", "--disable-eslint", "--newline", "lf", verifyOption);
+		RunDotNet(toolPath, "conformance/ConformanceApi.fsd", "conformance/ts/src", "--typescript",
+			"--express", "--indent", "2", "--disable-eslint", "--newline", "lf", verifyOption);
 	}
 
 	build.Target("build-npm")
