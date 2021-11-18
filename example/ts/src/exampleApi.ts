@@ -30,7 +30,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets widgets. */
-	public getWidgets(request: IGetWidgetsRequest, context?: any): Promise<IServiceResult<IGetWidgetsResponse>> {
+	public getWidgets(request: IGetWidgetsRequest, context?: unknown): Promise<IServiceResult<IGetWidgetsResponse>> {
 		let uri = 'widgets';
 		const query: string[] = [];
 		request.query == null || query.push('q=' + encodeURIComponent(request.query));
@@ -65,7 +65,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Creates a new widget. */
-	public createWidget(request: ICreateWidgetRequest, context?: any): Promise<IServiceResult<ICreateWidgetResponse>> {
+	public createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>> {
 		const uri = 'widgets';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
@@ -89,7 +89,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets the specified widget. */
-	public getWidget(request: IGetWidgetRequest, context?: any): Promise<IServiceResult<IGetWidgetResponse>> {
+	public getWidget(request: IGetWidgetRequest, context?: unknown): Promise<IServiceResult<IGetWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -131,7 +131,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Deletes the specified widget. */
-	public deleteWidget(request: IDeleteWidgetRequest, context?: any): Promise<IServiceResult<IDeleteWidgetResponse>> {
+	public deleteWidget(request: IDeleteWidgetRequest, context?: unknown): Promise<IServiceResult<IDeleteWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -157,7 +157,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Edits widget. */
-	public editWidget(request: IEditWidgetRequest, context?: any): Promise<IServiceResult<IEditWidgetResponse>> {
+	public editWidget(request: IEditWidgetRequest, context?: unknown): Promise<IServiceResult<IEditWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -191,7 +191,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets the specified widgets. */
-	public getWidgetBatch(request: IGetWidgetBatchRequest, context?: any): Promise<IServiceResult<IGetWidgetBatchResponse>> {
+	public getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>> {
 		const uri = 'widgets/get';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
@@ -218,7 +218,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	 * Gets the widget weight.
 	 * @deprecated
 	 */
-	public getWidgetWeight(request: IGetWidgetWeightRequest, context?: any): Promise<IServiceResult<IGetWidgetWeightResponse>> {
+	public getWidgetWeight(request: IGetWidgetWeightRequest, context?: unknown): Promise<IServiceResult<IGetWidgetWeightResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -244,7 +244,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets a widget preference. */
-	public getPreference(request: IGetPreferenceRequest, context?: any): Promise<IServiceResult<IGetPreferenceResponse>> {
+	public getPreference(request: IGetPreferenceRequest, context?: unknown): Promise<IServiceResult<IGetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
 		if (!uriPartKey) {
 			return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -270,7 +270,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Sets a widget preference. */
-	public setPreference(request: ISetPreferenceRequest, context?: any): Promise<IServiceResult<ISetPreferenceResponse>> {
+	public setPreference(request: ISetPreferenceRequest, context?: unknown): Promise<IServiceResult<ISetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
 		if (!uriPartKey) {
 			return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -298,7 +298,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets service info. */
-	public getInfo(request: IGetInfoRequest, context?: any): Promise<IServiceResult<IGetInfoResponse>> {
+	public getInfo(request: IGetInfoRequest, context?: unknown): Promise<IServiceResult<IGetInfoResponse>> {
 		const uri = '';
 		const fetchRequest: IFetchRequest = {
 			method: 'GET',
@@ -320,7 +320,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Demonstrates the default HTTP behavior. */
-	public notRestful(request: INotRestfulRequest, context?: any): Promise<IServiceResult<INotRestfulResponse>> {
+	public notRestful(request: INotRestfulRequest, context?: unknown): Promise<IServiceResult<INotRestfulResponse>> {
 		const uri = 'notRestful';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
@@ -341,7 +341,7 @@ class ExampleApiHttpClient implements IExampleApi {
 			});
 	}
 
-	public kitchen(request: IKitchenRequest, context?: any): Promise<IServiceResult<IKitchenResponse>> {
+	public kitchen(request: IKitchenRequest, context?: unknown): Promise<IServiceResult<IKitchenResponse>> {
 		const uri = 'kitchen';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',

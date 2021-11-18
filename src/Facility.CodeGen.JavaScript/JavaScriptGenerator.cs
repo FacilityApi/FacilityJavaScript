@@ -84,7 +84,7 @@ namespace Facility.CodeGen.JavaScript
 							var capMethodName = CodeGenUtility.Capitalize(methodName);
 							code.WriteLineSkipOnce();
 							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
-							code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: any): Promise<IServiceResult<I{capMethodName}Response>>;");
+							code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
 						}
 					}
 
@@ -190,7 +190,7 @@ namespace Facility.CodeGen.JavaScript
 
 						code.WriteLine();
 						WriteJsDoc(code, httpMethodInfo.ServiceMethod);
-						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ", context" + IfTypeScript("?: any") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
+						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
 						{
 							var hasPathFields = httpMethodInfo.PathFields.Count != 0;
 							var jsUriDelim = hasPathFields ? "`" : "'";

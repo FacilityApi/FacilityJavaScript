@@ -35,7 +35,7 @@ export interface IHttpClientOptions {
 export namespace HttpClientUtility {
 	/** The fetch function. */
 	export interface IFetch {
-		(uri: string, request: IFetchRequest, context?: any): Promise<IFetchResponse>;
+		(uri: string, request: IFetchRequest, context?: unknown): Promise<IFetchResponse>;
 	}
 
 	/** The minimal fetch request. */
@@ -82,7 +82,7 @@ export namespace HttpClientUtility {
 		fetch: IFetch,
 		uri: string,
 		request: IFetchRequest,
-		context?: any
+		context?: unknown
 	): Promise<IFetchedResponseWithContent> {
 		return fetch(uri, request, context).then((response) => {
 			if (!response.headers || !response.status || typeof response.json !== 'function') {
