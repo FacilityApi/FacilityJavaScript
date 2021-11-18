@@ -35,7 +35,7 @@ export interface IHttpClientOptions {
 export namespace HttpClientUtility {
 	/** The fetch function. */
 	export interface IFetch {
-		(uri: string, request: IFetchRequest): Promise<IFetchResponse>;
+		(uri: string, request: IFetchRequest, context?: any): Promise<IFetchResponse>;
 	}
 
 	/** The minimal fetch request. */
@@ -81,9 +81,10 @@ export namespace HttpClientUtility {
 	export function fetchResponse(
 		fetch: IFetch,
 		uri: string,
-		request: IFetchRequest
+		request: IFetchRequest,
+		context?: any
 	): Promise<IFetchedResponseWithContent> {
-		return fetch(uri, request).then((response) => {
+		return fetch(uri, request, context).then((response) => {
 			if (!response.headers || !response.status || typeof response.json !== 'function') {
 				throw new TypeError('fetch must resolve Promise with { status, headers, json() }.');
 			}

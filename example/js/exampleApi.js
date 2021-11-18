@@ -27,7 +27,7 @@ class ExampleApiHttpClient {
   }
 
   /** Gets widgets. */
-  getWidgets(request) {
+  getWidgets(request, context) {
     let uri = 'widgets';
     const query = [];
     request.query == null || query.push('q=' + encodeURIComponent(request.query));
@@ -42,7 +42,7 @@ class ExampleApiHttpClient {
     const fetchRequest = {
       method: 'GET',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -62,14 +62,14 @@ class ExampleApiHttpClient {
   }
 
   /** Creates a new widget. */
-  createWidget(request) {
+  createWidget(request, context) {
     const uri = 'widgets';
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request.widget)
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -86,7 +86,7 @@ class ExampleApiHttpClient {
   }
 
   /** Gets the specified widget. */
-  getWidget(request) {
+  getWidget(request, context) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
     if (!uriPartId) {
       return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -99,7 +99,7 @@ class ExampleApiHttpClient {
     if (request.ifNoneMatch != null) {
       fetchRequest.headers['If-None-Match'] = request.ifNoneMatch;
     }
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -128,7 +128,7 @@ class ExampleApiHttpClient {
   }
 
   /** Deletes the specified widget. */
-  deleteWidget(request) {
+  deleteWidget(request, context) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
     if (!uriPartId) {
       return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -137,7 +137,7 @@ class ExampleApiHttpClient {
     const fetchRequest = {
       method: 'DELETE',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -154,7 +154,7 @@ class ExampleApiHttpClient {
   }
 
   /** Edits widget. */
-  editWidget(request) {
+  editWidget(request, context) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
     if (!uriPartId) {
       return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -168,7 +168,7 @@ class ExampleApiHttpClient {
         weight: request.weight
       })
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -188,14 +188,14 @@ class ExampleApiHttpClient {
   }
 
   /** Gets the specified widgets. */
-  getWidgetBatch(request) {
+  getWidgetBatch(request, context) {
     const uri = 'widgets/get';
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request.ids)
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -215,7 +215,7 @@ class ExampleApiHttpClient {
    * Gets the widget weight.
    * @deprecated
    */
-  getWidgetWeight(request) {
+  getWidgetWeight(request, context) {
     const uriPartId = request.id != null && encodeURIComponent(request.id);
     if (!uriPartId) {
       return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -224,7 +224,7 @@ class ExampleApiHttpClient {
     const fetchRequest = {
       method: 'GET',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -241,7 +241,7 @@ class ExampleApiHttpClient {
   }
 
   /** Gets a widget preference. */
-  getPreference(request) {
+  getPreference(request, context) {
     const uriPartKey = request.key != null && encodeURIComponent(request.key);
     if (!uriPartKey) {
       return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -250,7 +250,7 @@ class ExampleApiHttpClient {
     const fetchRequest = {
       method: 'GET',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -267,7 +267,7 @@ class ExampleApiHttpClient {
   }
 
   /** Sets a widget preference. */
-  setPreference(request) {
+  setPreference(request, context) {
     const uriPartKey = request.key != null && encodeURIComponent(request.key);
     if (!uriPartKey) {
       return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -278,7 +278,7 @@ class ExampleApiHttpClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request.value)
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -295,12 +295,12 @@ class ExampleApiHttpClient {
   }
 
   /** Gets service info. */
-  getInfo(request) {
+  getInfo(request, context) {
     const uri = '';
     const fetchRequest = {
       method: 'GET',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -317,12 +317,12 @@ class ExampleApiHttpClient {
   }
 
   /** Demonstrates the default HTTP behavior. */
-  notRestful(request) {
+  notRestful(request, context) {
     const uri = 'notRestful';
     const fetchRequest = {
       method: 'POST',
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
@@ -338,14 +338,14 @@ class ExampleApiHttpClient {
       });
   }
 
-  kitchen(request) {
+  kitchen(request, context) {
     const uri = 'kitchen';
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request)
     };
-    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+    return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
         let value = null;
