@@ -1,5 +1,11 @@
 # Release Notes
 
+These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
+
+## 2.3.0-beta.1
+
+* Add `context` to request methods.
+
 ## 2.2.0
 
 * Include string enums for enums when generating TypeScript.

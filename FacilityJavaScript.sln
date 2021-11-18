@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ts\package.json = ts\package.json
 		README.md = README.md
 		ReleaseNotes.md = ReleaseNotes.md
+		ReleaseNotesNpm.md = ReleaseNotesNpm.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Facility.CodeGen.JavaScript", "src\Facility.CodeGen.JavaScript\Facility.CodeGen.JavaScript.csproj", "{89B9867C-5124-49BE-B201-0F1D8E9F7738}"
