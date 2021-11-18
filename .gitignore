@@ -2,7 +2,7 @@ bin/
 obj/
 release/
 .vs/
-node_modules/
+.idea/
 Thumbs.db
 *.cache
 *.user

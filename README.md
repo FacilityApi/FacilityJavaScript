@@ -10,5 +10,4 @@ facility-core | Common code for the Facility API Framework. | [![npm](https://im
 fsdgenjs | A tool that generates JavaScript or TypeScript for a Facility Service Definition. | [![NuGet](https://img.shields.io/nuget/v/fsdgenjs.svg)](https://www.nuget.org/packages/fsdgenjs)
 Facility.CodeGen.JavaScript | A library that generates JavaScript or TypeScript for a Facility Service Definition. | [![NuGet](https://img.shields.io/nuget/v/Facility.CodeGen.JavaScript.svg)](https://www.nuget.org/packages/Facility.CodeGen.JavaScript)
 
-* [Documentation](https://facilityapi.github.io/)
-* [Release Notes](ReleaseNotes.md)
+[Documentation](https://facilityapi.github.io/) | [Release Notes](ReleaseNotes.md) | [Contributing](CONTRIBUTING.md)
