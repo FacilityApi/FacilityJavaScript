@@ -30,7 +30,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets widgets. */
-	public getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>> {
+	public getWidgets(request: IGetWidgetsRequest, context?: unknown): Promise<IServiceResult<IGetWidgetsResponse>> {
 		let uri = 'widgets';
 		const query: string[] = [];
 		request.query == null || query.push('q=' + encodeURIComponent(request.query));
@@ -45,7 +45,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		const fetchRequest: IFetchRequest = {
 			method: 'GET',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetsResponse | null = null;
@@ -65,14 +65,14 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Creates a new widget. */
-	public createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>> {
+	public createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>> {
 		const uri = 'widgets';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(request.widget)
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: ICreateWidgetResponse | null = null;
@@ -89,7 +89,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets the specified widget. */
-	public getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>> {
+	public getWidget(request: IGetWidgetRequest, context?: unknown): Promise<IServiceResult<IGetWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -102,7 +102,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		if (request.ifNoneMatch != null) {
 			fetchRequest.headers!['If-None-Match'] = request.ifNoneMatch;
 		}
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetResponse | null = null;
@@ -131,7 +131,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Deletes the specified widget. */
-	public deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>> {
+	public deleteWidget(request: IDeleteWidgetRequest, context?: unknown): Promise<IServiceResult<IDeleteWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -140,7 +140,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		const fetchRequest: IFetchRequest = {
 			method: 'DELETE',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IDeleteWidgetResponse | null = null;
@@ -157,7 +157,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Edits widget. */
-	public editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>> {
+	public editWidget(request: IEditWidgetRequest, context?: unknown): Promise<IServiceResult<IEditWidgetResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -171,7 +171,7 @@ class ExampleApiHttpClient implements IExampleApi {
 				weight: request.weight
 			})
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IEditWidgetResponse | null = null;
@@ -191,14 +191,14 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets the specified widgets. */
-	public getWidgetBatch(request: IGetWidgetBatchRequest): Promise<IServiceResult<IGetWidgetBatchResponse>> {
+	public getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>> {
 		const uri = 'widgets/get';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(request.ids)
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetBatchResponse | null = null;
@@ -218,7 +218,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	 * Gets the widget weight.
 	 * @deprecated
 	 */
-	public getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>> {
+	public getWidgetWeight(request: IGetWidgetWeightRequest, context?: unknown): Promise<IServiceResult<IGetWidgetWeightResponse>> {
 		const uriPartId = request.id != null && encodeURIComponent(request.id);
 		if (!uriPartId) {
 			return Promise.resolve(createRequiredRequestFieldError('id'));
@@ -227,7 +227,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		const fetchRequest: IFetchRequest = {
 			method: 'GET',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetWeightResponse | null = null;
@@ -244,7 +244,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets a widget preference. */
-	public getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>> {
+	public getPreference(request: IGetPreferenceRequest, context?: unknown): Promise<IServiceResult<IGetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
 		if (!uriPartKey) {
 			return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -253,7 +253,7 @@ class ExampleApiHttpClient implements IExampleApi {
 		const fetchRequest: IFetchRequest = {
 			method: 'GET',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetPreferenceResponse | null = null;
@@ -270,7 +270,7 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Sets a widget preference. */
-	public setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>> {
+	public setPreference(request: ISetPreferenceRequest, context?: unknown): Promise<IServiceResult<ISetPreferenceResponse>> {
 		const uriPartKey = request.key != null && encodeURIComponent(request.key);
 		if (!uriPartKey) {
 			return Promise.resolve(createRequiredRequestFieldError('key'));
@@ -281,7 +281,7 @@ class ExampleApiHttpClient implements IExampleApi {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(request.value)
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: ISetPreferenceResponse | null = null;
@@ -298,12 +298,12 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Gets service info. */
-	public getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>> {
+	public getInfo(request: IGetInfoRequest, context?: unknown): Promise<IServiceResult<IGetInfoResponse>> {
 		const uri = '';
 		const fetchRequest: IFetchRequest = {
 			method: 'GET',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetInfoResponse | null = null;
@@ -320,12 +320,12 @@ class ExampleApiHttpClient implements IExampleApi {
 	}
 
 	/** Demonstrates the default HTTP behavior. */
-	public notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>> {
+	public notRestful(request: INotRestfulRequest, context?: unknown): Promise<IServiceResult<INotRestfulResponse>> {
 		const uri = 'notRestful';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: INotRestfulResponse | null = null;
@@ -341,14 +341,14 @@ class ExampleApiHttpClient implements IExampleApi {
 			});
 	}
 
-	public kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>> {
+	public kitchen(request: IKitchenRequest, context?: unknown): Promise<IServiceResult<IKitchenResponse>> {
 		const uri = 'kitchen';
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(request)
 		};
-		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest)
+		return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
 			.then(result => {
 				const status = result.response.status;
 				let value: IKitchenResponse | null = null;

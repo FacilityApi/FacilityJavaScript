@@ -6,42 +6,42 @@ import { IServiceResult, IServiceError } from 'facility-core';
 /** Example service for widgets. */
 export interface IExampleApi {
 	/** Gets widgets. */
-	getWidgets(request: IGetWidgetsRequest): Promise<IServiceResult<IGetWidgetsResponse>>;
+	getWidgets(request: IGetWidgetsRequest, context?: unknown): Promise<IServiceResult<IGetWidgetsResponse>>;
 
 	/** Creates a new widget. */
-	createWidget(request: ICreateWidgetRequest): Promise<IServiceResult<ICreateWidgetResponse>>;
+	createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>>;
 
 	/** Gets the specified widget. */
-	getWidget(request: IGetWidgetRequest): Promise<IServiceResult<IGetWidgetResponse>>;
+	getWidget(request: IGetWidgetRequest, context?: unknown): Promise<IServiceResult<IGetWidgetResponse>>;
 
 	/** Deletes the specified widget. */
-	deleteWidget(request: IDeleteWidgetRequest): Promise<IServiceResult<IDeleteWidgetResponse>>;
+	deleteWidget(request: IDeleteWidgetRequest, context?: unknown): Promise<IServiceResult<IDeleteWidgetResponse>>;
 
 	/** Edits widget. */
-	editWidget(request: IEditWidgetRequest): Promise<IServiceResult<IEditWidgetResponse>>;
+	editWidget(request: IEditWidgetRequest, context?: unknown): Promise<IServiceResult<IEditWidgetResponse>>;
 
 	/** Gets the specified widgets. */
-	getWidgetBatch(request: IGetWidgetBatchRequest): Promise<IServiceResult<IGetWidgetBatchResponse>>;
+	getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>>;
 
 	/**
 	 * Gets the widget weight.
 	 * @deprecated
 	 */
-	getWidgetWeight(request: IGetWidgetWeightRequest): Promise<IServiceResult<IGetWidgetWeightResponse>>;
+	getWidgetWeight(request: IGetWidgetWeightRequest, context?: unknown): Promise<IServiceResult<IGetWidgetWeightResponse>>;
 
 	/** Gets a widget preference. */
-	getPreference(request: IGetPreferenceRequest): Promise<IServiceResult<IGetPreferenceResponse>>;
+	getPreference(request: IGetPreferenceRequest, context?: unknown): Promise<IServiceResult<IGetPreferenceResponse>>;
 
 	/** Sets a widget preference. */
-	setPreference(request: ISetPreferenceRequest): Promise<IServiceResult<ISetPreferenceResponse>>;
+	setPreference(request: ISetPreferenceRequest, context?: unknown): Promise<IServiceResult<ISetPreferenceResponse>>;
 
 	/** Gets service info. */
-	getInfo(request: IGetInfoRequest): Promise<IServiceResult<IGetInfoResponse>>;
+	getInfo(request: IGetInfoRequest, context?: unknown): Promise<IServiceResult<IGetInfoResponse>>;
 
 	/** Demonstrates the default HTTP behavior. */
-	notRestful(request: INotRestfulRequest): Promise<IServiceResult<INotRestfulResponse>>;
+	notRestful(request: INotRestfulRequest, context?: unknown): Promise<IServiceResult<INotRestfulResponse>>;
 
-	kitchen(request: IKitchenRequest): Promise<IServiceResult<IKitchenResponse>>;
+	kitchen(request: IKitchenRequest, context?: unknown): Promise<IServiceResult<IKitchenResponse>>;
 }
 
 /** Request for GetWidgets. */
