@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.4.0
+
+* Support .NET 6.
+
 ## 2.3.0
 
 * Add `context` to request methods.
