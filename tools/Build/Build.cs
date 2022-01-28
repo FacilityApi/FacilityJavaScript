@@ -1,11 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using Faithlife.Build;
-using static Faithlife.Build.AppRunner;
-using static Faithlife.Build.BuildUtility;
-using static Faithlife.Build.DotNetRunner;
-
 return BuildRunner.Execute(args, build =>
 {
 	var codegen = "fsdgenjs";
@@ -47,12 +39,13 @@ return BuildRunner.Execute(args, build =>
 	void CodeGen(bool verify)
 	{
 		var configuration = dotNetBuildSettings.GetConfiguration();
-		var toolPath = FindFiles($"src/{codegen}/bin/{configuration}/net5.0/{codegen}.dll").FirstOrDefault() ?? throw new BuildException($"Missing {codegen}.dll.");
-
 		var verifyOption = verify ? "--verify" : null;
 
-		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
-		RunDotNet(toolPath, "example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+		RunCodeGen("example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+		RunCodeGen("example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+
+		void RunCodeGen(params string?[] args) =>
+			RunDotNet(new[] { "run", "--no-build", "--project", $"src/{codegen}", "-f", "net6.0", "-c", configuration, "--", "--newline", "lf", verifyOption }.Concat(args));
 	}
 
 	build.Target("build-npm")
