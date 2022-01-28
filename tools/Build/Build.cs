@@ -41,8 +41,8 @@ return BuildRunner.Execute(args, build =>
 		var configuration = dotNetBuildSettings.GetConfiguration();
 		var verifyOption = verify ? "--verify" : null;
 
-		RunCodeGen("example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
-		RunCodeGen("example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint", "--newline", "lf", verifyOption);
+		RunCodeGen("example/ExampleApi.fsd", "example/js/", "--indent", "2", "--express", "--disable-eslint");
+		RunCodeGen("example/ExampleApi.fsd", "example/ts/src/", "--typescript", "--express", "--disable-eslint");
 
 		void RunCodeGen(params string?[] args) =>
 			RunDotNet(new[] { "run", "--no-build", "--project", $"src/{codegen}", "-f", "net6.0", "-c", configuration, "--", "--newline", "lf", verifyOption }.Concat(args));
