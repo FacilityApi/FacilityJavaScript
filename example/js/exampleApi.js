@@ -46,13 +46,11 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = result.json;
-          }
-          else if (status === 202) {
-            value = { job: result.json };
-          }
+        if (status === 200 && result.json) {
+          value = result.json;
+        }
+        else if (status === 202 && result.json) {
+          value = { job: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -73,10 +71,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 201) {
-            value = { widget: result.json };
-          }
+        if (status === 201 && result.json) {
+          value = { widget: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -103,13 +99,11 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = { widget: result.json };
-          }
-          else if (status === 304) {
-            value = { notModified: true };
-          }
+        if (status === 200 && result.json) {
+          value = { widget: result.json };
+        }
+        else if (status === 304) {
+          value = { notModified: true };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -141,10 +135,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 204) {
-            value = {};
-          }
+        if (status === 204 && result.json) {
+          value = {};
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -172,13 +164,11 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = { widget: result.json };
-          }
-          else if (status === 202) {
-            value = { job: result.json };
-          }
+        if (status === 200 && result.json) {
+          value = { widget: result.json };
+        }
+        else if (status === 202 && result.json) {
+          value = { job: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -199,10 +189,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = { results: result.json };
-          }
+        if (status === 200 && result.json) {
+          value = { results: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -228,10 +216,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = result.json;
-          }
+        if (status === 200 && result.json) {
+          value = result.json;
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -254,10 +240,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = { value: result.json };
-          }
+        if (status === 200 && result.json) {
+          value = { value: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -282,10 +266,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = { value: result.json };
-          }
+        if (status === 200 && result.json) {
+          value = { value: result.json };
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -304,10 +286,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = result.json;
-          }
+        if (status === 200 && result.json) {
+          value = result.json;
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -326,10 +306,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = {};
-          }
+        if (status === 200 && result.json) {
+          value = {};
         }
         if (!value) {
           return createResponseError(status, result.json);
@@ -349,10 +327,8 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (result.json) {
-          if (status === 200) {
-            value = {};
-          }
+        if (status === 200 && result.json) {
+          value = {};
         }
         if (!value) {
           return createResponseError(status, result.json);

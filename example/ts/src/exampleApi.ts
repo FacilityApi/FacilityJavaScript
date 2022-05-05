@@ -49,13 +49,11 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetsResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = result.json as IGetWidgetsResponse | null;
-					}
-					else if (status === 202) {
-						value = { job: result.json } as IGetWidgetsResponse;
-					}
+				if (status === 200 && result.json) {
+					value = result.json as IGetWidgetsResponse | null;
+				}
+				else if (status === 202 && result.json) {
+					value = { job: result.json } as IGetWidgetsResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetWidgetsResponse>;
@@ -76,10 +74,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: ICreateWidgetResponse | null = null;
-				if (result.json) {
-					if (status === 201) {
-						value = { widget: result.json } as ICreateWidgetResponse;
-					}
+				if (status === 201 && result.json) {
+					value = { widget: result.json } as ICreateWidgetResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<ICreateWidgetResponse>;
@@ -106,13 +102,11 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = { widget: result.json } as IGetWidgetResponse;
-					}
-					else if (status === 304) {
-						value = { notModified: true };
-					}
+				if (status === 200 && result.json) {
+					value = { widget: result.json } as IGetWidgetResponse;
+				}
+				else if (status === 304) {
+					value = { notModified: true };
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetWidgetResponse>;
@@ -144,10 +138,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IDeleteWidgetResponse | null = null;
-				if (result.json) {
-					if (status === 204) {
-						value = {};
-					}
+				if (status === 204 && result.json) {
+					value = {};
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IDeleteWidgetResponse>;
@@ -175,13 +167,11 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IEditWidgetResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = { widget: result.json } as IEditWidgetResponse;
-					}
-					else if (status === 202) {
-						value = { job: result.json } as IEditWidgetResponse;
-					}
+				if (status === 200 && result.json) {
+					value = { widget: result.json } as IEditWidgetResponse;
+				}
+				else if (status === 202 && result.json) {
+					value = { job: result.json } as IEditWidgetResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IEditWidgetResponse>;
@@ -202,10 +192,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetBatchResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = { results: result.json } as IGetWidgetBatchResponse;
-					}
+				if (status === 200 && result.json) {
+					value = { results: result.json } as IGetWidgetBatchResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetWidgetBatchResponse>;
@@ -231,10 +219,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetWidgetWeightResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = result.json as IGetWidgetWeightResponse | null;
-					}
+				if (status === 200 && result.json) {
+					value = result.json as IGetWidgetWeightResponse | null;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetWidgetWeightResponse>;
@@ -257,10 +243,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetPreferenceResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = { value: result.json } as IGetPreferenceResponse;
-					}
+				if (status === 200 && result.json) {
+					value = { value: result.json } as IGetPreferenceResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetPreferenceResponse>;
@@ -285,10 +269,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: ISetPreferenceResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = { value: result.json } as ISetPreferenceResponse;
-					}
+				if (status === 200 && result.json) {
+					value = { value: result.json } as ISetPreferenceResponse;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<ISetPreferenceResponse>;
@@ -307,10 +289,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IGetInfoResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = result.json as IGetInfoResponse | null;
-					}
+				if (status === 200 && result.json) {
+					value = result.json as IGetInfoResponse | null;
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IGetInfoResponse>;
@@ -329,10 +309,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: INotRestfulResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = {};
-					}
+				if (status === 200 && result.json) {
+					value = {};
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<INotRestfulResponse>;
@@ -352,10 +330,8 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IKitchenResponse | null = null;
-				if (result.json) {
-					if (status === 200) {
-						value = {};
-					}
+				if (status === 200 && result.json) {
+					value = {};
 				}
 				if (!value) {
 					return createResponseError(status, result.json) as IServiceResult<IKitchenResponse>;
