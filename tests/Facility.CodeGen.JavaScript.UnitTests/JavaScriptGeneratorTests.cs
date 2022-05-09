@@ -52,6 +52,19 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
+		public void GenerateExampleApiTypeScript_DoesntExpectResponseBodyForNoContentResponses()
+		{
+			var result = GenExampleApi();
+			var codeFile = result.Files.Single(f => f.Name == "exampleApi.ts");
+
+			const string unexpectedNoContentCheck = @"if (status === 204 && result.json) {";
+			const string expectedNoContentCheck = @"if (status === 204) {";
+
+			Assert.That(codeFile.Text, Does.Not.Contains(unexpectedNoContentCheck));
+			Assert.That(codeFile.Text, Contains.Substring(expectedNoContentCheck));
+		}
+
+		[Test]
 		public void GenerateExampleApiTypeScript_IncludesEnums()
 		{
 			var result = GenExampleApi();

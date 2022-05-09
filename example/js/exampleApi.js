@@ -135,7 +135,7 @@ class ExampleApiHttpClient {
       .then(result => {
         const status = result.response.status;
         let value = null;
-        if (status === 204 && result.json) {
+        if (status === 204) {
           value = {};
         }
         if (!value) {

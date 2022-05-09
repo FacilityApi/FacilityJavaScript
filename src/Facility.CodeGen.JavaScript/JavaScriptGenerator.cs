@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using Facility.Definition;
 using Facility.Definition.CodeGen;
 using Facility.Definition.Http;
@@ -278,7 +279,9 @@ namespace Facility.CodeGen.JavaScript
 									var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
 
 									var bodyField = validResponse.BodyField;
-									var shouldExpectJsonResult = bodyField == null || service.GetFieldType(bodyField.ServiceField)!.Kind != ServiceTypeKind.Boolean;
+									var shouldExpectJsonResult =
+											(bodyField == null || service.GetFieldType(bodyField.ServiceField)!.Kind != ServiceTypeKind.Boolean) &&
+											validResponse.StatusCode != HttpStatusCode.NoContent;
 
 									code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}{(shouldExpectJsonResult ? " && result.json" : "")}) {{");
 									elsePrefix = "else ";

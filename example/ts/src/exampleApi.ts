@@ -138,7 +138,7 @@ class ExampleApiHttpClient implements IExampleApi {
 			.then(result => {
 				const status = result.response.status;
 				let value: IDeleteWidgetResponse | null = null;
-				if (status === 204 && result.json) {
+				if (status === 204) {
 					value = {};
 				}
 				if (!value) {
