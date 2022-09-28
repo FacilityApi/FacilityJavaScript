@@ -114,8 +114,8 @@ export enum ObsoleteEnum {
 			// `createWidget` does expect response body
 			const string expectedCreateWidgetLines = @"
 				let value: ICreateWidgetResponse | null = null;
-				if (result.json) {
-					if (status === 201) {
+				if (status === 201) {
+					if (result.json) {
 						value = { widget: result.json } as ICreateWidgetResponse;
 					}
 				}";

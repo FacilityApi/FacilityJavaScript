@@ -271,39 +271,50 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine("const status = result.response.status;");
 								var responseValueType = $"I{capMethodName}Response";
 								code.WriteLine("let value" + IfTypeScript($": {responseValueType} | null") + " = null;");
-								using (code.Block("if (result.json) {", "}"))
+								var validResponses = httpMethodInfo.ValidResponses;
+								var elsePrefix = "";
+								foreach (var validResponse in validResponses)
 								{
-									var validResponses = httpMethodInfo.ValidResponses;
-									var elsePrefix = "";
-									foreach (var validResponse in validResponses)
+									var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
+									code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
+									elsePrefix = "else ";
+
+									using (code.Indent())
 									{
-										var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
-										code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
-										elsePrefix = "else ";
-
-										using (code.Indent())
+										var bodyField = validResponse.BodyField;
+										if (bodyField != null)
 										{
-											var bodyField = validResponse.BodyField;
-											if (bodyField != null)
-											{
-												var responseBodyFieldName = bodyField.ServiceField.Name;
+											var responseBodyFieldName = bodyField.ServiceField.Name;
 
-												var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
-												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
-													code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
-												else
-													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }}" + IfTypeScript($" as {responseValueType}") + ";");
+											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
+											if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+											{
+												code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
 											}
 											else
 											{
-												if (validResponse.NormalFields!.Count == 0)
-													code.WriteLine("value = {};");
-												else
-													code.WriteLine("value = result.json" + IfTypeScript($" as {responseValueType} | null") + ";");
+												using (code.Block("if (result.json) {", "}"))
+												{
+													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }}" + IfTypeScript($" as {responseValueType}") + ";");
+												}
 											}
 										}
-										code.WriteLine("}");
+										else
+										{
+											if (validResponse.NormalFields!.Count == 0)
+											{
+												code.WriteLine("value = {};");
+											}
+											else
+											{
+												using (code.Block("if (result.json) {", "}"))
+												{
+													code.WriteLine("value = result.json" + IfTypeScript($" as {responseValueType} | null") + ";");
+												}
+											}
+										}
 									}
+									code.WriteLine("}");
 								}
 
 								using (code.Block("if (!value) {", "}"))
