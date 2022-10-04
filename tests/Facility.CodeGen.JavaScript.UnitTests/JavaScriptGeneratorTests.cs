@@ -80,5 +80,46 @@ export enum ObsoleteEnum {
 
 			Assert.That(typesFile.Text, Contains.Substring(expectedEnumUsage));
 		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_DoesntRequireJsonWhenNoResponseBodyExpected()
+		{
+			ServiceInfo service;
+			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
+			var parser = new FsdParser();
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
+			Assert.IsNotNull(stream);
+			using (var reader = new StreamReader(stream))
+				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
+
+			var generator = new JavaScriptGenerator
+			{
+				GeneratorName = "JavaScriptGeneratorTests",
+				TypeScript = true,
+				NewLine = "\n",
+			};
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var apiFile = result.Files.Single(f => f.Name == "exampleApi.ts");
+
+			// `deleteWidget` does not expect response body
+			const string expectedDeleteWidgetLines = @"
+				let value: IDeleteWidgetResponse | null = null;
+				if (status === 204) {
+					value = {};
+				}";
+			Assert.That(apiFile.Text, Contains.Substring(expectedDeleteWidgetLines));
+
+			// `createWidget` does expect response body
+			const string expectedCreateWidgetLines = @"
+				let value: ICreateWidgetResponse | null = null;
+				if (status === 201) {
+					if (result.json) {
+						value = { widget: result.json } as ICreateWidgetResponse;
+					}
+				}";
+			Assert.That(apiFile.Text, Contains.Substring(expectedCreateWidgetLines));
+		}
 	}
 }
