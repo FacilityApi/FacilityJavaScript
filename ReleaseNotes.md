@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.4.2
+
+* Add .NET 6 target.
+
 ## 2.4.1
 
 * Fix code generation for responses without JSON body.
