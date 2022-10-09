@@ -194,7 +194,11 @@ namespace Facility.CodeGen.JavaScript
 						{
 							var hasPathFields = httpMethodInfo.PathFields.Count != 0;
 							var jsUriDelim = hasPathFields ? "`" : "'";
+#if NET6_0_OR_GREATER
+							var jsUri = string.Concat(jsUriDelim, httpMethodInfo.Path.AsSpan(1), jsUriDelim);
+#else
 							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
+#endif
 							if (hasPathFields)
 							{
 								foreach (var httpPathField in httpMethodInfo.PathFields)
@@ -204,7 +208,7 @@ namespace Facility.CodeGen.JavaScript
 										code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpPathField.ServiceField.Name}'));");
 								}
 								foreach (var httpPathField in httpMethodInfo.PathFields)
-									jsUri = jsUri.Replace("{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+									jsUri = ReplaceOrdinal(jsUri, "{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
 							}
 
 							var hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
@@ -411,7 +415,7 @@ namespace Facility.CodeGen.JavaScript
 							var expressMethod = httpMethodInfo.Method.ToLowerInvariant();
 							var expressPath = httpMethodInfo.Path;
 							foreach (var httpPathField in httpMethodInfo.PathFields)
-								expressPath = expressPath.Replace("{" + httpPathField.Name + "}", $":{httpPathField.Name}");
+								expressPath = ReplaceOrdinal(expressPath, "{" + httpPathField.Name + "}", $":{httpPathField.Name}");
 
 							code.WriteLine();
 							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
@@ -707,5 +711,11 @@ namespace Facility.CodeGen.JavaScript
 
 			return false;
 		}
+
+#if NET6_0_OR_GREATER
+		private static string ReplaceOrdinal(string value, string oldValue, string newValue) => value.Replace(oldValue, newValue, StringComparison.Ordinal);
+#else
+		private static string ReplaceOrdinal(string value, string oldValue, string newValue) => value.Replace(oldValue, newValue);
+#endif
 	}
 }
