@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2019",
+    "strict": true,
+    "newLine": "LF",
+    "declaration": true,
+    "sourceMap": true,
+    "lib": [ "ES2019" ]
+  },
+  "include": [
+    "src/*.ts",
+    "test/*.ts"
+  ]
+}

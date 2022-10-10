@@ -316,21 +316,6 @@ class ConformanceApiHttpClient implements IConformanceApi {
     if (request.string != null) {
       fetchRequest.headers!['string'] = request.string;
     }
-    if (request.boolean != null) {
-      fetchRequest.headers!['boolean'] = request.boolean;
-    }
-    if (request.double != null) {
-      fetchRequest.headers!['double'] = request.double;
-    }
-    if (request.int32 != null) {
-      fetchRequest.headers!['int32'] = request.int32;
-    }
-    if (request.int64 != null) {
-      fetchRequest.headers!['int64'] = request.int64;
-    }
-    if (request.decimal != null) {
-      fetchRequest.headers!['decimal'] = request.decimal;
-    }
     if (request.enum != null) {
       fetchRequest.headers!['enum'] = request.enum;
     }
@@ -348,30 +333,6 @@ class ConformanceApiHttpClient implements IConformanceApi {
         headerValue = result.response.headers.get('string');
         if (headerValue != null) {
           value.string = headerValue;
-        }
-        headerValue = result.response.headers.get('boolean');
-        if (headerValue != null) {
-          value.boolean = headerValue;
-        }
-        headerValue = result.response.headers.get('double');
-        if (headerValue != null) {
-          value.double = headerValue;
-        }
-        headerValue = result.response.headers.get('int32');
-        if (headerValue != null) {
-          value.int32 = headerValue;
-        }
-        headerValue = result.response.headers.get('int64');
-        if (headerValue != null) {
-          value.int64 = headerValue;
-        }
-        headerValue = result.response.headers.get('decimal');
-        if (headerValue != null) {
-          value.decimal = headerValue;
-        }
-        headerValue = result.response.headers.get('enum');
-        if (headerValue != null) {
-          value.enum = headerValue;
         }
         return { value: value };
       });
