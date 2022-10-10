@@ -9,7 +9,7 @@
     "lib": [ "ES2019" ]
   },
   "include": [
-    "*.ts",
+    "src/*.ts",
     "test/*.ts"
   ]
 }
