@@ -127,7 +127,7 @@ export namespace HttpClientUtility {
 		return {
 			error: {
 				code: 'InvalidRequest',
-				message: `The request field '${name}' is required.`,
+				message: `'${name}' is required.`,
 			},
 		};
 	}
