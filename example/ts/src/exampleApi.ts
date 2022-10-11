@@ -69,6 +69,9 @@ class ExampleApiHttpClient implements IExampleApi {
 	/** Creates a new widget. */
 	public createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>> {
 		const uri = 'widgets';
+		if (!request.widget) {
+			return Promise.resolve(createRequiredRequestFieldError('widget'));
+		}
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -195,6 +198,9 @@ class ExampleApiHttpClient implements IExampleApi {
 	/** Gets the specified widgets. */
 	public getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>> {
 		const uri = 'widgets/get';
+		if (!request.ids) {
+			return Promise.resolve(createRequiredRequestFieldError('ids'));
+		}
 		const fetchRequest: IFetchRequest = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -278,6 +284,9 @@ class ExampleApiHttpClient implements IExampleApi {
 			return Promise.resolve(createRequiredRequestFieldError('key'));
 		}
 		const uri = `prefs/${uriPartKey}`;
+		if (!request.value) {
+			return Promise.resolve(createRequiredRequestFieldError('value'));
+		}
 		const fetchRequest: IFetchRequest = {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },

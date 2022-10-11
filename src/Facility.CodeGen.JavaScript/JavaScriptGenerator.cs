@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Facility.Definition;
 using Facility.Definition.CodeGen;
 using Facility.Definition.Http;
@@ -220,6 +217,12 @@ namespace Facility.CodeGen.JavaScript
 									code.WriteLine($"request.{httpQueryField.ServiceField.Name} == null || query.push('{httpQueryField.Name}=' + {RenderUriComponent(httpQueryField.ServiceField, service)});");
 								using (code.Block("if (query.length) {", "}"))
 									code.WriteLine("uri = uri + '?' + query.join('&');");
+							}
+
+							if (httpMethodInfo.RequestBodyField != null)
+							{
+								using (code.Block($"if (!request.{httpMethodInfo.RequestBodyField.ServiceField.Name}) {{", "}"))
+									code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpMethodInfo.RequestBodyField.ServiceField.Name}'));");
 							}
 
 							using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))

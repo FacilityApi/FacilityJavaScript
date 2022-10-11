@@ -81,6 +81,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
   /** Creates a new widget. */
   public createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>> {
     const uri = 'widgets';
+    if (!request.widget) {
+      return Promise.resolve(createRequiredRequestFieldError('widget'));
+    }
     const fetchRequest: IFetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -186,6 +189,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
   /** Gets the specified widgets. */
   public getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>> {
     const uri = 'widgets/get';
+    if (!request.ids) {
+      return Promise.resolve(createRequiredRequestFieldError('ids'));
+    }
     const fetchRequest: IFetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -428,6 +434,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
 
   public mirrorBytes(request: IMirrorBytesRequest, context?: unknown): Promise<IServiceResult<IMirrorBytesResponse>> {
     const uri = 'mirrorBytes';
+    if (!request.content) {
+      return Promise.resolve(createRequiredRequestFieldError('content'));
+    }
     const fetchRequest: IFetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -459,6 +468,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
 
   public mirrorText(request: IMirrorTextRequest, context?: unknown): Promise<IServiceResult<IMirrorTextResponse>> {
     const uri = 'mirrorText';
+    if (!request.content) {
+      return Promise.resolve(createRequiredRequestFieldError('content'));
+    }
     const fetchRequest: IFetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -490,6 +502,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
 
   public bodyTypes(request: IBodyTypesRequest, context?: unknown): Promise<IServiceResult<IBodyTypesResponse>> {
     const uri = 'bodyTypes';
+    if (!request.content) {
+      return Promise.resolve(createRequiredRequestFieldError('content'));
+    }
     const fetchRequest: IFetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
