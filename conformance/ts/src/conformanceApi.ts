@@ -14,6 +14,19 @@ const { fetchResponse, createResponseError, createRequiredRequestFieldError } = 
 type IFetch = HttpClientUtility.IFetch;
 type IFetchRequest = HttpClientUtility.IFetchRequest;
 
+function parseBoolean(value: string | undefined) {
+  if (typeof value === 'string') {
+    const lowerValue = value.toLowerCase();
+    if (lowerValue === 'true') {
+      return true;
+    }
+    if (lowerValue === 'false') {
+      return false;
+    }
+  }
+  return undefined;
+}
+
 class ConformanceApiHttpClient implements IConformanceApi {
   constructor(fetch: IFetch, baseUri?: string) {
     if (typeof fetch !== 'function') {
@@ -322,6 +335,21 @@ class ConformanceApiHttpClient implements IConformanceApi {
     if (request.string != null) {
       fetchRequest.headers!['string'] = request.string;
     }
+    if (request.boolean != null) {
+      fetchRequest.headers!['boolean'] = request.boolean.toString();
+    }
+    if (request.double != null) {
+      fetchRequest.headers!['double'] = request.double.toString();
+    }
+    if (request.int32 != null) {
+      fetchRequest.headers!['int32'] = request.int32.toString();
+    }
+    if (request.int64 != null) {
+      fetchRequest.headers!['int64'] = request.int64.toString();
+    }
+    if (request.decimal != null) {
+      fetchRequest.headers!['decimal'] = request.decimal.toString();
+    }
     if (request.enum != null) {
       fetchRequest.headers!['enum'] = request.enum;
     }
@@ -339,6 +367,30 @@ class ConformanceApiHttpClient implements IConformanceApi {
         headerValue = result.response.headers.get('string');
         if (headerValue != null) {
           value.string = headerValue;
+        }
+        headerValue = result.response.headers.get('boolean');
+        if (headerValue != null) {
+          value.boolean = parseBoolean(headerValue);
+        }
+        headerValue = result.response.headers.get('double');
+        if (headerValue != null) {
+          value.double = parseFloat(headerValue);
+        }
+        headerValue = result.response.headers.get('int32');
+        if (headerValue != null) {
+          value.int32 = parseInt(headerValue, 10);
+        }
+        headerValue = result.response.headers.get('int64');
+        if (headerValue != null) {
+          value.int64 = parseInt(headerValue, 10);
+        }
+        headerValue = result.response.headers.get('decimal');
+        if (headerValue != null) {
+          value.decimal = parseFloat(headerValue);
+        }
+        headerValue = result.response.headers.get('enum');
+        if (headerValue != null) {
+          value.enum = headerValue as Answer;
         }
         return { value: value };
       });
