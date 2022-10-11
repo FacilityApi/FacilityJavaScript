@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Facility.Definition;
 using Facility.Definition.CodeGen;
 using Facility.Definition.Http;
@@ -167,6 +164,24 @@ namespace Facility.CodeGen.JavaScript
 					code.WriteLine("type IFetchRequest = HttpClientUtility.IFetchRequest;");
 				}
 
+				// TODO: export this from facility-core?
+				if (httpServiceInfo.Methods.Any(x => x.RequestHeaderFields.Any(y => service.GetFieldType(y.ServiceField)!.Kind == ServiceTypeKind.Boolean)))
+				{
+					code.WriteLine();
+					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+					{
+						using (code.Block("if (typeof value === 'string') {", "}"))
+						{
+							code.WriteLine("const lowerValue = value.toLowerCase();");
+							using (code.Block("if (lowerValue === 'true') {", "}"))
+								code.WriteLine("return true;");
+							using (code.Block("if (lowerValue === 'false') {", "}"))
+								code.WriteLine("return false;");
+						}
+						code.WriteLine("return undefined;");
+					}
+				}
+
 				code.WriteLine();
 				using (code.Block($"class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
 				{
@@ -222,6 +237,12 @@ namespace Facility.CodeGen.JavaScript
 									code.WriteLine("uri = uri + '?' + query.join('&');");
 							}
 
+							if (httpMethodInfo.RequestBodyField != null)
+							{
+								using (code.Block($"if (!request.{httpMethodInfo.RequestBodyField.ServiceField.Name}) {{", "}"))
+									code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpMethodInfo.RequestBodyField.ServiceField.Name}'));");
+							}
+
 							using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
 							{
 								if (httpMethodInfo.RequestBodyField == null && httpMethodInfo.RequestNormalFields.Count == 0)
@@ -264,7 +285,7 @@ namespace Facility.CodeGen.JavaScript
 								foreach (var httpHeaderField in httpMethodInfo.RequestHeaderFields)
 								{
 									using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
-										code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = request.{httpHeaderField.ServiceField.Name};");
+										code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
 								}
 							}
 
@@ -331,7 +352,7 @@ namespace Facility.CodeGen.JavaScript
 									{
 										code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
 										using (code.Block("if (headerValue != null) {", "}"))
-											code.WriteLine($"value.{httpHeaderField.ServiceField.Name} = headerValue;");
+											code.WriteLine($"value.{httpHeaderField.ServiceField.Name} = {ParseFieldValue(httpHeaderField.ServiceField, service, "headerValue")};");
 									}
 								}
 
@@ -387,6 +408,7 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine("'ServiceUnavailable': 503,");
 					}
 
+					// TODO: export this from facility-core?
 					code.WriteLine();
 					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
 					{
@@ -424,12 +446,12 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
 
 								foreach (var httpPathField in httpMethodInfo.PathFields)
-									code.WriteLine($"request.{httpPathField.ServiceField.Name} = {RenderJsConversion(httpPathField.ServiceField, service, $"req.params.{httpPathField.Name}")};");
+									code.WriteLine($"request.{httpPathField.ServiceField.Name} = {ParseFieldValue(httpPathField.ServiceField, service, $"req.params.{httpPathField.Name}")};");
 
 								foreach (var httpQueryField in httpMethodInfo.QueryFields)
 								{
 									using (code.Block($"if (typeof req.query['{httpQueryField.Name}'] === 'string') {{", "}"))
-										code.WriteLine($"request.{httpQueryField.ServiceField.Name} = {RenderJsConversion(httpQueryField.ServiceField, service, $"req.query['{httpQueryField.Name}']")};");
+										code.WriteLine($"request.{httpQueryField.ServiceField.Name} = {ParseFieldValue(httpQueryField.ServiceField, service, $"req.query['{httpQueryField.Name}']")};");
 								}
 
 								if (httpMethodInfo.RequestBodyField != null)
@@ -631,7 +653,7 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private static string RenderJsConversion(ServiceFieldInfo field, ServiceInfo service, string value)
+		private static string ParseFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
 		{
 			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 
@@ -650,6 +672,31 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Decimal:
 				case ServiceTypeKind.Double:
 					return $"parseFloat({value})";
+				case ServiceTypeKind.Dto:
+				case ServiceTypeKind.Error:
+				case ServiceTypeKind.Object:
+					throw new NotSupportedException("Field type not supported on path/query/header: " + fieldTypeKind);
+				default:
+					throw new NotSupportedException("Unknown field type " + fieldTypeKind);
+			}
+		}
+
+		private static string RenderFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
+		{
+			var fieldTypeKind = service.GetFieldType(field)!.Kind;
+
+			switch (fieldTypeKind)
+			{
+				case ServiceTypeKind.Enum:
+				case ServiceTypeKind.String:
+				case ServiceTypeKind.Bytes:
+					return value;
+				case ServiceTypeKind.Boolean:
+				case ServiceTypeKind.Int32:
+				case ServiceTypeKind.Int64:
+				case ServiceTypeKind.Decimal:
+				case ServiceTypeKind.Double:
+					return $"{value}.toString()";
 				case ServiceTypeKind.Dto:
 				case ServiceTypeKind.Error:
 				case ServiceTypeKind.Object:

@@ -66,6 +66,9 @@ class ExampleApiHttpClient {
   /** Creates a new widget. */
   createWidget(request, context) {
     const uri = 'widgets';
+    if (!request.widget) {
+      return Promise.resolve(createRequiredRequestFieldError('widget'));
+    }
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -192,6 +195,9 @@ class ExampleApiHttpClient {
   /** Gets the specified widgets. */
   getWidgetBatch(request, context) {
     const uri = 'widgets/get';
+    if (!request.ids) {
+      return Promise.resolve(createRequiredRequestFieldError('ids'));
+    }
     const fetchRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -275,6 +281,9 @@ class ExampleApiHttpClient {
       return Promise.resolve(createRequiredRequestFieldError('key'));
     }
     const uri = `prefs/${uriPartKey}`;
+    if (!request.value) {
+      return Promise.resolve(createRequiredRequestFieldError('value'));
+    }
     const fetchRequest = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

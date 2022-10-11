@@ -13,6 +13,12 @@
       "commands": [
         "jb"
       ]
+    },
+    "facilityconformance": {
+      "version": "2.15.2",
+      "commands": [
+        "FacilityConformance"
+      ]
     }
   }
 }
