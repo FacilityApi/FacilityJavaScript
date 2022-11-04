@@ -620,6 +620,8 @@ namespace Facility.CodeGen.JavaScript
 					return $"{RenderFieldType(fieldType.ValueType!)}[]";
 				case ServiceTypeKind.Map:
 					return $"{{ [name: string]: {RenderFieldType(fieldType.ValueType!)} }}";
+				case ServiceTypeKind.Nullable:
+					return $"({RenderFieldType(fieldType.ValueType!)} | null)";
 				default:
 					throw new NotSupportedException("Unknown field type " + fieldType.Kind);
 			}

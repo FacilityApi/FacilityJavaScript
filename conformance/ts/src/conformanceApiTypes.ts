@@ -351,6 +351,8 @@ export interface IAny {
   map?: IAnyMap;
 
   result?: IAnyResult;
+
+  nullable?: IAnyNullable;
 }
 
 export interface IAnyArray {
@@ -381,6 +383,8 @@ export interface IAnyArray {
   map?: { [name: string]: number }[];
 
   result?: IServiceResult<number>[];
+
+  nullable?: (number | null)[];
 }
 
 export interface IAnyMap {
@@ -411,6 +415,8 @@ export interface IAnyMap {
   map?: { [name: string]: { [name: string]: number } };
 
   result?: { [name: string]: IServiceResult<number> };
+
+  nullable?: { [name: string]: (number | null) };
 }
 
 export interface IAnyResult {
@@ -441,6 +447,38 @@ export interface IAnyResult {
   map?: IServiceResult<{ [name: string]: number }>;
 
   result?: IServiceResult<IServiceResult<number>>;
+
+  nullable?: IServiceResult<(number | null)>;
+}
+
+export interface IAnyNullable {
+  string?: (string | null);
+
+  boolean?: (boolean | null);
+
+  double?: (number | null);
+
+  int32?: (number | null);
+
+  int64?: (number | null);
+
+  decimal?: (number | null);
+
+  bytes?: (string | null);
+
+  object?: ({ [name: string]: any } | null);
+
+  error?: (IServiceError | null);
+
+  data?: (IAny | null);
+
+  enum?: (Answer | null);
+
+  array?: (number[] | null);
+
+  map?: ({ [name: string]: number } | null);
+
+  result?: (IServiceResult<number> | null);
 }
 
 export interface IHasWidget {
