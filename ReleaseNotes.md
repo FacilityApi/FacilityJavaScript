@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.5.0-beta.1
+
+* Support nullable fields.
+
 ## 2.4.2
 
 * Add .NET 6 target.
