@@ -76,7 +76,7 @@ export enum ObsoleteEnum {
 }";
 			Assert.That(typesFile.Text, Contains.Substring(expectedEnums));
 
-			const string expectedEnumUsage = @"widgetField?: WidgetField;";
+			const string expectedEnumUsage = "widgetField?: WidgetField;";
 
 			Assert.That(typesFile.Text, Contains.Substring(expectedEnumUsage));
 		}
