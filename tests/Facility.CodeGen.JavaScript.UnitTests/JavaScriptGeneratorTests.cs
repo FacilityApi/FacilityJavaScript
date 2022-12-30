@@ -51,29 +51,30 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.IsNotNull(result);
 
 			var typesFile = result.Files.Single(f => f.Name == "exampleApiTypes.ts");
-			const string expectedEnums = @"
-/** Identifies a widget field. */
-export enum WidgetField {
-	/** The 'id' field. */
-	id = 'id',
+			const string expectedEnums = """
+				/** Identifies a widget field. */
+				export enum WidgetField {
+					/** The 'id' field. */
+					id = 'id',
 
-	/** The 'name' field. */
-	name = 'name',
+					/** The 'name' field. */
+					name = 'name',
 
-	/**
-	 * The 'weight' field.
-	 * @deprecated
-	 */
-	weight = 'weight',
-}
+					/**
+					 * The 'weight' field.
+					 * @deprecated
+					 */
+					weight = 'weight',
+				}
 
-/**
- * An obsolete enum.
- * @deprecated
- */
-export enum ObsoleteEnum {
-	unused = 'unused',
-}";
+				/**
+				 * An obsolete enum.
+				 * @deprecated
+				 */
+				export enum ObsoleteEnum {
+					unused = 'unused',
+				}
+				""";
 			Assert.That(typesFile.Text, Contains.Substring(expectedEnums));
 
 			const string expectedEnumUsage = "widgetField?: WidgetField;";
@@ -104,21 +105,23 @@ export enum ObsoleteEnum {
 			var apiFile = result.Files.Single(f => f.Name == "exampleApi.ts");
 
 			// `deleteWidget` does not expect response body
-			const string expectedDeleteWidgetLines = @"
-				let value: IDeleteWidgetResponse | null = null;
-				if (status === 204) {
-					value = {};
-				}";
+			const string expectedDeleteWidgetLines = """
+								let value: IDeleteWidgetResponse | null = null;
+								if (status === 204) {
+									value = {};
+								}
+				""";
 			Assert.That(apiFile.Text, Contains.Substring(expectedDeleteWidgetLines));
 
 			// `createWidget` does expect response body
-			const string expectedCreateWidgetLines = @"
-				let value: ICreateWidgetResponse | null = null;
-				if (status === 201) {
-					if (result.json) {
-						value = { widget: result.json } as ICreateWidgetResponse;
-					}
-				}";
+			const string expectedCreateWidgetLines = """
+								let value: ICreateWidgetResponse | null = null;
+								if (status === 201) {
+									if (result.json) {
+										value = { widget: result.json } as ICreateWidgetResponse;
+									}
+								}
+				""";
 			Assert.That(apiFile.Text, Contains.Substring(expectedCreateWidgetLines));
 		}
 	}
