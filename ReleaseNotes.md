@@ -2,6 +2,11 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.6.0
+
+* Update dependencies.
+* Add .NET 7; remove .NET Core 3.1 and .NET 5.
+
 ## 2.5.0
 
 * Support nullable fields.
