@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Facility.Definition;
 using Facility.Definition.Fsd;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Facility.CodeGen.JavaScript.UnitTests
@@ -123,6 +124,93 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 								}
 				""";
 			Assert.That(apiFile.Text, Contains.Substring(expectedCreateWidgetLines));
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternDataIsValid()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalDto\", module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { SomeExternalDto as IThing } from 'extern-dto-module';", typesFile.Text);
+			StringAssert.Contains("thing?: IThing;", typesFile.Text);
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternDataMissingJsAttribute()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { extern data MissingAttribute; }",
+				"TestApi.fsd(1,35): Missing required attribute 'js'.");
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternDataMissingModule()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { [js(name: \"SomeData\")] extern data MissingModule; }",
+				"TestApi.fsd(1,29): Missing required parameter 'module' for attribute 'js'.");
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternDataMissingName()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { [js(module: \"extern-dto-module\")] extern data MissingName; }",
+				"TestApi.fsd(1,29): Missing required parameter 'name' for attribute 'js'.");
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumIsValid()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { SomeExternalEnum as Thing } from 'extern-enum-module';", typesFile.Text);
+			StringAssert.Contains("thing?: Thing;", typesFile.Text);
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumMissingJsAttribute()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { extern enum MissingAttribute; }",
+				"TestApi.fsd(1,35): Missing required attribute 'js'.");
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumMissingModule()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { [js(name: \"SomeEnum\")] extern enum MissingModule; }",
+				"TestApi.fsd(1,29): Missing required parameter 'module' for attribute 'js'.");
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumMissingName()
+		{
+			ThrowsServiceDefinitionException(
+				"[csharp] service TestApi { [js(module: \"extern-enum-module\")] extern enum MissingName; }",
+				"TestApi.fsd(1,29): Missing required parameter 'name' for attribute 'js'.");
+		}
+
+		private void ThrowsServiceDefinitionException(string definition, string message)
+		{
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			Action action = () => generator.GenerateOutput(service);
+			action.Should().Throw<ServiceDefinitionException>().WithMessage(message);
 		}
 	}
 }

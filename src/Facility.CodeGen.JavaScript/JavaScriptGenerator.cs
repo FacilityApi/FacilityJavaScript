@@ -51,11 +51,46 @@ namespace Facility.CodeGen.JavaScript
 			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
 			var serverFileName = CodeGenUtility.Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
 
+			var errors = new List<ServiceDefinitionError>();
 			var namedTexts = new List<CodeGenFile>();
 			var typeNames = new List<string>();
 
 			if (TypeScript)
 			{
+				var externImports = new List<(string Name, string Alias, string Module)>();
+				var externTypes = service.ExternalDtos.Concat<ServiceMemberInfo>(service.ExternalEnums);
+				foreach (var externalDtoInfo in externTypes)
+				{
+					var jsAttribute = externalDtoInfo.TryGetAttribute(c_jsAttributeName);
+					if (jsAttribute is null)
+					{
+						errors.Add(new ServiceDefinitionError($"Missing required attribute '{c_jsAttributeName}'.", externalDtoInfo.Position));
+						continue;
+					}
+
+					var name = jsAttribute.TryGetParameterValue(c_jsAttributeNameParameterName);
+					if (name is null)
+					{
+						errors.Add(new ServiceDefinitionError($"Missing required parameter '{c_jsAttributeNameParameterName}' for attribute '{c_jsAttributeName}'.", jsAttribute.Position));
+						continue;
+					}
+
+					var module = jsAttribute.TryGetParameterValue(c_jsAttributeModuleParameterName);
+					if (module is null)
+					{
+						errors.Add(new ServiceDefinitionError($"Missing required parameter '{c_jsAttributeModuleParameterName}' for attribute '{c_jsAttributeName}'.", jsAttribute.Position));
+						continue;
+					}
+
+					var alias = externalDtoInfo is ServiceExternalDtoInfo
+						? $"I{CodeGenUtility.Capitalize(externalDtoInfo.Name)}"
+						: CodeGenUtility.Capitalize(externalDtoInfo.Name);
+					externImports.Add((name, alias, module));
+				}
+
+				if (errors.Count > 0)
+					throw new ServiceDefinitionException(errors);
+
 				namedTexts.Add(CreateFile(typesFileName, code =>
 				{
 					WriteFileHeader(code);
@@ -69,6 +104,10 @@ namespace Facility.CodeGen.JavaScript
 					if (allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Error)))
 						facilityImports.Add("IServiceError");
 					WriteImports(code, facilityImports, "facility-core");
+
+					// Imports for extern data/enum
+					foreach (var import in externImports.GroupBy(x => x.Module))
+						WriteImports(code, import.Select(x => $"{x.Name} as {x.Alias}").ToArray(), import.Key);
 
 					code.WriteLine();
 					WriteJsDoc(code, service);
@@ -601,6 +640,8 @@ namespace Facility.CodeGen.JavaScript
 					return "string";
 				case ServiceTypeKind.Enum:
 					return fieldType.Enum!.Name;
+				case ServiceTypeKind.ExternalEnum:
+					return fieldType.ExternalEnum!.Name;
 				case ServiceTypeKind.Boolean:
 					return "boolean";
 				case ServiceTypeKind.Double:
@@ -614,6 +655,8 @@ namespace Facility.CodeGen.JavaScript
 					return "IServiceError";
 				case ServiceTypeKind.Dto:
 					return $"I{CodeGenUtility.Capitalize(fieldType.Dto!.Name)}";
+				case ServiceTypeKind.ExternalDto:
+					return $"I{CodeGenUtility.Capitalize(fieldType.ExternalDto!.Name)}";
 				case ServiceTypeKind.Result:
 					return $"IServiceResult<{RenderFieldType(fieldType.ValueType!)}>";
 				case ServiceTypeKind.Array:
@@ -766,5 +809,9 @@ namespace Facility.CodeGen.JavaScript
 #else
 		private static string ReplaceOrdinal(string value, string oldValue, string newValue) => value.Replace(oldValue, newValue);
 #endif
+
+		private const string c_jsAttributeName = "js";
+		private const string c_jsAttributeNameParameterName = "name";
+		private const string c_jsAttributeModuleParameterName = "module";
 	}
 }

@@ -323,6 +323,14 @@ service ExampleApi
 		[obsolete(message: "This field was never used.")]
 		oldField: string;
 	}
+
+	/// An external data type.
+	[js(name: "SomeExternalDto", module: "external-dto-module")]
+	extern data ExternalDto;
+
+	/// An external enum.
+	[js(name: "SomeExternalEnum", module: "external-enum-module")]
+	extern enum ExternalEnum;
 }
 
 # ExampleApi
