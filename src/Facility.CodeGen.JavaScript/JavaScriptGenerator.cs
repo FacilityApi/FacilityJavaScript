@@ -68,13 +68,6 @@ namespace Facility.CodeGen.JavaScript
 						continue;
 					}
 
-					var name = jsAttribute.TryGetParameterValue(c_jsAttributeNameParameterName);
-					if (name is null)
-					{
-						errors.Add(new ServiceDefinitionError($"Missing required parameter '{c_jsAttributeNameParameterName}' for attribute '{c_jsAttributeName}'.", jsAttribute.Position));
-						continue;
-					}
-
 					var module = jsAttribute.TryGetParameterValue(c_jsAttributeModuleParameterName);
 					if (module is null)
 					{
@@ -85,6 +78,8 @@ namespace Facility.CodeGen.JavaScript
 					var alias = externalDtoInfo is ServiceExternalDtoInfo
 						? $"I{CodeGenUtility.Capitalize(externalDtoInfo.Name)}"
 						: CodeGenUtility.Capitalize(externalDtoInfo.Name);
+
+					var name = jsAttribute.TryGetParameterValue(c_jsAttributeNameParameterName) ?? alias;
 					externImports.Add((name, alias, module));
 				}
 
@@ -107,7 +102,7 @@ namespace Facility.CodeGen.JavaScript
 
 					// Imports for extern data/enum
 					foreach (var import in externImports.GroupBy(x => x.Module))
-						WriteImports(code, import.Select(x => $"{x.Name} as {x.Alias}").ToArray(), import.Key);
+						WriteImports(code, import.Select(x => $"{x.Name}{(x.Name != x.Alias ? $" as {x.Alias}" : "")}").ToArray(), import.Key);
 
 					code.WriteLine();
 					WriteJsDoc(code, service);

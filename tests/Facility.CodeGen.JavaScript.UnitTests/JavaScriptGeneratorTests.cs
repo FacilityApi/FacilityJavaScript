@@ -127,7 +127,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternDataIsValid()
+		public void GenerateExampleApiTypeScript_ExternDataWithNameAndModuel()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalDto\", module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
 			var parser = new FsdParser();
@@ -142,7 +142,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternDataMissingJsAttribute()
+		public void GenerateExampleApiTypeScript_ExternDataWithoutJsAttribute()
 		{
 			ThrowsServiceDefinitionException(
 				"[csharp] service TestApi { extern data MissingAttribute; }",
@@ -150,7 +150,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternDataMissingModule()
+		public void GenerateExampleApiTypeScript_ExternDataWithoutModule()
 		{
 			ThrowsServiceDefinitionException(
 				"[csharp] service TestApi { [js(name: \"SomeData\")] extern data MissingModule; }",
@@ -158,15 +158,37 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternDataMissingName()
+		public void GenerateExampleApiTypeScript_ExternDataWithoutName()
 		{
-			ThrowsServiceDefinitionException(
-				"[csharp] service TestApi { [js(module: \"extern-dto-module\")] extern data MissingName; }",
-				"TestApi.fsd(1,29): Missing required parameter 'name' for attribute 'js'.");
+			const string definition = "[csharp] service TestApi { [js(module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { IThing } from 'extern-dto-module';", typesFile.Text);
+			StringAssert.Contains("thing?: IThing;", typesFile.Text);
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternEnumIsValid()
+		public void GenerateExampleApiTypeScript_ExternDataNameSameAsAlias()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"IThing\", module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { IThing } from 'extern-dto-module';", typesFile.Text);
+			StringAssert.Contains("thing?: IThing;", typesFile.Text);
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumWithNameAndModule()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
 			var parser = new FsdParser();
@@ -181,7 +203,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternEnumMissingJsAttribute()
+		public void GenerateExampleApiTypeScript_ExternEnumWithoutJsAttribute()
 		{
 			ThrowsServiceDefinitionException(
 				"[csharp] service TestApi { extern enum MissingAttribute; }",
@@ -189,7 +211,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternEnumMissingModule()
+		public void GenerateExampleApiTypeScript_ExternEnumWithoutModule()
 		{
 			ThrowsServiceDefinitionException(
 				"[csharp] service TestApi { [js(name: \"SomeEnum\")] extern enum MissingModule; }",
@@ -197,11 +219,33 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_ExternEnumMissingName()
+		public void GenerateExampleApiTypeScript_ExternEnumWithoutName()
 		{
-			ThrowsServiceDefinitionException(
-				"[csharp] service TestApi { [js(module: \"extern-enum-module\")] extern enum MissingName; }",
-				"TestApi.fsd(1,29): Missing required parameter 'name' for attribute 'js'.");
+			const string definition = "[csharp] service TestApi { [js(module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { Thing } from 'extern-enum-module';", typesFile.Text);
+			StringAssert.Contains("thing?: Thing;", typesFile.Text);
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumNameIsSameAsAlias()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"Thing\", module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			StringAssert.Contains("import { Thing } from 'extern-enum-module';", typesFile.Text);
+			StringAssert.Contains("thing?: Thing;", typesFile.Text);
 		}
 
 		private void ThrowsServiceDefinitionException(string definition, string message)
