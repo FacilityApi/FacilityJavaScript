@@ -325,11 +325,11 @@ service ExampleApi
 	}
 
 	/// An external data type.
-	[js(name: "SomeExternalDto", module: "external-dto-module")]
+	[js(name: "SomeExternalDto", module: "./exampleApiExternTypes")]
 	extern data ExternalDto;
 
 	/// An external enum.
-	[js(name: "SomeExternalEnum", module: "external-enum-module")]
+	[js(name: "SomeExternalEnum", module: "./exampleApiExternTypes")]
 	extern enum ExternalEnum;
 }
 
