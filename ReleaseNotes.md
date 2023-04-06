@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.7.0-beta.1
+
+* Support `extern` data and enum types.
+
 ## 2.6.0
 
 * Update dependencies.
