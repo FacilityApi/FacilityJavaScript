@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import { IServiceResult, IServiceError } from 'facility-core';
+import { SomeExternalDto as IExternalDto, SomeExternalEnum as ExternalEnum } from './exampleApiExternTypes';
 
 /** Example service for widgets. */
 export interface IExampleApi {
