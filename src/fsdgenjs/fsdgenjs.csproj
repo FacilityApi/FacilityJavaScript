@@ -7,6 +7,7 @@
     <PackageTags>Facility FSD JavaScript TypeScript CodeGen</PackageTags>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Facility.CodeGen.JavaScript\Facility.CodeGen.JavaScript.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
