@@ -2,7 +2,6 @@
 
 [JavaScript and TypeScript support](https://facilityapi.github.io/generate/javascript) for the [Facility API Framework](https://facilityapi.github.io/).
 [![Build](https://github.com/FacilityApi/FacilityJavaScript/workflows/Build/badge.svg)](https://github.com/FacilityApi/FacilityJavaScript/actions?query=workflow%3ABuild)
-[![Travis CI](https://travis-ci.org/FacilityApi/FacilityJavaScript.svg?branch=master)](https://travis-ci.org/FacilityApi/FacilityJavaScript)
 
 Name | Description | npm/NuGet
 --- | --- | ---
