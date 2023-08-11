@@ -259,6 +259,7 @@ class ConformanceApiHttpClient implements IConformanceApi {
     request.int64 == null || query.push('int64=' + request.int64.toString());
     request.decimal == null || query.push('decimal=' + request.decimal.toString());
     request.enum == null || query.push('enum=' + request.enum);
+    request.datetime == null || query.push('datetime=' + encodeURIComponent(request.datetime));
     if (query.length) {
       uri = uri + '?' + query.join('&');
     }
@@ -308,7 +309,11 @@ class ConformanceApiHttpClient implements IConformanceApi {
     if (!uriPartEnum) {
       return Promise.resolve(createRequiredRequestFieldError('enum'));
     }
-    const uri = `checkPath/${uriPartString}/${uriPartBoolean}/${uriPartDouble}/${uriPartInt32}/${uriPartInt64}/${uriPartDecimal}/${uriPartEnum}`;
+    const uriPartDatetime = request.datetime != null && encodeURIComponent(request.datetime);
+    if (!uriPartDatetime) {
+      return Promise.resolve(createRequiredRequestFieldError('datetime'));
+    }
+    const uri = `checkPath/${uriPartString}/${uriPartBoolean}/${uriPartDouble}/${uriPartInt32}/${uriPartInt64}/${uriPartDecimal}/${uriPartEnum}/${uriPartDatetime}`;
     const fetchRequest: IFetchRequest = {
       method: 'GET',
     };
@@ -353,6 +358,9 @@ class ConformanceApiHttpClient implements IConformanceApi {
     if (request.enum != null) {
       fetchRequest.headers!['enum'] = request.enum;
     }
+    if (request.datetime != null) {
+      fetchRequest.headers!['datetime'] = request.datetime;
+    }
     return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)
       .then(result => {
         const status = result.response.status;
@@ -391,6 +399,10 @@ class ConformanceApiHttpClient implements IConformanceApi {
         headerValue = result.response.headers.get('enum');
         if (headerValue != null) {
           value.enum = headerValue as Answer;
+        }
+        headerValue = result.response.headers.get('datetime');
+        if (headerValue != null) {
+          value.datetime = headerValue;
         }
         return { value: value };
       });

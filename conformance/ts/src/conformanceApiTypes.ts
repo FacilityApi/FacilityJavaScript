@@ -165,6 +165,8 @@ export interface ICheckQueryRequest {
   decimal?: number;
 
   enum?: Answer;
+
+  datetime?: string;
 }
 
 /** Response for CheckQuery. */
@@ -186,6 +188,8 @@ export interface ICheckPathRequest {
   decimal?: number;
 
   enum?: Answer;
+
+  datetime?: string;
 }
 
 /** Response for CheckPath. */
@@ -207,6 +211,8 @@ export interface IMirrorHeadersRequest {
   decimal?: number;
 
   enum?: Answer;
+
+  datetime?: string;
 }
 
 /** Response for MirrorHeaders. */
@@ -224,6 +230,8 @@ export interface IMirrorHeadersResponse {
   decimal?: number;
 
   enum?: Answer;
+
+  datetime?: string;
 }
 
 /** Request for Mixed. */
@@ -336,6 +344,8 @@ export interface IAny {
 
   decimal?: number;
 
+  datetime?: string;
+
   bytes?: string;
 
   object?: { [name: string]: any };
@@ -367,6 +377,8 @@ export interface IAnyArray {
   int64?: number[];
 
   decimal?: number[];
+
+  datetime?: string[];
 
   bytes?: string[];
 
@@ -400,6 +412,8 @@ export interface IAnyMap {
 
   decimal?: { [name: string]: number };
 
+  datetime?: { [name: string]: string };
+
   bytes?: { [name: string]: string };
 
   object?: { [name: string]: { [name: string]: any } };
@@ -432,6 +446,8 @@ export interface IAnyResult {
 
   decimal?: IServiceResult<number>;
 
+  datetime?: IServiceResult<string>;
+
   bytes?: IServiceResult<string>;
 
   object?: IServiceResult<{ [name: string]: any }>;
@@ -463,6 +479,8 @@ export interface IAnyNullable {
   int64?: (number | null);
 
   decimal?: (number | null);
+
+  datetime?: (string | null);
 
   bytes?: (string | null);
 
