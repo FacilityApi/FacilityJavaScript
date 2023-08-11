@@ -632,6 +632,7 @@ namespace Facility.CodeGen.JavaScript
 			{
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
+				case ServiceTypeKind.DateTime:
 					return "string";
 				case ServiceTypeKind.Enum:
 					return fieldType.Enum!.Name;
@@ -676,6 +677,7 @@ namespace Facility.CodeGen.JavaScript
 					return $"request.{fieldName}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
+				case ServiceTypeKind.DateTime:
 					return $"encodeURIComponent(request.{fieldName})";
 				case ServiceTypeKind.Boolean:
 				case ServiceTypeKind.Int32:
@@ -703,6 +705,7 @@ namespace Facility.CodeGen.JavaScript
 					return $"{value} as {field.TypeName}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
+				case ServiceTypeKind.DateTime:
 					return value;
 				case ServiceTypeKind.Boolean:
 					return $"parseBoolean({value})";
@@ -730,6 +733,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Enum:
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
+				case ServiceTypeKind.DateTime:
 					return value;
 				case ServiceTypeKind.Boolean:
 				case ServiceTypeKind.Int32:
