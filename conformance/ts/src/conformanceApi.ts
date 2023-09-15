@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 import { HttpClientUtility, IServiceResult, IHttpClientOptions } from 'facility-core';
-import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer } from './conformanceApiTypes';
+import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from './conformanceApiTypes';
 export * from './conformanceApiTypes';
 
 /** Provides access to ConformanceApi over HTTP via fetch. */

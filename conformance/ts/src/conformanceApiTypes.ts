@@ -515,3 +515,13 @@ export enum Answer {
   maybe = 'maybe',
 }
 
+/** Custom errors. */
+export enum ApiErrors {
+
+  /** The user is not an administrator. */
+  NotAdmin = 'NotAdmin',
+
+  /** I'm "too" 😄! */
+  TooHappy = 'TooHappy',
+}
+
