@@ -158,6 +158,23 @@ namespace Facility.CodeGen.JavaScript
 						}
 					}
 
+					foreach (var errorSetInfo in service.ErrorSets)
+					{
+						typeNames.Add(errorSetInfo.Name);
+						code.WriteLine();
+						WriteJsDoc(code, errorSetInfo);
+						using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
+						{
+							code.WriteLineSkipOnce();
+							foreach (var error in errorSetInfo.Errors)
+							{
+								code.WriteLineSkipOnce();
+								WriteJsDoc(code, error);
+								code.WriteLine($"{error.Name} = '{error.Name}',");
+							}
+						}
+					}
+
 					code.WriteLine();
 				}));
 			}
