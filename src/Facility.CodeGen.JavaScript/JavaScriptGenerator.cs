@@ -165,7 +165,6 @@ namespace Facility.CodeGen.JavaScript
 						WriteJsDoc(code, errorSetInfo);
 						using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
 						{
-							code.WriteLineSkipOnce();
 							foreach (var error in errorSetInfo.Errors)
 							{
 								code.WriteLineSkipOnce();

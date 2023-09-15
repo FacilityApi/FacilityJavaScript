@@ -352,7 +352,6 @@ export enum ObsoleteEnum {
 
 /** Custom errors. */
 export enum ExampleApiErrors {
-
 	/** The user is not an administrator. */
 	NotAdmin = 'NotAdmin',
 }

@@ -517,7 +517,6 @@ export enum Answer {
 
 /** Custom errors. */
 export enum ApiErrors {
-
   /** The user is not an administrator. */
   NotAdmin = 'NotAdmin',
 
