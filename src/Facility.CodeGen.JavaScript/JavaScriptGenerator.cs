@@ -158,6 +158,22 @@ namespace Facility.CodeGen.JavaScript
 						}
 					}
 
+					foreach (var errorSetInfo in service.ErrorSets)
+					{
+						typeNames.Add(errorSetInfo.Name);
+						code.WriteLine();
+						WriteJsDoc(code, errorSetInfo);
+						using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
+						{
+							foreach (var error in errorSetInfo.Errors)
+							{
+								code.WriteLineSkipOnce();
+								WriteJsDoc(code, error);
+								code.WriteLine($"{error.Name} = '{error.Name}',");
+							}
+						}
+					}
+
 					code.WriteLine();
 				}));
 			}
@@ -440,6 +456,14 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine("'TooManyRequests': 429,");
 						code.WriteLine("'InternalError': 500,");
 						code.WriteLine("'ServiceUnavailable': 503,");
+
+						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
+						{
+							foreach (var error in errorSetInfo.Errors)
+							{
+								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
+							}
+						}
 					}
 
 					// TODO: export this from facility-core?
