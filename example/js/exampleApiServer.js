@@ -16,6 +16,7 @@ const standardErrorCodes = {
   'TooManyRequests': 429,
   'InternalError': 500,
   'ServiceUnavailable': 503,
+  'NotAdmin': 403,
 };
 
 function parseBoolean(value) {

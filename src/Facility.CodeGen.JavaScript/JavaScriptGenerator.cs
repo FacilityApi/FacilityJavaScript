@@ -456,6 +456,14 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine("'TooManyRequests': 429,");
 						code.WriteLine("'InternalError': 500,");
 						code.WriteLine("'ServiceUnavailable': 503,");
+
+						httpServiceInfo.ErrorSets.ToList().ForEach(errorSetInfo =>
+						{
+							foreach (var error in errorSetInfo.Errors)
+							{
+								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
+							}
+						});
 					}
 
 					// TODO: export this from facility-core?
