@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.9.0
+
+* Generate error sets in TypeScript.
+
 ## 2.8.0
 
 * Support `datetime`.
