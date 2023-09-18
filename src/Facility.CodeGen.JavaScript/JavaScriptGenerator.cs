@@ -457,13 +457,13 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine("'InternalError': 500,");
 						code.WriteLine("'ServiceUnavailable': 503,");
 
-						httpServiceInfo.ErrorSets.ToList().ForEach(errorSetInfo =>
+						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
 						{
 							foreach (var error in errorSetInfo.Errors)
 							{
 								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
 							}
-						});
+						}
 					}
 
 					// TODO: export this from facility-core?
