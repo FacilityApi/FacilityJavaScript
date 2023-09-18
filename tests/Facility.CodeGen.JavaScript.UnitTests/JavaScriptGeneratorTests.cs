@@ -246,6 +246,37 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			StringAssert.Contains("thing?: Thing;", typesFile.Text);
 		}
 
+		[Test]
+		public void GenerateExampleApiTypeScript_IncludesErrorSets()
+		{
+			ServiceInfo service;
+			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
+			var parser = new FsdParser();
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
+			Assert.IsNotNull(stream);
+			using (var reader = new StreamReader(stream))
+				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
+
+			var generator = new JavaScriptGenerator
+			{
+				GeneratorName = "JavaScriptGeneratorTests",
+				TypeScript = true,
+				NewLine = "\n",
+			};
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			var typesFile = result.Files.Single(f => f.Name == "exampleApiTypes.ts");
+			const string expectedErrorSet = """
+				/** Custom errors. */
+				export enum ExampleApiErrors {
+					/** The user is not an administrator. */
+					NotAdmin = 'NotAdmin',
+				}
+				""";
+			Assert.That(typesFile.Text, Contains.Substring(expectedErrorSet));
+		}
+
 		private void ThrowsServiceDefinitionException(string definition, string message)
 		{
 			var parser = new FsdParser();
