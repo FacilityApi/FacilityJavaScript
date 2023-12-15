@@ -4,7 +4,8 @@
   "description": "Tests the ConformanceApi client.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run --silent build && mocha dist/ts/test/conformanceApiTests.js"
+    "test": "npm run --silent build && mocha dist/ts/test/conformanceApiTests.js",
+    "start:fastify": "npm run --silent build && fastify start -p 4117 -w -l info -P dist/ts/src/fastify/app.js && mocha dist/ts/test/conformanceApiTests.js"
   },
   "repository": {
     "type": "git",
@@ -18,11 +19,13 @@
     "@types/node": "^12.20.15",
     "@types/node-fetch": "^2.5.10",
     "chai": "^4.3.4",
+    "fastify-cli": "^5.9.0",
     "mocha": "^10.0.0",
     "node-fetch": "^2.6.7",
-    "typescript": "~3.9.9"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "facility-core": "file:../ts"
+    "facility-core": "file:../ts",
+    "fastify": "^4.25.1"
   }
 }
