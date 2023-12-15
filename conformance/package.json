@@ -4,7 +4,7 @@
   "description": "Tests the ConformanceApi client.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run --silent build && mocha"
+    "test": "npm run --silent build && mocha dist/ts/test/conformanceApiTests.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,6 @@
     "typescript": "~3.9.9"
   },
   "dependencies": {
-    "facility-core": "file:../../ts"
+    "facility-core": "file:../ts"
   }
 }

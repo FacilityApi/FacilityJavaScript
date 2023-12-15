@@ -1,8 +1,7 @@
 import { createHttpClient } from '../src/conformanceApi';
 import { expect, should } from 'chai';
 import fetch from 'node-fetch';
-import * as fs from 'fs';
-import * as path from 'path';
+import conformanceTestsJson from '../../ConformanceTests.json';
 
 should();
 
@@ -12,13 +11,10 @@ const httpClient = createHttpClient({
 	}
 });
 
-const testData = JSON.parse(
-	fs.readFileSync(path.resolve(__dirname, '../../conformanceTests.json'), 'utf8'));
-
 describe('tests', () => {
 
-	testData.tests.forEach((data: any) => {
-		it(data.test, () => {
+	conformanceTestsJson.tests.forEach((data: any) => {
+		it(data.test, async () => {
 			return ((httpClient as any)[data.method](data.request))
 				.then((result: any) => {
 					expect({
