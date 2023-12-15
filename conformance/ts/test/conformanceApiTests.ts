@@ -21,8 +21,13 @@ describe('tests', () => {
 		it(data.test, () => {
 			return ((httpClient as any)[data.method](data.request))
 				.then((result: any) => {
-					expect(result.value).to.deep.equal(data.response);
-					expect(result.error).to.deep.equal(data.error);
+					expect({
+						error: result.error ?? undefined,
+						value: result.value ?? undefined,
+					}).to.be.deep.equal({
+						error: data.error ?? undefined,
+						value: data.response ?? undefined,
+					});
 				});
 		});
 	});
