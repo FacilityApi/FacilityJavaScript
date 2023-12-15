@@ -34,6 +34,11 @@ namespace Facility.CodeGen.JavaScript
 		public bool Express { get; set; }
 
 		/// <summary>
+		/// True to generate Fastify plugin.
+		/// </summary>
+		public bool Fastify { get; set; }
+
+		/// <summary>
 		/// True to disable ESLint via code comment.
 		/// </summary>
 		public bool DisableESLint { get; set; }
@@ -46,6 +51,7 @@ namespace Facility.CodeGen.JavaScript
 			var httpServiceInfo = HttpServiceInfo.Create(service);
 
 			var moduleName = ModuleName ?? service.Name;
+			var camelCaseModuleName = CodeGenUtility.ToCamelCase(moduleName);
 			var capModuleName = CodeGenUtility.Capitalize(moduleName);
 			var typesFileName = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
 			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
@@ -606,6 +612,90 @@ namespace Facility.CodeGen.JavaScript
 				}));
 			}
 
+			if (Fastify)
+			{
+				var pluginFileName = CodeGenUtility.Uncapitalize(moduleName) + "Plugin" + (TypeScript ? ".ts" : ".js");
+				namedTexts.Add(CreateFile("fastify/" + pluginFileName, code =>
+				{
+					WriteFileHeader(code);
+
+					if (!TypeScript)
+						code.WriteLine("'use strict';");
+
+					code.WriteLine();
+
+					var fastifyImports = new List<string>();
+					if (TypeScript)
+						fastifyImports.Add("FastifyPluginAsync");
+					WriteImports(code, fastifyImports, "fastify");
+
+					var facilityImports = new List<string>();
+					if (TypeScript)
+						facilityImports.Add("IServiceResult");
+					WriteImports(code, facilityImports, "facility-core");
+					if (TypeScript)
+					{
+						WriteImports(code, typeNames, $"../{CodeGenUtility.Uncapitalize(moduleName)}Types");
+						code.WriteLine($"export * from '../{CodeGenUtility.Uncapitalize(moduleName)}Types';");
+					}
+
+					// TODO: export this from facility-core
+					code.WriteLine();
+					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
+					{
+						code.WriteLine("'NotModified': 304,");
+						code.WriteLine("'InvalidRequest': 400,");
+						code.WriteLine("'NotAuthenticated': 401,");
+						code.WriteLine("'NotAuthorized': 403,");
+						code.WriteLine("'NotFound': 404,");
+						code.WriteLine("'Conflict': 409,");
+						code.WriteLine("'RequestTooLarge': 413,");
+						code.WriteLine("'TooManyRequests': 429,");
+						code.WriteLine("'InternalError': 500,");
+						code.WriteLine("'ServiceUnavailable': 503,");
+
+						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
+						{
+							foreach (var error in errorSetInfo.Errors)
+							{
+								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
+							}
+						}
+					}
+
+					// TODO: export this from facility-core?
+					code.WriteLine();
+					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+					{
+						using (code.Block("if (typeof value === 'string') {", "}"))
+						{
+							code.WriteLine("const lowerValue = value.toLowerCase();");
+							using (code.Block("if (lowerValue === 'true') {", "}"))
+								code.WriteLine("return true;");
+							using (code.Block("if (lowerValue === 'false') {", "}"))
+								code.WriteLine("return false;");
+						}
+						code.WriteLine("return undefined;");
+					}
+
+					if (TypeScript)
+					{
+						code.WriteLine();
+						/* All code below this is meant to create the code that is in handRollingPlugin.ts */
+						using (code.Block($"export type {capModuleName}PluginOptions = {{", "}"))
+						{
+							code.WriteLine($"api: I{capModuleName};");
+						}
+					}
+
+					code.WriteLine();
+					using (code.Block($"export const {camelCaseModuleName}Plugin: FastifyPluginAsync<{capModuleName}PluginOptions> = async (fastify, opts) => {{", "}"))
+					{
+						code.WriteLine("throw new Error('Not implemented');");
+					}
+				}));
+			}
+
 			return new CodeGenOutput(namedTexts, new List<CodeGenPattern>());
 		}
 
@@ -618,6 +708,7 @@ namespace Facility.CodeGen.JavaScript
 			ModuleName = ourSettings.ModuleName;
 			TypeScript = ourSettings.TypeScript;
 			Express = ourSettings.Express;
+			Fastify = ourSettings.Fastify;
 			DisableESLint = ourSettings.DisableESLint;
 		}
 
