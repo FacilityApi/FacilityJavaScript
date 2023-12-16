@@ -110,76 +110,7 @@ namespace Facility.CodeGen.JavaScript
 					foreach (var import in externImports.GroupBy(x => x.Module))
 						WriteImports(code, import.Select(x => $"{x.Name}{(x.Name != x.Alias ? $" as {x.Alias}" : "")}").ToArray(), import.Key);
 
-					code.WriteLine();
-					WriteJsDoc(code, service);
-					typeNames.Add($"I{capModuleName}");
-					using (code.Block($"export interface I{capModuleName} {{", "}"))
-					{
-						foreach (var httpMethodInfo in httpServiceInfo.Methods)
-						{
-							var methodName = httpMethodInfo.ServiceMethod.Name;
-							var capMethodName = CodeGenUtility.Capitalize(methodName);
-							code.WriteLineSkipOnce();
-							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
-							code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
-						}
-					}
-
-					foreach (var methodInfo in service.Methods)
-					{
-						var requestDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Request";
-						typeNames.Add($"I{requestDtoName}");
-						WriteDto(code, new ServiceDtoInfo(
-							name: requestDtoName,
-							fields: methodInfo.RequestFields,
-							summary: $"Request for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
-
-						var responseDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Response";
-						typeNames.Add($"I{responseDtoName}");
-						WriteDto(code, new ServiceDtoInfo(
-							name: responseDtoName,
-							fields: methodInfo.ResponseFields,
-							summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
-					}
-
-					foreach (var dtoInfo in service.Dtos)
-					{
-						typeNames.Add($"I{dtoInfo.Name}");
-						WriteDto(code, dtoInfo, service);
-					}
-
-					foreach (var enumInfo in service.Enums)
-					{
-						typeNames.Add(enumInfo.Name);
-						code.WriteLine();
-						WriteJsDoc(code, enumInfo);
-						using (code.Block($"export enum {enumInfo.Name} {{", "}"))
-						{
-							foreach (var value in enumInfo.Values)
-							{
-								code.WriteLineSkipOnce();
-								WriteJsDoc(code, value);
-								code.WriteLine($"{value.Name} = '{value.Name}',");
-							}
-						}
-					}
-
-					foreach (var errorSetInfo in service.ErrorSets)
-					{
-						typeNames.Add(errorSetInfo.Name);
-						code.WriteLine();
-						WriteJsDoc(code, errorSetInfo);
-						using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
-						{
-							foreach (var error in errorSetInfo.Errors)
-							{
-								code.WriteLineSkipOnce();
-								WriteJsDoc(code, error);
-								code.WriteLine($"{error.Name} = '{error.Name}',");
-							}
-						}
-					}
-
+					typeNames.AddRange(WriteTypes(code, httpServiceInfo));
 					code.WriteLine();
 				}));
 			}
@@ -631,13 +562,11 @@ namespace Facility.CodeGen.JavaScript
 
 					var facilityImports = new List<string>();
 					if (TypeScript)
-						facilityImports.Add("IServiceResult");
-					WriteImports(code, facilityImports, "facility-core");
-					if (TypeScript)
 					{
-						WriteImports(code, typeNames, $"../{CodeGenUtility.Uncapitalize(moduleName)}Types");
-						code.WriteLine($"export * from '../{CodeGenUtility.Uncapitalize(moduleName)}Types';");
+						facilityImports.Add("IServiceResult");
+						facilityImports.Add("IServiceError");
 					}
+					WriteImports(code, facilityImports, "facility-core");
 
 					// TODO: export this from facility-core
 					code.WriteLine();
@@ -826,6 +755,9 @@ namespace Facility.CodeGen.JavaScript
 							}
 						}
 					}
+
+					if (TypeScript)
+						WriteTypes(code, httpServiceInfo);
 				}));
 			}
 
@@ -1030,6 +962,85 @@ namespace Facility.CodeGen.JavaScript
 		{
 			if (imports.Count != 0)
 				code.WriteLine($"import {{ {string.Join(", ", imports)} }} from '{from}';");
+		}
+
+		private List<string> WriteTypes(CodeWriter code, HttpServiceInfo httpServiceInfo)
+		{
+			var typeNames = new List<string>();
+			var service = httpServiceInfo.Service;
+			code.WriteLine();
+			WriteJsDoc(code, service);
+
+			var capModuleName = CodeGenUtility.Capitalize(ModuleName ?? service.Name);
+			typeNames.Add($"I{capModuleName}");
+			using (code.Block($"export interface I{capModuleName} {{", "}"))
+			{
+				foreach (var httpMethodInfo in httpServiceInfo.Methods)
+				{
+					var methodName = httpMethodInfo.ServiceMethod.Name;
+					var capMethodName = CodeGenUtility.Capitalize(methodName);
+					code.WriteLineSkipOnce();
+					WriteJsDoc(code, httpMethodInfo.ServiceMethod);
+					code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
+				}
+			}
+
+			foreach (var methodInfo in service.Methods)
+			{
+				var requestDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Request";
+				typeNames.Add($"I{requestDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: requestDtoName,
+					fields: methodInfo.RequestFields,
+					summary: $"Request for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+
+				var responseDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Response";
+				typeNames.Add($"I{responseDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: responseDtoName,
+					fields: methodInfo.ResponseFields,
+					summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+			}
+
+			foreach (var dtoInfo in service.Dtos)
+			{
+				typeNames.Add($"I{dtoInfo.Name}");
+				WriteDto(code, dtoInfo, service);
+			}
+
+			foreach (var enumInfo in service.Enums)
+			{
+				typeNames.Add(enumInfo.Name);
+				code.WriteLine();
+				WriteJsDoc(code, enumInfo);
+				using (code.Block($"export enum {enumInfo.Name} {{", "}"))
+				{
+					foreach (var value in enumInfo.Values)
+					{
+						code.WriteLineSkipOnce();
+						WriteJsDoc(code, value);
+						code.WriteLine($"{value.Name} = '{value.Name}',");
+					}
+				}
+			}
+
+			foreach (var errorSetInfo in service.ErrorSets)
+			{
+				typeNames.Add(errorSetInfo.Name);
+				code.WriteLine();
+				WriteJsDoc(code, errorSetInfo);
+				using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
+				{
+					foreach (var error in errorSetInfo.Errors)
+					{
+						code.WriteLineSkipOnce();
+						WriteJsDoc(code, error);
+						code.WriteLine($"{error.Name} = '{error.Name}',");
+					}
+				}
+			}
+
+			return typeNames;
 		}
 
 		private static bool FieldUsesKind(ServiceInfo service, ServiceFieldInfo field, ServiceTypeKind kind)

@@ -2,9 +2,7 @@
 /* eslint-disable */
 
 import { FastifyPluginAsync } from 'fastify';
-import { IServiceResult } from 'facility-core';
-import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from '../conformanceApiTypes';
-export * from '../conformanceApiTypes';
+import { IServiceResult, IServiceError } from 'facility-core';
 
 const standardErrorCodes: { [code: string]: number } = {
   'NotModified': 304,
@@ -533,4 +531,525 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       throw new Error('Result must have an error or value.');
     }
   });
+}
+
+/** API for a Facility test server. */
+export interface IConformanceApi {
+  /** Gets API information. */
+  getApiInfo(request: IGetApiInfoRequest, context?: unknown): Promise<IServiceResult<IGetApiInfoResponse>>;
+
+  /** Gets widgets. */
+  getWidgets(request: IGetWidgetsRequest, context?: unknown): Promise<IServiceResult<IGetWidgetsResponse>>;
+
+  /** Creates a new widget. */
+  createWidget(request: ICreateWidgetRequest, context?: unknown): Promise<IServiceResult<ICreateWidgetResponse>>;
+
+  /** Gets the specified widget. */
+  getWidget(request: IGetWidgetRequest, context?: unknown): Promise<IServiceResult<IGetWidgetResponse>>;
+
+  /** Deletes the specified widget. */
+  deleteWidget(request: IDeleteWidgetRequest, context?: unknown): Promise<IServiceResult<IDeleteWidgetResponse>>;
+
+  /** Gets the specified widgets. */
+  getWidgetBatch(request: IGetWidgetBatchRequest, context?: unknown): Promise<IServiceResult<IGetWidgetBatchResponse>>;
+
+  mirrorFields(request: IMirrorFieldsRequest, context?: unknown): Promise<IServiceResult<IMirrorFieldsResponse>>;
+
+  checkQuery(request: ICheckQueryRequest, context?: unknown): Promise<IServiceResult<ICheckQueryResponse>>;
+
+  checkPath(request: ICheckPathRequest, context?: unknown): Promise<IServiceResult<ICheckPathResponse>>;
+
+  mirrorHeaders(request: IMirrorHeadersRequest, context?: unknown): Promise<IServiceResult<IMirrorHeadersResponse>>;
+
+  mixed(request: IMixedRequest, context?: unknown): Promise<IServiceResult<IMixedResponse>>;
+
+  required(request: IRequiredRequest, context?: unknown): Promise<IServiceResult<IRequiredResponse>>;
+
+  mirrorBytes(request: IMirrorBytesRequest, context?: unknown): Promise<IServiceResult<IMirrorBytesResponse>>;
+
+  mirrorText(request: IMirrorTextRequest, context?: unknown): Promise<IServiceResult<IMirrorTextResponse>>;
+
+  bodyTypes(request: IBodyTypesRequest, context?: unknown): Promise<IServiceResult<IBodyTypesResponse>>;
+}
+
+/** Request for GetApiInfo. */
+export interface IGetApiInfoRequest {
+}
+
+/** Response for GetApiInfo. */
+export interface IGetApiInfoResponse {
+  /** The name of the service. */
+  service?: string;
+
+  /** The version of the service. */
+  version?: string;
+}
+
+/** Request for GetWidgets. */
+export interface IGetWidgetsRequest {
+  /** The query. */
+  query?: string;
+}
+
+/** Response for GetWidgets. */
+export interface IGetWidgetsResponse {
+  /** The widgets. */
+  widgets?: IWidget[];
+}
+
+/** Request for CreateWidget. */
+export interface ICreateWidgetRequest {
+  /** The widget to create. */
+  widget?: IWidget;
+}
+
+/** Response for CreateWidget. */
+export interface ICreateWidgetResponse {
+  /** The created widget. */
+  widget?: IWidget;
+
+  /** The URL of the created widget. */
+  url?: string;
+
+  /** The ETag of the created widget. */
+  eTag?: string;
+}
+
+/** Request for GetWidget. */
+export interface IGetWidgetRequest {
+  /** The widget ID. */
+  id?: number;
+
+  /** Don't get the widget if it has this ETag. */
+  ifNotETag?: string;
+}
+
+/** Response for GetWidget. */
+export interface IGetWidgetResponse {
+  /** The requested widget. */
+  widget?: IWidget;
+
+  /** The ETag of the widget. */
+  eTag?: string;
+
+  /** The widget still has the specified ETag. */
+  notModified?: boolean;
+}
+
+/** Request for DeleteWidget. */
+export interface IDeleteWidgetRequest {
+  /** The widget ID. */
+  id?: number;
+
+  /** Don't delete the widget unless it has this ETag. */
+  ifETag?: string;
+}
+
+/** Response for DeleteWidget. */
+export interface IDeleteWidgetResponse {
+  /** The widget was not found. */
+  notFound?: boolean;
+
+  /** The widget no longer has the specified ETag. */
+  conflict?: boolean;
+}
+
+/** Request for GetWidgetBatch. */
+export interface IGetWidgetBatchRequest {
+  /** The IDs of the widgets to return. */
+  ids?: number[];
+}
+
+/** Response for GetWidgetBatch. */
+export interface IGetWidgetBatchResponse {
+  /** The widget results. */
+  results?: IServiceResult<IWidget>[];
+}
+
+/** Request for MirrorFields. */
+export interface IMirrorFieldsRequest {
+  field?: IAny;
+
+  matrix?: number[][][];
+}
+
+/** Response for MirrorFields. */
+export interface IMirrorFieldsResponse {
+  field?: IAny;
+
+  matrix?: number[][][];
+}
+
+/** Request for CheckQuery. */
+export interface ICheckQueryRequest {
+  string?: string;
+
+  boolean?: boolean;
+
+  double?: number;
+
+  int32?: number;
+
+  int64?: number;
+
+  decimal?: number;
+
+  enum?: Answer;
+
+  datetime?: string;
+}
+
+/** Response for CheckQuery. */
+export interface ICheckQueryResponse {
+}
+
+/** Request for CheckPath. */
+export interface ICheckPathRequest {
+  string?: string;
+
+  boolean?: boolean;
+
+  double?: number;
+
+  int32?: number;
+
+  int64?: number;
+
+  decimal?: number;
+
+  enum?: Answer;
+
+  datetime?: string;
+}
+
+/** Response for CheckPath. */
+export interface ICheckPathResponse {
+}
+
+/** Request for MirrorHeaders. */
+export interface IMirrorHeadersRequest {
+  string?: string;
+
+  boolean?: boolean;
+
+  double?: number;
+
+  int32?: number;
+
+  int64?: number;
+
+  decimal?: number;
+
+  enum?: Answer;
+
+  datetime?: string;
+}
+
+/** Response for MirrorHeaders. */
+export interface IMirrorHeadersResponse {
+  string?: string;
+
+  boolean?: boolean;
+
+  double?: number;
+
+  int32?: number;
+
+  int64?: number;
+
+  decimal?: number;
+
+  enum?: Answer;
+
+  datetime?: string;
+}
+
+/** Request for Mixed. */
+export interface IMixedRequest {
+  path?: string;
+
+  query?: string;
+
+  header?: string;
+
+  normal?: string;
+}
+
+/** Response for Mixed. */
+export interface IMixedResponse {
+  header?: string;
+
+  normal?: string;
+
+  body?: { [name: string]: any };
+
+  empty?: boolean;
+}
+
+/** Request for Required. */
+export interface IRequiredRequest {
+  query?: string;
+
+  normal?: string;
+
+  widget?: IWidget;
+
+  widgets?: IWidget[];
+
+  widgetMatrix?: IWidget[][];
+
+  widgetResult?: IServiceResult<IWidget>;
+
+  widgetResults?: IServiceResult<IWidget>[];
+
+  widgetMap?: { [name: string]: IWidget };
+
+  hasWidget?: IHasWidget;
+
+  point?: number[];
+}
+
+/** Response for Required. */
+export interface IRequiredResponse {
+  normal?: string;
+}
+
+/** Request for MirrorBytes. */
+export interface IMirrorBytesRequest {
+  content?: string;
+
+  type?: string;
+}
+
+/** Response for MirrorBytes. */
+export interface IMirrorBytesResponse {
+  content?: string;
+
+  type?: string;
+}
+
+/** Request for MirrorText. */
+export interface IMirrorTextRequest {
+  content?: string;
+
+  type?: string;
+}
+
+/** Response for MirrorText. */
+export interface IMirrorTextResponse {
+  content?: string;
+
+  type?: string;
+}
+
+/** Request for BodyTypes. */
+export interface IBodyTypesRequest {
+  content?: string;
+}
+
+/** Response for BodyTypes. */
+export interface IBodyTypesResponse {
+  content?: string;
+}
+
+/** A widget. */
+export interface IWidget {
+  /** A unique identifier for the widget. */
+  id?: number;
+
+  /** The name of the widget. */
+  name?: string;
+}
+
+export interface IAny {
+  string?: string;
+
+  boolean?: boolean;
+
+  double?: number;
+
+  int32?: number;
+
+  int64?: number;
+
+  decimal?: number;
+
+  datetime?: string;
+
+  bytes?: string;
+
+  object?: { [name: string]: any };
+
+  error?: IServiceError;
+
+  data?: IAny;
+
+  enum?: Answer;
+
+  array?: IAnyArray;
+
+  map?: IAnyMap;
+
+  result?: IAnyResult;
+
+  nullable?: IAnyNullable;
+}
+
+export interface IAnyArray {
+  string?: string[];
+
+  boolean?: boolean[];
+
+  double?: number[];
+
+  int32?: number[];
+
+  int64?: number[];
+
+  decimal?: number[];
+
+  datetime?: string[];
+
+  bytes?: string[];
+
+  object?: { [name: string]: any }[];
+
+  error?: IServiceError[];
+
+  data?: IAny[];
+
+  enum?: Answer[];
+
+  array?: number[][];
+
+  map?: { [name: string]: number }[];
+
+  result?: IServiceResult<number>[];
+
+  nullable?: (number | null)[];
+}
+
+export interface IAnyMap {
+  string?: { [name: string]: string };
+
+  boolean?: { [name: string]: boolean };
+
+  double?: { [name: string]: number };
+
+  int32?: { [name: string]: number };
+
+  int64?: { [name: string]: number };
+
+  decimal?: { [name: string]: number };
+
+  datetime?: { [name: string]: string };
+
+  bytes?: { [name: string]: string };
+
+  object?: { [name: string]: { [name: string]: any } };
+
+  error?: { [name: string]: IServiceError };
+
+  data?: { [name: string]: IAny };
+
+  enum?: { [name: string]: Answer };
+
+  array?: { [name: string]: number[] };
+
+  map?: { [name: string]: { [name: string]: number } };
+
+  result?: { [name: string]: IServiceResult<number> };
+
+  nullable?: { [name: string]: (number | null) };
+}
+
+export interface IAnyResult {
+  string?: IServiceResult<string>;
+
+  boolean?: IServiceResult<boolean>;
+
+  double?: IServiceResult<number>;
+
+  int32?: IServiceResult<number>;
+
+  int64?: IServiceResult<number>;
+
+  decimal?: IServiceResult<number>;
+
+  datetime?: IServiceResult<string>;
+
+  bytes?: IServiceResult<string>;
+
+  object?: IServiceResult<{ [name: string]: any }>;
+
+  error?: IServiceResult<IServiceError>;
+
+  data?: IServiceResult<IAny>;
+
+  enum?: IServiceResult<Answer>;
+
+  array?: IServiceResult<number[]>;
+
+  map?: IServiceResult<{ [name: string]: number }>;
+
+  result?: IServiceResult<IServiceResult<number>>;
+
+  nullable?: IServiceResult<(number | null)>;
+}
+
+export interface IAnyNullable {
+  string?: (string | null);
+
+  boolean?: (boolean | null);
+
+  double?: (number | null);
+
+  int32?: (number | null);
+
+  int64?: (number | null);
+
+  decimal?: (number | null);
+
+  datetime?: (string | null);
+
+  bytes?: (string | null);
+
+  object?: ({ [name: string]: any } | null);
+
+  error?: (IServiceError | null);
+
+  data?: (IAny | null);
+
+  enum?: (Answer | null);
+
+  array?: (number[] | null);
+
+  map?: ({ [name: string]: number } | null);
+
+  result?: (IServiceResult<number> | null);
+}
+
+export interface IHasWidget {
+  widget?: IWidget;
+}
+
+/** One of three answers. */
+export enum Answer {
+  /** Affirmative. */
+  yes = 'yes',
+
+  /** Negative. */
+  no = 'no',
+
+  /** Unknown. */
+  maybe = 'maybe',
+}
+
+/** Custom errors. */
+export enum ApiErrors {
+  /** The user is not an administrator. */
+  NotAdmin = 'NotAdmin',
+
+  /** I'm "too" 😄! */
+  TooHappy = 'TooHappy',
 }
