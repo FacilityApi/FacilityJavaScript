@@ -681,7 +681,6 @@ namespace Facility.CodeGen.JavaScript
 					if (TypeScript)
 					{
 						code.WriteLine();
-						/* All code below this is meant to create the code that is in handRollingPlugin.ts */
 						using (code.Block($"export type {capModuleName}PluginOptions = {{", "}"))
 						{
 							code.WriteLine($"api: I{capModuleName};");
@@ -689,9 +688,143 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block($"export const {camelCaseModuleName}Plugin: FastifyPluginAsync<{capModuleName}PluginOptions> = async (fastify, opts) => {{", "}"))
+					using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 					{
-						code.WriteLine("throw new Error('Not implemented');");
+						code.WriteLine("const { api } = opts;");
+
+						foreach (var httpMethodInfo in httpServiceInfo.Methods)
+						{
+							var methodName = httpMethodInfo.ServiceMethod.Name;
+							var capMethodName = CodeGenUtility.Capitalize(methodName);
+							var fastifyPath = httpMethodInfo.Path;
+							foreach (var httpPathField in httpMethodInfo.PathFields)
+								fastifyPath = ReplaceOrdinal(fastifyPath, "{" + httpPathField.Name + "}", $":{httpPathField.Name}");
+
+							code.WriteLine();
+							using (code.Block("fastify.route({", "});"))
+							{
+								code.WriteLine($"url: '{fastifyPath}',");
+								code.WriteLine($"method: '{httpMethodInfo.Method.ToUpperInvariant()}',");
+								using (code.Block("handler: async function (req, res) {", "}"))
+								{
+									code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
+									if (httpMethodInfo.PathFields.Count != 0)
+									{
+										code.WriteLine();
+										code.WriteLine($"const params = req.params{IfTypeScript(" as Record<string, string>")};");
+										foreach (var pathParam in httpMethodInfo.PathFields)
+										{
+											code.WriteLine($"if (typeof params['{pathParam.Name}'] === 'string') request.{pathParam.ServiceField.Name} = {ParseFieldValue(pathParam.ServiceField, service, $"params['{pathParam.Name}']")};");
+										}
+									}
+
+									if (httpMethodInfo.QueryFields.Count != 0)
+									{
+										code.WriteLine();
+										code.WriteLine($"const query = req.query{IfTypeScript(" as Record<string, string>")};");
+										foreach (var queryParam in httpMethodInfo.QueryFields)
+										{
+											code.WriteLine($"if (typeof query['{queryParam.Name}'] === 'string') request.{queryParam.ServiceField.Name} = {ParseFieldValue(queryParam.ServiceField, service, $"query['{queryParam.Name}']")};");
+										}
+									}
+
+									if (httpMethodInfo.RequestHeaderFields.Count != 0)
+									{
+										code.WriteLine();
+										code.WriteLine($"const headers = req.headers{IfTypeScript(" as Record<string, string>")};");
+										foreach (var header in httpMethodInfo.RequestHeaderFields)
+										{
+											string lowerHeaderName = header.Name.ToLowerInvariant();
+											code.WriteLine($"if (typeof headers['{lowerHeaderName}'] === 'string') request.{header.ServiceField.Name} = {ParseFieldValue(header.ServiceField, service, $"headers['{lowerHeaderName}']")};");
+										}
+									}
+
+									if (httpMethodInfo.RequestBodyField != null)
+									{
+										code.WriteLine();
+										code.WriteLine($"request.{httpMethodInfo.RequestBodyField.ServiceField.Name} = req.body{IfTypeScript(" as never")};");
+									}
+									else if (httpMethodInfo.RequestNormalFields.Count != 0)
+									{
+										code.WriteLine();
+										code.WriteLine($"const body = req.body{IfTypeScript(" as Record<string, never>")};");
+										foreach (var field in httpMethodInfo.RequestNormalFields)
+											code.WriteLine($"request.{field.ServiceField.Name} = body.{field.ServiceField.Name};");
+									}
+
+									code.WriteLine();
+									code.WriteLine($"const result = await api.{methodName}(request);");
+
+									code.WriteLine();
+									using (code.Block("if (result.error) {", "}"))
+									{
+										code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code];");
+										code.WriteLine("res.status(status || 500).send(result.error);");
+										code.WriteLine("return;");
+									}
+
+									code.WriteLine();
+									using (code.Block("if (result.value) {", "}"))
+									{
+										if (httpMethodInfo.ResponseHeaderFields.Count != 0)
+										{
+											code.WriteLineSkipOnce();
+											foreach (var field in httpMethodInfo.ResponseHeaderFields)
+												code.WriteLine($"if (result.value.{field.ServiceField.Name} != null) res.header('{field.Name}', result.value.{field.ServiceField.Name});");
+										}
+
+										var handledResponses = httpMethodInfo.ValidResponses.ToList();
+										foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.BodyField is not null))
+										{
+											handledResponses.Remove(validResponse);
+											var bodyField = validResponse.BodyField!;
+											var statusCode = (int) validResponse.StatusCode;
+
+											code.WriteLineSkipOnce();
+											using (code.Block($"if (result.value.{bodyField.ServiceField.Name}) {{", "}"))
+											{
+												var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
+												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+												{
+													code.WriteLine($"res.status({statusCode});");
+													code.WriteLine("return;");
+												}
+												else
+												{
+													code.WriteLine($"res.status({statusCode}).send(result.value.{bodyField.ServiceField.Name});");
+													code.WriteLine("return;");
+												}
+											}
+										}
+
+										if (handledResponses.Count == 1)
+										{
+											var lastValidResponse = handledResponses[0];
+											var statusCode = (int) lastValidResponse.StatusCode;
+
+											if (lastValidResponse.NormalFields?.Count > 0)
+											{
+												code.WriteLineSkipOnce();
+												code.WriteLine($"res.status({statusCode}).send(result.value);");
+											}
+											else
+											{
+												code.WriteLineSkipOnce();
+												code.WriteLine($"res.status({statusCode});");
+											}
+											code.WriteLine("return;");
+										}
+										else if (handledResponses.Count > 1)
+										{
+											throw new InvalidOperationException("More than one response is left.");
+										}
+									}
+
+									code.WriteLine();
+									code.WriteLine("throw new Error('Result must have an error or value.');");
+								}
+							}
+						}
 					}
 				}));
 			}
