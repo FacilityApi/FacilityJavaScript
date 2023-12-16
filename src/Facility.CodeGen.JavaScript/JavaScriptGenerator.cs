@@ -809,14 +809,14 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private static string ParseFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
+		private string ParseFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
 		{
 			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 
 			switch (fieldTypeKind)
 			{
 				case ServiceTypeKind.Enum:
-					return $"{value} as {field.TypeName}";
+					return $"{value}{IfTypeScript($" as {field.TypeName}")}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
 				case ServiceTypeKind.DateTime:

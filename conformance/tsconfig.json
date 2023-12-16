@@ -10,8 +10,10 @@
     "lib": [ "ES2019", "DOM" ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowJs": true
   },
   "include": [
-    "ts/**/*.ts"
+    "ts/**/*.ts",
+    "js/**/*.js"
   ]
 }
