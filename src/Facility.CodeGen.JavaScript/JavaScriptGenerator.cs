@@ -379,44 +379,11 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
 					}
 
-					// TODO: export this from facility-core
 					code.WriteLine();
-					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
-					{
-						code.WriteLine("'NotModified': 304,");
-						code.WriteLine("'InvalidRequest': 400,");
-						code.WriteLine("'NotAuthenticated': 401,");
-						code.WriteLine("'NotAuthorized': 403,");
-						code.WriteLine("'NotFound': 404,");
-						code.WriteLine("'Conflict': 409,");
-						code.WriteLine("'RequestTooLarge': 413,");
-						code.WriteLine("'TooManyRequests': 429,");
-						code.WriteLine("'InternalError': 500,");
-						code.WriteLine("'ServiceUnavailable': 503,");
+					WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
 
-						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
-						{
-							foreach (var error in errorSetInfo.Errors)
-							{
-								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
-							}
-						}
-					}
-
-					// TODO: export this from facility-core?
 					code.WriteLine();
-					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
-					{
-						using (code.Block("if (typeof value === 'string') {", "}"))
-						{
-							code.WriteLine("const lowerValue = value.toLowerCase();");
-							using (code.Block("if (lowerValue === 'true') {", "}"))
-								code.WriteLine("return true;");
-							using (code.Block("if (lowerValue === 'false') {", "}"))
-								code.WriteLine("return false;");
-						}
-						code.WriteLine("return undefined;");
-					}
+					WriteParseBooleanFunction("parseBoolean", code);
 
 					code.WriteLine();
 					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript(": express.Application") + " {", "}"))
@@ -568,44 +535,11 @@ namespace Facility.CodeGen.JavaScript
 					}
 					WriteImports(code, facilityImports, "facility-core");
 
-					// TODO: export this from facility-core
 					code.WriteLine();
-					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
-					{
-						code.WriteLine("'NotModified': 304,");
-						code.WriteLine("'InvalidRequest': 400,");
-						code.WriteLine("'NotAuthenticated': 401,");
-						code.WriteLine("'NotAuthorized': 403,");
-						code.WriteLine("'NotFound': 404,");
-						code.WriteLine("'Conflict': 409,");
-						code.WriteLine("'RequestTooLarge': 413,");
-						code.WriteLine("'TooManyRequests': 429,");
-						code.WriteLine("'InternalError': 500,");
-						code.WriteLine("'ServiceUnavailable': 503,");
+					WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
 
-						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
-						{
-							foreach (var error in errorSetInfo.Errors)
-							{
-								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
-							}
-						}
-					}
-
-					// TODO: export this from facility-core?
 					code.WriteLine();
-					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
-					{
-						using (code.Block("if (typeof value === 'string') {", "}"))
-						{
-							code.WriteLine("const lowerValue = value.toLowerCase();");
-							using (code.Block("if (lowerValue === 'true') {", "}"))
-								code.WriteLine("return true;");
-							using (code.Block("if (lowerValue === 'false') {", "}"))
-								code.WriteLine("return false;");
-						}
-						code.WriteLine("return undefined;");
-					}
+					WriteParseBooleanFunction("parseBoolean", code);
 
 					if (TypeScript)
 					{
@@ -962,6 +896,52 @@ namespace Facility.CodeGen.JavaScript
 		{
 			if (imports.Count != 0)
 				code.WriteLine($"import {{ {string.Join(", ", imports)} }} from '{from}';");
+		}
+
+		private void WriteStandardErrorCodesVariable(string name, CodeWriter code, IEnumerable<HttpErrorSetInfo>? errorSets)
+		{
+			// TODO: export this from facility-core
+			using (code.Block($"const {name}" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
+			{
+				code.WriteLine("'NotModified': 304,");
+				code.WriteLine("'InvalidRequest': 400,");
+				code.WriteLine("'NotAuthenticated': 401,");
+				code.WriteLine("'NotAuthorized': 403,");
+				code.WriteLine("'NotFound': 404,");
+				code.WriteLine("'Conflict': 409,");
+				code.WriteLine("'RequestTooLarge': 413,");
+				code.WriteLine("'TooManyRequests': 429,");
+				code.WriteLine("'InternalError': 500,");
+				code.WriteLine("'ServiceUnavailable': 503,");
+
+				if (errorSets is not null)
+				{
+					foreach (var errorSetInfo in errorSets)
+					{
+						foreach (var error in errorSetInfo.Errors)
+						{
+							code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
+						}
+					}
+				}
+			}
+		}
+
+		private void WriteParseBooleanFunction(string name, CodeWriter code)
+		{
+			// TODO: export this from facility-core
+			using (code.Block($"function {name}(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+			{
+				using (code.Block("if (typeof value === 'string') {", "}"))
+				{
+					code.WriteLine("const lowerValue = value.toLowerCase();");
+					using (code.Block("if (lowerValue === 'true') {", "}"))
+						code.WriteLine("return true;");
+					using (code.Block("if (lowerValue === 'false') {", "}"))
+						code.WriteLine("return false;");
+				}
+				code.WriteLine("return undefined;");
+			}
 		}
 
 		private List<string> WriteTypes(CodeWriter code, HttpServiceInfo httpServiceInfo)
