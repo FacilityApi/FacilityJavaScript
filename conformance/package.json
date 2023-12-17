@@ -4,9 +4,9 @@
   "description": "Tests the ConformanceApi client.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run --silent build && mocha dist/ts/test/conformanceApiTests.js",
-    "fastify:ts": "npm run --silent build && fastify start -p 4117 -w -l info -P dist/ts/src/fastify/app.js",
-    "fastify:js": "npm run --silent build && fastify start -p 4117 -w -l info -P dist/js/src/fastify/app.js"
+    "test": "npm run --silent build && mocha dist/test/conformanceApiTests.js",
+    "fastify:ts": "npm run --silent build && fastify start -p 4117 -w -l info -P dist/src/ts/fastify/app.js",
+    "fastify:js": "npm run --silent build && fastify start -p 4117 -w -l info -P dist/src/js/fastify/app.js"
   },
   "repository": {
     "type": "git",
