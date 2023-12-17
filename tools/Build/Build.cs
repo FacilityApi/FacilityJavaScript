@@ -46,8 +46,12 @@ return BuildRunner.Execute(args, build =>
 
 		RunDotNet("FacilityConformance", "fsd", "--output", "conformance/ConformanceApi.fsd", verifyOption);
 		RunDotNet("FacilityConformance", "json", "--output", "conformance/ConformanceTests.json", verifyOption);
-		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/js/", "--fastify", "--indent", "2", "--disable-eslint");
-		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/ts/", "--typescript", "--fastify", "--indent", "2", "--disable-eslint");
+
+		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/js/", "--indent", "2", "--disable-eslint");
+		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/js/fastify", "--fastify", "--indent", "2", "--disable-eslint");
+
+		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/ts/", "--typescript", "--indent", "2", "--disable-eslint");
+		RunCodeGen("conformance/ConformanceApi.fsd", "conformance/src/ts/fastify", "--typescript", "--fastify", "--indent", "2", "--disable-eslint");
 
 		void RunCodeGen(params string?[] args) =>
 			RunDotNet(new[] { "run", "--no-build", "--project", $"src/{codegen}", "-f", "net6.0", "-c", configuration, "--", "--newline", "lf", verifyOption }.Concat(args));
