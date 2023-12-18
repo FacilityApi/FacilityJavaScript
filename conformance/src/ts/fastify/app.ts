@@ -1,12 +1,9 @@
-import { FastifyPluginAsync } from "fastify";
+import { FastifyPluginAsync, FastifyServerOptions } from "fastify";
 import { ConformanceApiService } from "../conformanceApiService.js";
 import conformanceTestsJson from "../../../ConformanceTests.json";
 import { conformanceApiPlugin } from "./conformanceApiPlugin.js";
 
-export type AppOptions = {};
-const options: AppOptions = {};
-
-const app: FastifyPluginAsync<AppOptions> = async (
+const app: FastifyPluginAsync<FastifyServerOptions> = async (
 	fastify,
 	opts
 ): Promise<void> => {
@@ -17,4 +14,6 @@ const app: FastifyPluginAsync<AppOptions> = async (
 };
 
 export default app;
-export { app, options };
+export const options: FastifyServerOptions = {
+	caseSensitive: false,
+};
