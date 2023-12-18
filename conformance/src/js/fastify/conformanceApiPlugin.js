@@ -32,7 +32,20 @@ function parseBoolean(value) {
 }
 
 export const conformanceApiPlugin = async (fastify, opts) => {
-  const { api } = opts;
+  const { api, caseInsenstiveQueryStringKeys } = opts;
+
+  if (caseInsenstiveQueryStringKeys) {
+    fastify.addHook('onRequest', async (req, res) => {
+      const query = req.query;
+      for (const key of Object.keys(query)) {
+        const lowerKey = key.toLowerCase();
+        if (lowerKey !== key) {
+          query[lowerKey] = query[key];
+          delete query[key];
+        }
+      }
+    });
+  }
 
   fastify.route({
     url: '/',

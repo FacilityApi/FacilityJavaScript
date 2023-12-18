@@ -12,6 +12,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
 ): Promise<void> => {
 	fastify.register(conformanceApiPlugin, {
 		api: new ConformanceApiService(conformanceTestsJson.tests),
+		caseInsenstiveQueryStringKeys: true,
 	});
 };
 

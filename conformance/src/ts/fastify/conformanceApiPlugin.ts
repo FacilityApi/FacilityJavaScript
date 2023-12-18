@@ -34,10 +34,24 @@ function parseBoolean(value: string | undefined) {
 
 export type ConformanceApiPluginOptions = {
   api: IConformanceApi;
+  caseInsenstiveQueryStringKeys?: boolean;
 }
 
 export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOptions> = async (fastify, opts) => {
-  const { api } = opts;
+  const { api, caseInsenstiveQueryStringKeys } = opts;
+
+  if (caseInsenstiveQueryStringKeys) {
+    fastify.addHook('onRequest', async (req, res) => {
+      const query = req.query as Record<string, string>;
+      for (const key of Object.keys(query)) {
+        const lowerKey = key.toLowerCase();
+        if (lowerKey !== key) {
+          query[lowerKey] = query[key];
+          delete query[key];
+        }
+      }
+    });
+  }
 
   fastify.route({
     url: '/',

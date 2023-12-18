@@ -575,13 +575,32 @@ namespace Facility.CodeGen.JavaScript
 					using (code.Block($"export type {capModuleName}PluginOptions = {{", "}"))
 					{
 						code.WriteLine($"api: I{capModuleName};");
+						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
 					}
 				}
 
 				code.WriteLine();
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { api } = opts;");
+					code.WriteLine("const { api, caseInsenstiveQueryStringKeys } = opts;");
+
+					code.WriteLine();
+					using (code.Block("if (caseInsenstiveQueryStringKeys) {", "}"))
+					{
+						using (code.Block("fastify.addHook('onRequest', async (req, res) => {", "});"))
+						{
+							code.WriteLine($"const query = req.query{IfTypeScript(" as Record<string, string>")};");
+							using (code.Block("for (const key of Object.keys(query)) {", "}"))
+							{
+								code.WriteLine("const lowerKey = key.toLowerCase();");
+								using (code.Block("if (lowerKey !== key) {", "}"))
+								{
+									code.WriteLine("query[lowerKey] = query[key];");
+									code.WriteLine("delete query[key];");
+								}
+							}
+						}
+					}
 
 					foreach (var httpMethodInfo in httpServiceInfo.Methods)
 					{
