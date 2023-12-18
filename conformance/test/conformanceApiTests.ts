@@ -1,35 +1,44 @@
 import { createHttpClient } from "../src/ts/conformanceApi";
 import { expect, should } from "chai";
-import fetch from "node-fetch";
+import nodeFetch from "node-fetch";
 import conformanceTestsJson from "../ConformanceTests.json";
 import { isDeepStrictEqual } from "util";
+import { HttpClientUtility } from "facility-core";
 
 const tests = conformanceTestsJson.tests;
 
 validateTests();
 should();
 
-const httpClient = createHttpClient({
-	fetch: (uri, request) => {
-		return fetch("http://localhost:4117/" + uri, request);
-	},
-});
+const fetch: HttpClientUtility.IFetch = (uri, request) => {
+	return nodeFetch("http://localhost:4117/" + uri, request);
+};
 
-describe("tests", () => {
-	tests.forEach((data: any) => {
-		it(data.test, async () => {
-			return (httpClient as any)
-				[data.method](data.request)
-				.then((result: any) => {
-					expect({
-						error: result.error ?? undefined,
-						value: result.value ?? undefined,
-					}).to.be.deep.equal({
-						error: data.error ?? undefined,
-						value: data.response ?? undefined,
-					});
-				});
-		});
+const httpClient = createHttpClient({ fetch });
+
+tests.forEach((data) => {
+	it(data.test, async () => {
+		if (data.httpRequest) {
+			const result = await fetch(
+				data.httpRequest.path.replace(/^\//, ""),
+				{ method: data.httpRequest.method });
+			if (result.status >= 300) {
+				throw new Error(
+					`Raw http request failed with status code ${
+						result.status
+					}, ${JSON.stringify(await result.json())}`
+				);
+			}
+		} else {
+			const result = await(httpClient as any)[data.method](data.request);
+			expect({
+				error: result.error ?? undefined,
+				value: result.value ?? undefined,
+			}).to.be.deep.equal({
+				error: data.error ?? undefined,
+				value: data.response ?? undefined,
+			});
+		}
 	});
 });
 
