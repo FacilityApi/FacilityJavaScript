@@ -23,7 +23,7 @@ namespace fsdgenjs
 			"   --express",
 			"      Generates Express service.",
 			"   --fastify",
-			"      Generates Fastify plugin.",
+			"      Generates a Fastify plugin. When specified, only the server plugin is generated, not the client.",
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
 		};

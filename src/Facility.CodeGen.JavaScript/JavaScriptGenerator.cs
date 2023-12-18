@@ -36,6 +36,9 @@ namespace Facility.CodeGen.JavaScript
 		/// <summary>
 		/// True to generate Fastify plugin.
 		/// </summary>
+		/// <remarks>
+		/// When specified, only the server plugin is generated, not the client.
+		/// </remarks>
 		public bool Fastify { get; set; }
 
 		/// <summary>
