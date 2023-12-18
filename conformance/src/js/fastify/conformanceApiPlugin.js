@@ -32,7 +32,26 @@ function parseBoolean(value) {
 }
 
 export const conformanceApiPlugin = async (fastify, opts) => {
-  const { api, caseInsenstiveQueryStringKeys } = opts;
+  const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
+
+  fastify.setErrorHandler((error, req, res) => {
+    req.log.error(error);
+    if (includeErrorDetails) {
+      res.status(500).send({
+        code: 'InternalError',
+        message: error.message,
+        details: {
+          stack: error.stack?.split('\n').filter((x) => x.length > 0),
+        }
+      });
+    }
+    else {
+      res.status(500).send({
+        code: 'InternalError',
+        message: 'The service experienced an unexpected internal error.',
+      });
+    }
+  });
 
   if (caseInsenstiveQueryStringKeys) {
     fastify.addHook('onRequest', async (req, res) => {

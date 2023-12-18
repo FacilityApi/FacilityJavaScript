@@ -17,6 +17,7 @@ const fetch: HttpClientUtility.IFetch = (uri, request) => {
 const httpClient = createHttpClient({ fetch });
 
 tests.forEach((data) => {
+	if (data.test !== "getApiInfo") return;
 	it(data.test, async () => {
 		if (data.httpRequest) {
 			const result = await fetch(

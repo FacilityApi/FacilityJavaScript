@@ -576,13 +576,44 @@ namespace Facility.CodeGen.JavaScript
 					{
 						code.WriteLine($"api: I{capModuleName};");
 						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
+						code.WriteLine("includeErrorDetails?: boolean;");
 					}
 				}
 
 				code.WriteLine();
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { api, caseInsenstiveQueryStringKeys } = opts;");
+					code.WriteLine("const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+
+					code.WriteLine();
+					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
+					{
+						code.WriteLine("req.log.error(error);");
+						using (code.Block("if (includeErrorDetails) {", "}"))
+						{
+							code.WriteLine("res.status(500).send({");
+							using (code.Indent())
+							{
+								code.WriteLine("code: 'InternalError',");
+								code.WriteLine("message: error.message,");
+								using (code.Block("details: {", "}"))
+								{
+									code.WriteLine("stack: error.stack?.split('\\n').filter((x) => x.length > 0),");
+								}
+							}
+							code.WriteLine("});");
+						}
+						using (code.Block("else {", "}"))
+						{
+							code.WriteLine("res.status(500).send({");
+							using (code.Indent())
+							{
+								code.WriteLine("code: 'InternalError',");
+								code.WriteLine("message: 'The service experienced an unexpected internal error.',");
+							}
+							code.WriteLine("});");
+						}
+					}
 
 					code.WriteLine();
 					using (code.Block("if (caseInsenstiveQueryStringKeys) {", "}"))

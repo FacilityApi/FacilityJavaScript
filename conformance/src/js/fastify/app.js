@@ -6,6 +6,7 @@ const app = async (fastify, opts) => {
   fastify.register(conformanceApiPlugin, {
     api: new ConformanceApiService(conformanceTestsJson.tests),
     caseInsenstiveQueryStringKeys: true,
+    includeErrorDetails: true,
   });
 };
 

@@ -10,6 +10,7 @@ const app: FastifyPluginAsync<FastifyServerOptions> = async (
 	fastify.register(conformanceApiPlugin, {
 		api: new ConformanceApiService(conformanceTestsJson.tests),
 		caseInsenstiveQueryStringKeys: true,
+		includeErrorDetails: true,
 	});
 };
 
