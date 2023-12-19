@@ -5,8 +5,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run --silent build && mocha dist/test/conformanceApiTests.js",
-    "fastify:ts": "npm run --silent build && fastify start --options -p 4117 -w -l info -P dist/src/ts/fastify/app.js",
-    "fastify:js": "npm run --silent build && fastify start --options -p 4117 -w -l info -P dist/src/js/fastify/app.js"
+    "fastify": "npm run --silent build && fastify start --options -p 4117 -w -l info -P dist/src/fastify/app.js"
   },
   "repository": {
     "type": "git",

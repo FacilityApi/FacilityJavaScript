@@ -31,7 +31,7 @@ function parseBoolean(value) {
   return undefined;
 }
 
-export const conformanceApiPlugin = async (fastify, opts) => {
+export const jsConformanceApiPlugin = async (fastify, opts) => {
   const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
 
   fastify.setErrorHandler((error, req, res) => {

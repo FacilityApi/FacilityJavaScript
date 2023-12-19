@@ -555,7 +555,11 @@ namespace Facility.CodeGen.JavaScript
 
 				var fastifyImports = new List<string>();
 				if (TypeScript)
+				{
 					fastifyImports.Add("FastifyPluginAsync");
+					fastifyImports.Add("RegisterOptions");
+				}
+
 				WriteImports(code, fastifyImports, "fastify");
 
 				var facilityImports = new List<string>();
@@ -575,7 +579,7 @@ namespace Facility.CodeGen.JavaScript
 				if (TypeScript)
 				{
 					code.WriteLine();
-					using (code.Block($"export type {capModuleName}PluginOptions = {{", "}"))
+					using (code.Block($"export type {capModuleName}PluginOptions = RegisterOptions & {{", "}"))
 					{
 						code.WriteLine($"api: I{capModuleName};");
 						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");

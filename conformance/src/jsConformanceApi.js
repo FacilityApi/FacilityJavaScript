@@ -4,9 +4,9 @@
 
 import { HttpClientUtility } from 'facility-core';
 
-/** Provides access to ConformanceApi over HTTP via fetch. */
+/** Provides access to JsConformanceApi over HTTP via fetch. */
 export function createHttpClient({ fetch, baseUri }) {
-  return new ConformanceApiHttpClient(fetch, baseUri);
+  return new JsConformanceApiHttpClient(fetch, baseUri);
 }
 
 const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
@@ -24,7 +24,7 @@ function parseBoolean(value) {
   return undefined;
 }
 
-class ConformanceApiHttpClient {
+class JsConformanceApiHttpClient {
   constructor(fetch, baseUri) {
     if (typeof fetch !== 'function') {
       throw new TypeError('fetch must be a function.');

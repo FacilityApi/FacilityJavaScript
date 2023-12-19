@@ -1,45 +1,48 @@
-import { createHttpClient } from "../src/ts/conformanceApi";
+import { createHttpClient } from "../src/conformanceApi";
+import { createHttpClient as jsCreateHttpClient } from "../src/jsConformanceApi";
 import { expect, should } from "chai";
-import nodeFetch from "node-fetch";
+import fetch from "node-fetch";
 import conformanceTestsJson from "../ConformanceTests.json";
 import { isDeepStrictEqual } from "util";
-import { HttpClientUtility } from "facility-core";
 
 const tests = conformanceTestsJson.tests;
 
 validateTests();
 should();
 
-const fetch: HttpClientUtility.IFetch = (uri, request) => {
-	return nodeFetch("http://localhost:4117/" + uri, request);
-};
+const clients = [
+	{
+		baseUri: "http://localhost:4117/",
+		createHttpClient: createHttpClient,
+	},
+	{
+		baseUri: "http://localhost:4117/js/",
+		createHttpClient: jsCreateHttpClient as never,
+	},
+];
 
-const httpClient = createHttpClient({ fetch });
-
-tests.forEach((data) => {
-	if (data.test !== "getApiInfo") return;
-	it(data.test, async () => {
-		if (data.httpRequest) {
-			const result = await fetch(
-				data.httpRequest.path.replace(/^\//, ""),
-				{ method: data.httpRequest.method });
-			if (result.status >= 300) {
-				throw new Error(
-					`Raw http request failed with status code ${
-						result.status
-					}, ${JSON.stringify(await result.json())}`
-				);
-			}
-		} else {
-			const result = await(httpClient as any)[data.method](data.request);
-			expect({
-				error: result.error ?? undefined,
-				value: result.value ?? undefined,
-			}).to.be.deep.equal({
-				error: data.error ?? undefined,
-				value: data.response ?? undefined,
+clients.forEach(({baseUri, createHttpClient}) => {
+	describe(`ConformanceApi (${baseUri})`, () => {
+		const httpClient = createHttpClient({ fetch, baseUri});
+		tests.forEach((data) => {
+			it(data.test, async () => {
+				if (data.httpRequest) {
+					const result = await fetch(baseUri + data.httpRequest.path.replace(/^\//, ""), { method: data.httpRequest.method });
+					if (result.status >= 300) {
+						throw new Error(`Raw http request failed with status code ${result.status}, ${JSON.stringify(await result.json())}`);
+					}
+				} else { 
+					const result = await (httpClient as any)[data.method](data.request);
+					expect({
+						error: result.error ?? undefined,
+						value: result.value ?? undefined,
+					}).to.be.deep.equal({
+						error: data.error ?? undefined,
+						value: data.response ?? undefined,
+					});
+				}
 			});
-		}
+		});
 	});
 });
 
@@ -65,4 +68,3 @@ function validateTests() {
 		}
 	});
 }
-

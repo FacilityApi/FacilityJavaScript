@@ -16,8 +16,7 @@ Facility.CodeGen.JavaScript | A library that generates JavaScript or TypeScript 
 To run conformance tests, first start one of the conformance servers from within the `/conformance` folder:
 
 ```
-npm run fastify:ts
-npm run fastify:js
+npm run fastify
 ```
 
 Then run the conformance tool against the running service.
