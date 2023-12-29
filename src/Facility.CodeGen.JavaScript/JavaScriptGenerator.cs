@@ -34,6 +34,14 @@ namespace Facility.CodeGen.JavaScript
 		public bool Express { get; set; }
 
 		/// <summary>
+		/// True to generate Fastify plugin.
+		/// </summary>
+		/// <remarks>
+		/// When specified, only the server plugin is generated, not the client.
+		/// </remarks>
+		public bool Fastify { get; set; }
+
+		/// <summary>
 		/// True to disable ESLint via code comment.
 		/// </summary>
 		public bool DisableESLint { get; set; }
@@ -43,6 +51,9 @@ namespace Facility.CodeGen.JavaScript
 		/// </summary>
 		public override CodeGenOutput GenerateOutput(ServiceInfo service)
 		{
+			if (Fastify)
+				return GenerateFastifyPluginOutput(service);
+
 			var httpServiceInfo = HttpServiceInfo.Create(service);
 
 			var moduleName = ModuleName ?? service.Name;
@@ -104,76 +115,7 @@ namespace Facility.CodeGen.JavaScript
 					foreach (var import in externImports.GroupBy(x => x.Module))
 						WriteImports(code, import.Select(x => $"{x.Name}{(x.Name != x.Alias ? $" as {x.Alias}" : "")}").ToArray(), import.Key);
 
-					code.WriteLine();
-					WriteJsDoc(code, service);
-					typeNames.Add($"I{capModuleName}");
-					using (code.Block($"export interface I{capModuleName} {{", "}"))
-					{
-						foreach (var httpMethodInfo in httpServiceInfo.Methods)
-						{
-							var methodName = httpMethodInfo.ServiceMethod.Name;
-							var capMethodName = CodeGenUtility.Capitalize(methodName);
-							code.WriteLineSkipOnce();
-							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
-							code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
-						}
-					}
-
-					foreach (var methodInfo in service.Methods)
-					{
-						var requestDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Request";
-						typeNames.Add($"I{requestDtoName}");
-						WriteDto(code, new ServiceDtoInfo(
-							name: requestDtoName,
-							fields: methodInfo.RequestFields,
-							summary: $"Request for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
-
-						var responseDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Response";
-						typeNames.Add($"I{responseDtoName}");
-						WriteDto(code, new ServiceDtoInfo(
-							name: responseDtoName,
-							fields: methodInfo.ResponseFields,
-							summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
-					}
-
-					foreach (var dtoInfo in service.Dtos)
-					{
-						typeNames.Add($"I{dtoInfo.Name}");
-						WriteDto(code, dtoInfo, service);
-					}
-
-					foreach (var enumInfo in service.Enums)
-					{
-						typeNames.Add(enumInfo.Name);
-						code.WriteLine();
-						WriteJsDoc(code, enumInfo);
-						using (code.Block($"export enum {enumInfo.Name} {{", "}"))
-						{
-							foreach (var value in enumInfo.Values)
-							{
-								code.WriteLineSkipOnce();
-								WriteJsDoc(code, value);
-								code.WriteLine($"{value.Name} = '{value.Name}',");
-							}
-						}
-					}
-
-					foreach (var errorSetInfo in service.ErrorSets)
-					{
-						typeNames.Add(errorSetInfo.Name);
-						code.WriteLine();
-						WriteJsDoc(code, errorSetInfo);
-						using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
-						{
-							foreach (var error in errorSetInfo.Errors)
-							{
-								code.WriteLineSkipOnce();
-								WriteJsDoc(code, error);
-								code.WriteLine($"{error.Name} = '{error.Name}',");
-							}
-						}
-					}
-
+					typeNames.AddRange(WriteTypes(code, httpServiceInfo));
 					code.WriteLine();
 				}));
 			}
@@ -442,44 +384,11 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
 					}
 
-					// TODO: export this from facility-core
 					code.WriteLine();
-					using (code.Block("const standardErrorCodes" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
-					{
-						code.WriteLine("'NotModified': 304,");
-						code.WriteLine("'InvalidRequest': 400,");
-						code.WriteLine("'NotAuthenticated': 401,");
-						code.WriteLine("'NotAuthorized': 403,");
-						code.WriteLine("'NotFound': 404,");
-						code.WriteLine("'Conflict': 409,");
-						code.WriteLine("'RequestTooLarge': 413,");
-						code.WriteLine("'TooManyRequests': 429,");
-						code.WriteLine("'InternalError': 500,");
-						code.WriteLine("'ServiceUnavailable': 503,");
+					WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
 
-						foreach (var errorSetInfo in httpServiceInfo.ErrorSets)
-						{
-							foreach (var error in errorSetInfo.Errors)
-							{
-								code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
-							}
-						}
-					}
-
-					// TODO: export this from facility-core?
 					code.WriteLine();
-					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
-					{
-						using (code.Block("if (typeof value === 'string') {", "}"))
-						{
-							code.WriteLine("const lowerValue = value.toLowerCase();");
-							using (code.Block("if (lowerValue === 'true') {", "}"))
-								code.WriteLine("return true;");
-							using (code.Block("if (lowerValue === 'false') {", "}"))
-								code.WriteLine("return false;");
-						}
-						code.WriteLine("return undefined;");
-					}
+					WriteParseBooleanFunction("parseBoolean", code);
 
 					code.WriteLine();
 					using (code.Block("export function createApp(service" + IfTypeScript($": I{capModuleName}") + ")" + IfTypeScript(": express.Application") + " {", "}"))
@@ -618,6 +527,7 @@ namespace Facility.CodeGen.JavaScript
 			ModuleName = ourSettings.ModuleName;
 			TypeScript = ourSettings.TypeScript;
 			Express = ourSettings.Express;
+			Fastify = ourSettings.Fastify;
 			DisableESLint = ourSettings.DisableESLint;
 		}
 
@@ -625,6 +535,252 @@ namespace Facility.CodeGen.JavaScript
 		/// Supports writing output to a single file.
 		/// </summary>
 		public override bool SupportsSingleOutput => true;
+
+		private CodeGenOutput GenerateFastifyPluginOutput(ServiceInfo service)
+		{
+			var httpServiceInfo = HttpServiceInfo.Create(service);
+			var moduleName = ModuleName ?? service.Name;
+			var capModuleName = CodeGenUtility.Capitalize(moduleName);
+			var camelCaseModuleName = CodeGenUtility.ToCamelCase(moduleName);
+			var pluginFileName = CodeGenUtility.Uncapitalize(moduleName) + "Plugin" + (TypeScript ? ".ts" : ".js");
+
+			var file = CreateFile(pluginFileName, code =>
+			{
+				WriteFileHeader(code);
+
+				if (!TypeScript)
+					code.WriteLine("'use strict';");
+
+				code.WriteLine();
+
+				var fastifyImports = new List<string>();
+				if (TypeScript)
+				{
+					fastifyImports.Add("FastifyPluginAsync");
+					fastifyImports.Add("RegisterOptions");
+				}
+
+				WriteImports(code, fastifyImports, "fastify");
+
+				var facilityImports = new List<string>();
+				if (TypeScript)
+				{
+					facilityImports.Add("IServiceResult");
+					facilityImports.Add("IServiceError");
+				}
+				WriteImports(code, facilityImports, "facility-core");
+
+				code.WriteLine();
+				WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
+
+				code.WriteLine();
+				WriteParseBooleanFunction("parseBoolean", code);
+
+				if (TypeScript)
+				{
+					code.WriteLine();
+					using (code.Block($"export type {capModuleName}PluginOptions = RegisterOptions & {{", "}"))
+					{
+						code.WriteLine($"api: I{capModuleName};");
+						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
+						code.WriteLine("includeErrorDetails?: boolean;");
+					}
+				}
+
+				code.WriteLine();
+				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
+				{
+					code.WriteLine("const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+
+					code.WriteLine();
+					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
+					{
+						code.WriteLine("req.log.error(error);");
+						using (code.Block("if (includeErrorDetails) {", "}"))
+						{
+							code.WriteLine("res.status(500).send({");
+							using (code.Indent())
+							{
+								code.WriteLine("code: 'InternalError',");
+								code.WriteLine("message: error.message,");
+								using (code.Block("details: {", "}"))
+								{
+									code.WriteLine("stack: error.stack?.split('\\n').filter((x) => x.length > 0),");
+								}
+							}
+							code.WriteLine("});");
+						}
+						using (code.Block("else {", "}"))
+						{
+							code.WriteLine("res.status(500).send({");
+							using (code.Indent())
+							{
+								code.WriteLine("code: 'InternalError',");
+								code.WriteLine("message: 'The service experienced an unexpected internal error.',");
+							}
+							code.WriteLine("});");
+						}
+					}
+
+					code.WriteLine();
+					using (code.Block("if (caseInsenstiveQueryStringKeys) {", "}"))
+					{
+						using (code.Block("fastify.addHook('onRequest', async (req, res) => {", "});"))
+						{
+							code.WriteLine($"const query = req.query{IfTypeScript(" as Record<string, string>")};");
+							using (code.Block("for (const key of Object.keys(query)) {", "}"))
+							{
+								code.WriteLine("const lowerKey = key.toLowerCase();");
+								using (code.Block("if (lowerKey !== key) {", "}"))
+								{
+									code.WriteLine("query[lowerKey] = query[key];");
+									code.WriteLine("delete query[key];");
+								}
+							}
+						}
+					}
+
+					foreach (var httpMethodInfo in httpServiceInfo.Methods)
+					{
+						var methodName = httpMethodInfo.ServiceMethod.Name;
+						var capMethodName = CodeGenUtility.Capitalize(methodName);
+						var fastifyPath = httpMethodInfo.Path;
+						foreach (var httpPathField in httpMethodInfo.PathFields)
+							fastifyPath = ReplaceOrdinal(fastifyPath, "{" + httpPathField.Name + "}", $":{httpPathField.Name}");
+
+						code.WriteLine();
+						using (code.Block("fastify.route({", "});"))
+						{
+							code.WriteLine($"url: '{fastifyPath}',");
+							code.WriteLine($"method: '{httpMethodInfo.Method.ToUpperInvariant()}',");
+							using (code.Block("handler: async function (req, res) {", "}"))
+							{
+								code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
+								if (httpMethodInfo.PathFields.Count != 0)
+								{
+									code.WriteLine();
+									code.WriteLine($"const params = req.params{IfTypeScript(" as Record<string, string>")};");
+									foreach (var pathParam in httpMethodInfo.PathFields)
+									{
+										code.WriteLine($"if (typeof params['{pathParam.Name}'] === 'string') request.{pathParam.ServiceField.Name} = {ParseFieldValue(pathParam.ServiceField, service, $"params['{pathParam.Name}']")};");
+									}
+								}
+
+								if (httpMethodInfo.QueryFields.Count != 0)
+								{
+									code.WriteLine();
+									code.WriteLine($"const query = req.query{IfTypeScript(" as Record<string, string>")};");
+									foreach (var queryParam in httpMethodInfo.QueryFields)
+									{
+										code.WriteLine($"if (typeof query['{queryParam.Name}'] === 'string') request.{queryParam.ServiceField.Name} = {ParseFieldValue(queryParam.ServiceField, service, $"query['{queryParam.Name}']")};");
+									}
+								}
+
+								if (httpMethodInfo.RequestHeaderFields.Count != 0)
+								{
+									code.WriteLine();
+									code.WriteLine($"const headers = req.headers{IfTypeScript(" as Record<string, string>")};");
+									foreach (var header in httpMethodInfo.RequestHeaderFields)
+									{
+										string lowerHeaderName = header.Name.ToLowerInvariant();
+										code.WriteLine($"if (typeof headers['{lowerHeaderName}'] === 'string') request.{header.ServiceField.Name} = {ParseFieldValue(header.ServiceField, service, $"headers['{lowerHeaderName}']")};");
+									}
+								}
+
+								if (httpMethodInfo.RequestBodyField != null)
+								{
+									code.WriteLine();
+									code.WriteLine($"request.{httpMethodInfo.RequestBodyField.ServiceField.Name} = req.body{IfTypeScript(" as never")};");
+								}
+								else if (httpMethodInfo.RequestNormalFields.Count != 0)
+								{
+									code.WriteLine();
+									code.WriteLine($"const body = req.body{IfTypeScript(" as Record<string, never>")};");
+									foreach (var field in httpMethodInfo.RequestNormalFields)
+										code.WriteLine($"request.{field.ServiceField.Name} = body.{field.ServiceField.Name};");
+								}
+
+								code.WriteLine();
+								code.WriteLine($"const result = await api.{methodName}(request);");
+
+								code.WriteLine();
+								using (code.Block("if (result.error) {", "}"))
+								{
+									code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code];");
+									code.WriteLine("res.status(status || 500).send(result.error);");
+									code.WriteLine("return;");
+								}
+
+								code.WriteLine();
+								using (code.Block("if (result.value) {", "}"))
+								{
+									if (httpMethodInfo.ResponseHeaderFields.Count != 0)
+									{
+										code.WriteLineSkipOnce();
+										foreach (var field in httpMethodInfo.ResponseHeaderFields)
+											code.WriteLine($"if (result.value.{field.ServiceField.Name} != null) res.header('{field.Name}', result.value.{field.ServiceField.Name});");
+									}
+
+									var handledResponses = httpMethodInfo.ValidResponses.ToList();
+									foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.BodyField is not null))
+									{
+										handledResponses.Remove(validResponse);
+										var bodyField = validResponse.BodyField!;
+										var statusCode = (int) validResponse.StatusCode;
+
+										code.WriteLineSkipOnce();
+										using (code.Block($"if (result.value.{bodyField.ServiceField.Name}) {{", "}"))
+										{
+											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
+											if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+											{
+												code.WriteLine($"res.status({statusCode});");
+												code.WriteLine("return;");
+											}
+											else
+											{
+												code.WriteLine($"res.status({statusCode}).send(result.value.{bodyField.ServiceField.Name});");
+												code.WriteLine("return;");
+											}
+										}
+									}
+
+									if (handledResponses.Count == 1)
+									{
+										var lastValidResponse = handledResponses[0];
+										var statusCode = (int) lastValidResponse.StatusCode;
+
+										if (lastValidResponse.NormalFields?.Count > 0)
+										{
+											code.WriteLineSkipOnce();
+											code.WriteLine($"res.status({statusCode}).send(result.value);");
+										}
+										else
+										{
+											code.WriteLineSkipOnce();
+											code.WriteLine($"res.status({statusCode});");
+										}
+										code.WriteLine("return;");
+									}
+									else if (handledResponses.Count > 1)
+									{
+										throw new InvalidOperationException("More than one response is left.");
+									}
+								}
+
+								code.WriteLine();
+								code.WriteLine("throw new Error('Result must have an error or value.');");
+							}
+						}
+					}
+				}
+
+				if (TypeScript)
+					WriteTypes(code, httpServiceInfo);
+			});
+
+			return new CodeGenOutput(file);
+		}
 
 		private void WriteFileHeader(CodeWriter code)
 		{
@@ -719,14 +875,14 @@ namespace Facility.CodeGen.JavaScript
 			}
 		}
 
-		private static string ParseFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
+		private string ParseFieldValue(ServiceFieldInfo field, ServiceInfo service, string value)
 		{
 			var fieldTypeKind = service.GetFieldType(field)!.Kind;
 
 			switch (fieldTypeKind)
 			{
 				case ServiceTypeKind.Enum:
-					return $"{value} as {field.TypeName}";
+					return $"{value}{IfTypeScript($" as {field.TypeName}")}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
 				case ServiceTypeKind.DateTime:
@@ -806,6 +962,131 @@ namespace Facility.CodeGen.JavaScript
 		{
 			if (imports.Count != 0)
 				code.WriteLine($"import {{ {string.Join(", ", imports)} }} from '{from}';");
+		}
+
+		private void WriteStandardErrorCodesVariable(string name, CodeWriter code, IEnumerable<HttpErrorSetInfo>? errorSets)
+		{
+			// TODO: export this from facility-core
+			using (code.Block($"const {name}" + IfTypeScript(": { [code: string]: number }") + " = {", "};"))
+			{
+				code.WriteLine("'NotModified': 304,");
+				code.WriteLine("'InvalidRequest': 400,");
+				code.WriteLine("'NotAuthenticated': 401,");
+				code.WriteLine("'NotAuthorized': 403,");
+				code.WriteLine("'NotFound': 404,");
+				code.WriteLine("'Conflict': 409,");
+				code.WriteLine("'RequestTooLarge': 413,");
+				code.WriteLine("'TooManyRequests': 429,");
+				code.WriteLine("'InternalError': 500,");
+				code.WriteLine("'ServiceUnavailable': 503,");
+
+				if (errorSets is not null)
+				{
+					foreach (var errorSetInfo in errorSets)
+					{
+						foreach (var error in errorSetInfo.Errors)
+						{
+							code.WriteLine($"'{error.ServiceError.Name}': {(int) error.StatusCode},");
+						}
+					}
+				}
+			}
+		}
+
+		private void WriteParseBooleanFunction(string name, CodeWriter code)
+		{
+			// TODO: export this from facility-core
+			using (code.Block($"function {name}(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+			{
+				using (code.Block("if (typeof value === 'string') {", "}"))
+				{
+					code.WriteLine("const lowerValue = value.toLowerCase();");
+					using (code.Block("if (lowerValue === 'true') {", "}"))
+						code.WriteLine("return true;");
+					using (code.Block("if (lowerValue === 'false') {", "}"))
+						code.WriteLine("return false;");
+				}
+				code.WriteLine("return undefined;");
+			}
+		}
+
+		private List<string> WriteTypes(CodeWriter code, HttpServiceInfo httpServiceInfo)
+		{
+			var typeNames = new List<string>();
+			var service = httpServiceInfo.Service;
+			code.WriteLine();
+			WriteJsDoc(code, service);
+
+			var capModuleName = CodeGenUtility.Capitalize(ModuleName ?? service.Name);
+			typeNames.Add($"I{capModuleName}");
+			using (code.Block($"export interface I{capModuleName} {{", "}"))
+			{
+				foreach (var httpMethodInfo in httpServiceInfo.Methods)
+				{
+					var methodName = httpMethodInfo.ServiceMethod.Name;
+					var capMethodName = CodeGenUtility.Capitalize(methodName);
+					code.WriteLineSkipOnce();
+					WriteJsDoc(code, httpMethodInfo.ServiceMethod);
+					code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
+				}
+			}
+
+			foreach (var methodInfo in service.Methods)
+			{
+				var requestDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Request";
+				typeNames.Add($"I{requestDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: requestDtoName,
+					fields: methodInfo.RequestFields,
+					summary: $"Request for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+
+				var responseDtoName = $"{CodeGenUtility.Capitalize(methodInfo.Name)}Response";
+				typeNames.Add($"I{responseDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: responseDtoName,
+					fields: methodInfo.ResponseFields,
+					summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+			}
+
+			foreach (var dtoInfo in service.Dtos)
+			{
+				typeNames.Add($"I{dtoInfo.Name}");
+				WriteDto(code, dtoInfo, service);
+			}
+
+			foreach (var enumInfo in service.Enums)
+			{
+				typeNames.Add(enumInfo.Name);
+				code.WriteLine();
+				WriteJsDoc(code, enumInfo);
+				using (code.Block($"export enum {enumInfo.Name} {{", "}"))
+				{
+					foreach (var value in enumInfo.Values)
+					{
+						code.WriteLineSkipOnce();
+						WriteJsDoc(code, value);
+						code.WriteLine($"{value.Name} = '{value.Name}',");
+					}
+				}
+			}
+
+			foreach (var errorSetInfo in service.ErrorSets)
+			{
+				typeNames.Add(errorSetInfo.Name);
+				code.WriteLine();
+				WriteJsDoc(code, errorSetInfo);
+				using (code.Block($"export enum {errorSetInfo.Name} {{", "}"))
+				{
+					foreach (var error in errorSetInfo.Errors)
+					{
+						code.WriteLineSkipOnce();
+						WriteJsDoc(code, error);
+						code.WriteLine($"{error.Name} = '{error.Name}',");
+					}
+				}
+			}
+
+			return typeNames;
 		}
 
 		private static bool FieldUsesKind(ServiceInfo service, ServiceFieldInfo field, ServiceTypeKind kind)

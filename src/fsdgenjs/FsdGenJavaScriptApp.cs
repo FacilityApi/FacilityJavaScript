@@ -22,6 +22,8 @@ namespace fsdgenjs
 			"      Generates TypeScript.",
 			"   --express",
 			"      Generates Express service.",
+			"   --fastify",
+			"      Generates a Fastify plugin. When specified, only the server plugin is generated, not the client.",
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
 		};
@@ -34,6 +36,7 @@ namespace fsdgenjs
 				ModuleName = args.ReadOption("module"),
 				TypeScript = args.ReadFlag("typescript"),
 				Express = args.ReadFlag("express"),
+				Fastify = args.ReadFlag("fastify"),
 				DisableESLint = args.ReadFlag("disable-eslint"),
 			};
 	}

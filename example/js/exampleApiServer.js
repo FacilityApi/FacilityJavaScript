@@ -47,7 +47,7 @@ export function createApp(service) {
       request.limit = parseInt(req.query['limit'], 10);
     }
     if (typeof req.query['sort'] === 'string') {
-      request.sort = req.query['sort'] as WidgetField;
+      request.sort = req.query['sort'];
     }
     if (typeof req.query['desc'] === 'string') {
       request.desc = parseBoolean(req.query['desc']);
