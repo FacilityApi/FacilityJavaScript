@@ -208,6 +208,7 @@ dotnet_diagnostic.IDE0161.severity = suggestion
 dotnet_diagnostic.IDE0170.severity = suggestion
 dotnet_diagnostic.IDE0180.severity = warning
 dotnet_diagnostic.IDE1005.severity = suggestion
+dotnet_diagnostic.JSON002.severity = suggestion
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1003.severity = none
 dotnet_diagnostic.SA1008.severity = none

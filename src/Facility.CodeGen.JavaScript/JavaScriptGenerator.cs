@@ -820,25 +820,22 @@ namespace Facility.CodeGen.JavaScript
 
 			return new CodeGenOutput(file);
 
-			string GetJsonSchemaType(ServiceTypeInfo serviceType)
+			string GetJsonSchemaType(ServiceTypeInfo serviceType) => serviceType.Kind switch
 			{
-				return serviceType.Kind switch
-				{
-					ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => $"{{ type: '{"string"}' }}",
-					ServiceTypeKind.Boolean => $"{{ type: '{"boolean"}' }}",
-					ServiceTypeKind.Double or ServiceTypeKind.Decimal => $"{{ type: '{"number"}' }}",
-					ServiceTypeKind.Int32 or ServiceTypeKind.Int64 => $"{{ type: '{"integer"}' }}",
-					ServiceTypeKind.Object or ServiceTypeKind.ExternalDto => $"{{ type: '{"object"}', additionalProperties: true }}",
-					ServiceTypeKind.Error => $"{{ $ref: '{"_error"}' }}",
-					ServiceTypeKind.Dto => $"{{ $ref: '{serviceType.Dto!.Name}' }}",
-					ServiceTypeKind.Enum => $"{{ $ref: '{serviceType.Enum!.Name}' }}",
-					ServiceTypeKind.Result => $"{{ type: 'object', properties: {{ value: {GetJsonSchemaType(serviceType.ValueType!)}, error: {{ $ref: '_error' }} }} }}",
-					ServiceTypeKind.Array => $"{{ type: 'array', items: {GetJsonSchemaType(serviceType.ValueType!)} }}",
-					ServiceTypeKind.Map => $"{{ type: 'object', additionalProperties: {GetJsonSchemaType(serviceType.ValueType!)} }}",
-					ServiceTypeKind.Nullable => $"{{ oneOf: [ {GetJsonSchemaType(serviceType.ValueType!)}, {{ type: 'null' }} ] }}",
-					_ => throw new NotSupportedException($"Unsupported service type '{serviceType.Kind}'"),
-				};
-			}
+				ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => "{ type: 'string' }",
+				ServiceTypeKind.Boolean => "{ type: 'boolean' }",
+				ServiceTypeKind.Double or ServiceTypeKind.Decimal => "{ type: 'number' }",
+				ServiceTypeKind.Int32 or ServiceTypeKind.Int64 => "{ type: 'integer' }",
+				ServiceTypeKind.Object or ServiceTypeKind.ExternalDto => "{ type: 'object', additionalProperties: true }",
+				ServiceTypeKind.Error => "{ $ref: '_error' }",
+				ServiceTypeKind.Dto => $"{{ $ref: '{serviceType.Dto!.Name}' }}",
+				ServiceTypeKind.Enum => $"{{ $ref: '{serviceType.Enum!.Name}' }}",
+				ServiceTypeKind.Result => $"{{ type: 'object', properties: {{ value: {GetJsonSchemaType(serviceType.ValueType!)}, error: {{ $ref: '_error' }} }} }}",
+				ServiceTypeKind.Array => $"{{ type: 'array', items: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+				ServiceTypeKind.Map => $"{{ type: 'object', additionalProperties: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+				ServiceTypeKind.Nullable => $"{{ oneOf: [ {GetJsonSchemaType(serviceType.ValueType!)}, {{ type: 'null' }} ] }}",
+				_ => throw new NotSupportedException($"Unknown field type '{serviceType.Kind}'"),
+			};
 
 			void WriteJsonSchemaDtos(CodeWriter code, ServiceInfo service)
 			{
