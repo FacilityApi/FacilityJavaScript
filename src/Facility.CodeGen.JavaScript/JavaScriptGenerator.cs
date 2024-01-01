@@ -669,7 +669,7 @@ namespace Facility.CodeGen.JavaScript
 
 										if (response.BodyField is not null)
 										{
-											code.WriteLine($"{GetJsonSchemaType(service.GetFieldType(response.BodyField.ServiceField))},");
+											code.WriteLine($"{GetJsonSchemaType(service.GetFieldType(response.BodyField.ServiceField)!)},");
 										}
 										else if (response.NormalFields?.Count > 0)
 										{
@@ -679,7 +679,7 @@ namespace Facility.CodeGen.JavaScript
 												using (code.Block("properties: {", "},"))
 												{
 													foreach (var normalField in response.NormalFields)
-														code.WriteLine($"{normalField.ServiceField.Name}: {GetJsonSchemaType(service.GetFieldType(normalField.ServiceField))},");
+														code.WriteLine($"{normalField.ServiceField.Name}: {GetJsonSchemaType(service.GetFieldType(normalField.ServiceField)!)},");
 												}
 											}
 										}
@@ -820,11 +820,8 @@ namespace Facility.CodeGen.JavaScript
 
 			return new CodeGenOutput(file);
 
-			string GetJsonSchemaType(ServiceTypeInfo? serviceType)
+			string GetJsonSchemaType(ServiceTypeInfo serviceType)
 			{
-				if (serviceType is null)
-					throw new ArgumentNullException(nameof(serviceType));
-
 				return serviceType.Kind switch
 				{
 					ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => $"{{ type: '{"string"}' }}",
@@ -870,7 +867,7 @@ namespace Facility.CodeGen.JavaScript
 							using (code.Block("properties: {", "}"))
 							{
 								foreach (var field in dto.Fields)
-									code.WriteLine($"{field.Name}: {GetJsonSchemaType(service.GetFieldType(field))},");
+									code.WriteLine($"{field.Name}: {GetJsonSchemaType(service.GetFieldType(field)!)},");
 							}
 						}
 					}
