@@ -669,7 +669,7 @@ namespace Facility.CodeGen.JavaScript
 
 										if (response.BodyField is not null)
 										{
-											code.WriteLine($"{GetJsonSchemaType(response.BodyField.ServiceField.TypeName)},");
+											code.WriteLine($"{GetJsonSchemaType(service.GetFieldType(response.BodyField.ServiceField))},");
 										}
 										else if (response.NormalFields?.Count > 0)
 										{
@@ -679,7 +679,7 @@ namespace Facility.CodeGen.JavaScript
 												using (code.Block("properties: {", "},"))
 												{
 													foreach (var normalField in response.NormalFields)
-														code.WriteLine($"{normalField.ServiceField.Name}: {GetJsonSchemaType(normalField.ServiceField.TypeName)},");
+														code.WriteLine($"{normalField.ServiceField.Name}: {GetJsonSchemaType(service.GetFieldType(normalField.ServiceField))},");
 												}
 											}
 										}
@@ -820,32 +820,27 @@ namespace Facility.CodeGen.JavaScript
 
 			return new CodeGenOutput(file);
 
-			string GetJsonSchemaType(string typeName)
+			string GetJsonSchemaType(ServiceTypeInfo? serviceType)
 			{
-				if (typeName.EndsWith("[]", StringComparison.Ordinal))
-					return $"{{ type: 'array', items: {GetJsonSchemaType(typeName.Substring(0, typeName.Length - 2))} }}";
-				if (typeName.StartsWith("nullable<", StringComparison.Ordinal))
-					return $"{{ oneOf: [ {GetJsonSchemaType(typeName.Substring(9, typeName.Length - 10))}, {{ type: 'null' }} ] }}";
-				if (typeName.StartsWith("result<", StringComparison.Ordinal))
-					return $"{{ type: 'object', properties: {{ value: {GetJsonSchemaType(typeName.Substring(7, typeName.Length - 8))}, error: {{ $ref: '_error' }} }} }}";
-				if (typeName.StartsWith("map<", StringComparison.Ordinal))
-					return $"{{ type: 'object', additionalProperties: {GetJsonSchemaType(typeName.Substring(4, typeName.Length - 5))} }}";
-				if (typeName is "error")
-					return $"{{ $ref: '{"_error"}' }}";
-				if (customTypes.Contains(typeName))
-					return $"{{ $ref: '{typeName}' }}";
-				if (typeName is "string" or "bytes" or "datetime")
-					return $"{{ type: '{"string"}' }}";
-				if (typeName is "boolean")
-					return $"{{ type: '{"boolean"}' }}";
-				if (typeName is "int32" or "int64")
-					return $"{{ type: '{"integer"}' }}";
-				if (typeName is "decimal" or "double")
-					return $"{{ type: '{"number"}' }}";
-				if (typeName is "object")
-					return $"{{ type: '{"object"}', additionalProperties: true }}";
+				if (serviceType is null)
+					throw new ArgumentNullException(nameof(serviceType));
 
-				throw new NotSupportedException("Unknown type " + typeName);
+				return serviceType.Kind switch
+				{
+					ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => $"{{ type: '{"string"}' }}",
+					ServiceTypeKind.Boolean => $"{{ type: '{"boolean"}' }}",
+					ServiceTypeKind.Double or ServiceTypeKind.Decimal => $"{{ type: '{"number"}' }}",
+					ServiceTypeKind.Int32 or ServiceTypeKind.Int64 => $"{{ type: '{"integer"}' }}",
+					ServiceTypeKind.Object or ServiceTypeKind.ExternalDto => $"{{ type: '{"object"}', additionalProperties: true }}",
+					ServiceTypeKind.Error => $"{{ $ref: '{"_error"}' }}",
+					ServiceTypeKind.Dto => $"{{ $ref: '{serviceType.Dto!.Name}' }}",
+					ServiceTypeKind.Enum => $"{{ $ref: '{serviceType.Enum!.Name}' }}",
+					ServiceTypeKind.Result => $"{{ type: 'object', properties: {{ value: {GetJsonSchemaType(serviceType.ValueType!)}, error: {{ $ref: '_error' }} }} }}",
+					ServiceTypeKind.Array => $"{{ type: 'array', items: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+					ServiceTypeKind.Map => $"{{ type: 'object', additionalProperties: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+					ServiceTypeKind.Nullable => $"{{ oneOf: [ {GetJsonSchemaType(serviceType.ValueType!)}, {{ type: 'null' }} ] }}",
+					_ => throw new NotSupportedException($"Unsupported service type '{serviceType.Kind}'"),
+				};
 			}
 
 			void WriteJsonSchemaDtos(CodeWriter code, ServiceInfo service)
@@ -875,7 +870,7 @@ namespace Facility.CodeGen.JavaScript
 							using (code.Block("properties: {", "}"))
 							{
 								foreach (var field in dto.Fields)
-									code.WriteLine($"{field.Name}: {GetJsonSchemaType(field.TypeName)},");
+									code.WriteLine($"{field.Name}: {GetJsonSchemaType(service.GetFieldType(field))},");
 							}
 						}
 					}
