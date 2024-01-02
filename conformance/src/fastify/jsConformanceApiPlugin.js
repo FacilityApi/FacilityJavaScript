@@ -34,6 +34,10 @@ function parseBoolean(value) {
 export const jsConformanceApiPlugin = async (fastify, opts) => {
   const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
 
+  for (const jsonSchema of jsonSchemas) {
+    fastify.addSchema(jsonSchema);
+  }
+
   fastify.setErrorHandler((error, req, res) => {
     req.log.error(error);
     if (includeErrorDetails) {
@@ -69,6 +73,17 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/',
     method: 'GET',
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            service: { type: 'string' },
+            version: { type: 'string' },
+          },
+        },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -92,6 +107,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/widgets',
     method: 'GET',
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            widgets: { type: 'array', items: { $ref: 'Widget' } },
+          },
+        },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -118,6 +143,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/widgets',
     method: 'POST',
+    schema: {
+      response: {
+        201: { $ref: 'Widget' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -148,6 +178,12 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/widgets/:id',
     method: 'GET',
+    schema: {
+      response: {
+        200: { $ref: 'Widget' },
+        304: { type: 'boolean' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -186,6 +222,13 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/widgets/:id',
     method: 'DELETE',
+    schema: {
+      response: {
+        204: { type: 'object', additionalProperties: false },
+        404: { type: 'boolean' },
+        409: { type: 'boolean' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -225,6 +268,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/widgets/get',
     method: 'POST',
+    schema: {
+      response: {
+        200: { type: 'array', items: { type: 'object', properties: { value: { $ref: 'Widget' }, error: { $ref: '_error' } } } },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -252,6 +300,17 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/mirrorFields',
     method: 'POST',
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            field: { $ref: 'Any' },
+            matrix: { type: 'array', items: { type: 'array', items: { type: 'array', items: { type: 'number' } } } },
+          },
+        },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -279,6 +338,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/checkQuery',
     method: 'GET',
+    schema: {
+      response: {
+        200: { type: 'object', additionalProperties: false },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -312,6 +376,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/checkPath/:string/:boolean/:double/:int32/:int64/:decimal/:enum/:datetime',
     method: 'GET',
+    schema: {
+      response: {
+        200: { type: 'object', additionalProperties: false },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -345,6 +414,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/mirrorHeaders',
     method: 'GET',
+    schema: {
+      response: {
+        200: { type: 'object', additionalProperties: false },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -387,6 +461,18 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/mixed/:path',
     method: 'POST',
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            normal: { type: 'string' },
+          },
+        },
+        202: { type: 'object', additionalProperties: true },
+        204: { type: 'boolean' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -434,6 +520,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/required',
     method: 'POST',
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            normal: { type: 'string' },
+          },
+        },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -471,6 +567,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/mirrorBytes',
     method: 'POST',
+    schema: {
+      response: {
+        200: { type: 'string' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -503,6 +604,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/mirrorText',
     method: 'POST',
+    schema: {
+      response: {
+        200: { type: 'string' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -535,6 +641,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   fastify.route({
     url: '/bodyTypes',
     method: 'POST',
+    schema: {
+      response: {
+        200: { type: 'string' },
+      },
+    },
     handler: async function (req, res) {
       const request = {};
 
@@ -559,3 +670,145 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     }
   });
 }
+
+const jsonSchemas = [
+  {
+    $id: '_error',
+    type: 'object',
+    properties: {
+      code: { type: 'string' },
+      message: { type: 'string' },
+      details: { type: 'object', additionalProperties: true },
+      innerError: { $ref: '_error' },
+    }
+  },
+  {
+    $id: 'Widget',
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+      name: { type: 'string' },
+    }
+  },
+  {
+    $id: 'Any',
+    type: 'object',
+    properties: {
+      string: { type: 'string' },
+      boolean: { type: 'boolean' },
+      double: { type: 'number' },
+      int32: { type: 'integer' },
+      int64: { type: 'integer' },
+      decimal: { type: 'number' },
+      datetime: { type: 'string' },
+      bytes: { type: 'string' },
+      object: { type: 'object', additionalProperties: true },
+      error: { $ref: '_error' },
+      data: { $ref: 'Any' },
+      enum: { $ref: 'Answer' },
+      array: { $ref: 'AnyArray' },
+      map: { $ref: 'AnyMap' },
+      result: { $ref: 'AnyResult' },
+      nullable: { $ref: 'AnyNullable' },
+    }
+  },
+  {
+    $id: 'AnyArray',
+    type: 'object',
+    properties: {
+      string: { type: 'array', items: { type: 'string' } },
+      boolean: { type: 'array', items: { type: 'boolean' } },
+      double: { type: 'array', items: { type: 'number' } },
+      int32: { type: 'array', items: { type: 'integer' } },
+      int64: { type: 'array', items: { type: 'integer' } },
+      decimal: { type: 'array', items: { type: 'number' } },
+      datetime: { type: 'array', items: { type: 'string' } },
+      bytes: { type: 'array', items: { type: 'string' } },
+      object: { type: 'array', items: { type: 'object', additionalProperties: true } },
+      error: { type: 'array', items: { $ref: '_error' } },
+      data: { type: 'array', items: { $ref: 'Any' } },
+      enum: { type: 'array', items: { $ref: 'Answer' } },
+      array: { type: 'array', items: { type: 'array', items: { type: 'integer' } } },
+      map: { type: 'array', items: { type: 'object', additionalProperties: { type: 'integer' } } },
+      result: { type: 'array', items: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } } },
+      nullable: { type: 'array', items: { oneOf: [ { type: 'integer' }, { type: 'null' } ] } },
+    }
+  },
+  {
+    $id: 'AnyMap',
+    type: 'object',
+    properties: {
+      string: { type: 'object', additionalProperties: { type: 'string' } },
+      boolean: { type: 'object', additionalProperties: { type: 'boolean' } },
+      double: { type: 'object', additionalProperties: { type: 'number' } },
+      int32: { type: 'object', additionalProperties: { type: 'integer' } },
+      int64: { type: 'object', additionalProperties: { type: 'integer' } },
+      decimal: { type: 'object', additionalProperties: { type: 'number' } },
+      datetime: { type: 'object', additionalProperties: { type: 'string' } },
+      bytes: { type: 'object', additionalProperties: { type: 'string' } },
+      object: { type: 'object', additionalProperties: { type: 'object', additionalProperties: true } },
+      error: { type: 'object', additionalProperties: { $ref: '_error' } },
+      data: { type: 'object', additionalProperties: { $ref: 'Any' } },
+      enum: { type: 'object', additionalProperties: { $ref: 'Answer' } },
+      array: { type: 'object', additionalProperties: { type: 'array', items: { type: 'integer' } } },
+      map: { type: 'object', additionalProperties: { type: 'object', additionalProperties: { type: 'integer' } } },
+      result: { type: 'object', additionalProperties: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } } },
+      nullable: { type: 'object', additionalProperties: { oneOf: [ { type: 'integer' }, { type: 'null' } ] } },
+    }
+  },
+  {
+    $id: 'AnyResult',
+    type: 'object',
+    properties: {
+      string: { type: 'object', properties: { value: { type: 'string' }, error: { $ref: '_error' } } },
+      boolean: { type: 'object', properties: { value: { type: 'boolean' }, error: { $ref: '_error' } } },
+      double: { type: 'object', properties: { value: { type: 'number' }, error: { $ref: '_error' } } },
+      int32: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } },
+      int64: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } },
+      decimal: { type: 'object', properties: { value: { type: 'number' }, error: { $ref: '_error' } } },
+      datetime: { type: 'object', properties: { value: { type: 'string' }, error: { $ref: '_error' } } },
+      bytes: { type: 'object', properties: { value: { type: 'string' }, error: { $ref: '_error' } } },
+      object: { type: 'object', properties: { value: { type: 'object', additionalProperties: true }, error: { $ref: '_error' } } },
+      error: { type: 'object', properties: { value: { $ref: '_error' }, error: { $ref: '_error' } } },
+      data: { type: 'object', properties: { value: { $ref: 'Any' }, error: { $ref: '_error' } } },
+      enum: { type: 'object', properties: { value: { $ref: 'Answer' }, error: { $ref: '_error' } } },
+      array: { type: 'object', properties: { value: { type: 'array', items: { type: 'integer' } }, error: { $ref: '_error' } } },
+      map: { type: 'object', properties: { value: { type: 'object', additionalProperties: { type: 'integer' } }, error: { $ref: '_error' } } },
+      result: { type: 'object', properties: { value: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } }, error: { $ref: '_error' } } },
+      nullable: { type: 'object', properties: { value: { oneOf: [ { type: 'integer' }, { type: 'null' } ] }, error: { $ref: '_error' } } },
+    }
+  },
+  {
+    $id: 'AnyNullable',
+    type: 'object',
+    properties: {
+      string: { oneOf: [ { type: 'string' }, { type: 'null' } ] },
+      boolean: { oneOf: [ { type: 'boolean' }, { type: 'null' } ] },
+      double: { oneOf: [ { type: 'number' }, { type: 'null' } ] },
+      int32: { oneOf: [ { type: 'integer' }, { type: 'null' } ] },
+      int64: { oneOf: [ { type: 'integer' }, { type: 'null' } ] },
+      decimal: { oneOf: [ { type: 'number' }, { type: 'null' } ] },
+      datetime: { oneOf: [ { type: 'string' }, { type: 'null' } ] },
+      bytes: { oneOf: [ { type: 'string' }, { type: 'null' } ] },
+      object: { oneOf: [ { type: 'object', additionalProperties: true }, { type: 'null' } ] },
+      error: { oneOf: [ { $ref: '_error' }, { type: 'null' } ] },
+      data: { oneOf: [ { $ref: 'Any' }, { type: 'null' } ] },
+      enum: { oneOf: [ { $ref: 'Answer' }, { type: 'null' } ] },
+      array: { oneOf: [ { type: 'array', items: { type: 'integer' } }, { type: 'null' } ] },
+      map: { oneOf: [ { type: 'object', additionalProperties: { type: 'integer' } }, { type: 'null' } ] },
+      result: { oneOf: [ { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } }, { type: 'null' } ] },
+    }
+  },
+  {
+    $id: 'HasWidget',
+    type: 'object',
+    properties: {
+      widget: { $ref: 'Widget' },
+    }
+  },
+  {
+    $id: 'Answer',
+    type: 'string',
+    enum: [ 'yes', 'no', 'maybe' ],
+  },
+];

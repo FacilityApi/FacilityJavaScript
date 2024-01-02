@@ -543,6 +543,7 @@ namespace Facility.CodeGen.JavaScript
 			var capModuleName = CodeGenUtility.Capitalize(moduleName);
 			var camelCaseModuleName = CodeGenUtility.ToCamelCase(moduleName);
 			var pluginFileName = CodeGenUtility.Uncapitalize(moduleName) + "Plugin" + (TypeScript ? ".ts" : ".js");
+			var customTypes = new HashSet<string>(service.Dtos.Select(x => x.Name).Concat(service.Enums.Select(x => x.Name)));
 
 			var file = CreateFile(pluginFileName, code =>
 			{
@@ -591,6 +592,10 @@ namespace Facility.CodeGen.JavaScript
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
 					code.WriteLine("const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+
+					code.WriteLine();
+					using (code.Block("for (const jsonSchema of jsonSchemas) {", "}"))
+						code.WriteLine("fastify.addSchema(jsonSchema);");
 
 					code.WriteLine();
 					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
@@ -653,6 +658,38 @@ namespace Facility.CodeGen.JavaScript
 						{
 							code.WriteLine($"url: '{fastifyPath}',");
 							code.WriteLine($"method: '{httpMethodInfo.Method.ToUpperInvariant()}',");
+							using (code.Block("schema: {", "},"))
+							{
+								using (code.Block("response: {", "},"))
+								{
+									foreach (var response in httpMethodInfo.ValidResponses)
+									{
+										var statusCode = (int) response.StatusCode;
+										code.Write($"{statusCode}: ");
+
+										if (response.BodyField is not null)
+										{
+											code.WriteLine($"{GetJsonSchemaType(service.GetFieldType(response.BodyField.ServiceField)!)},");
+										}
+										else if (response.NormalFields?.Count > 0)
+										{
+											using (code.Block("{", "},"))
+											{
+												code.WriteLine("type: 'object',");
+												using (code.Block("properties: {", "},"))
+												{
+													foreach (var normalField in response.NormalFields)
+														code.WriteLine($"{normalField.ServiceField.Name}: {GetJsonSchemaType(service.GetFieldType(normalField.ServiceField)!)},");
+												}
+											}
+										}
+										else
+										{
+											code.WriteLine("{ type: 'object', additionalProperties: false },");
+										}
+									}
+								}
+							}
 							using (code.Block("handler: async function (req, res) {", "}"))
 							{
 								code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
@@ -775,11 +812,87 @@ namespace Facility.CodeGen.JavaScript
 					}
 				}
 
+				WriteJsonSchemaDtos(code, service);
+
 				if (TypeScript)
 					WriteTypes(code, httpServiceInfo);
 			});
 
 			return new CodeGenOutput(file);
+
+			string GetJsonSchemaType(ServiceTypeInfo serviceType) => serviceType.Kind switch
+			{
+				ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => "{ type: 'string' }",
+				ServiceTypeKind.Boolean => "{ type: 'boolean' }",
+				ServiceTypeKind.Double or ServiceTypeKind.Decimal => "{ type: 'number' }",
+				ServiceTypeKind.Int32 or ServiceTypeKind.Int64 => "{ type: 'integer' }",
+				ServiceTypeKind.Object or ServiceTypeKind.ExternalDto => "{ type: 'object', additionalProperties: true }",
+				ServiceTypeKind.Error => "{ $ref: '_error' }",
+				ServiceTypeKind.Dto => $"{{ $ref: '{serviceType.Dto!.Name}' }}",
+				ServiceTypeKind.Enum => $"{{ $ref: '{serviceType.Enum!.Name}' }}",
+				ServiceTypeKind.Result => $"{{ type: 'object', properties: {{ value: {GetJsonSchemaType(serviceType.ValueType!)}, error: {{ $ref: '_error' }} }} }}",
+				ServiceTypeKind.Array => $"{{ type: 'array', items: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+				ServiceTypeKind.Map => $"{{ type: 'object', additionalProperties: {GetJsonSchemaType(serviceType.ValueType!)} }}",
+				ServiceTypeKind.Nullable => $"{{ oneOf: [ {GetJsonSchemaType(serviceType.ValueType!)}, {{ type: 'null' }} ] }}",
+				_ => throw new NotSupportedException($"Unknown field type '{serviceType.Kind}'"),
+			};
+
+			void WriteJsonSchemaDtos(CodeWriter code, ServiceInfo service)
+			{
+				code.WriteLine();
+				using (code.Block("const jsonSchemas = [", $"]{IfTypeScript(" as const")};"))
+				{
+					using (code.Block("{", $"}}{IfTypeScript(" as const")},"))
+					{
+						code.WriteLine("$id: '_error',");
+						code.WriteLine("type: 'object',");
+						using (code.Block("properties: {", "}"))
+						{
+							code.WriteLine("code: { type: 'string' },");
+							code.WriteLine("message: { type: 'string' },");
+							code.WriteLine("details: { type: 'object', additionalProperties: true },");
+							code.WriteLine("innerError: { $ref: '_error' },");
+						}
+					}
+
+					foreach (var dto in service.Dtos)
+					{
+						using (code.Block("{", $"}}{IfTypeScript(" as const")},"))
+						{
+							code.WriteLine($"$id: '{dto.Name}',");
+							code.WriteLine("type: 'object',");
+							using (code.Block("properties: {", "}"))
+							{
+								foreach (var field in dto.Fields)
+									code.WriteLine($"{field.Name}: {GetJsonSchemaType(service.GetFieldType(field)!)},");
+							}
+						}
+					}
+
+					foreach (var enumInfo in service.Enums)
+					{
+						using (code.Block("{", $"}}{IfTypeScript(" as const")},"))
+						{
+							code.WriteLine($"$id: '{enumInfo.Name}',");
+							code.WriteLine("type: 'string',");
+							code.Write("enum: [ ");
+
+							var shouldWriteComma = false;
+							foreach (var enumValue in enumInfo.Values)
+							{
+								if (shouldWriteComma)
+									code.Write(", ");
+								else
+									shouldWriteComma = true;
+
+								code.Write($"'{enumValue.Name}'");
+							}
+
+							code.WriteLine(" ],");
+						}
+					}
+				}
+			}
 		}
 
 		private void WriteFileHeader(CodeWriter code)
