@@ -277,6 +277,30 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(typesFile.Text, Contains.Substring(expectedErrorSet));
 		}
 
+		[TestCase("", true)]
+		[TestCase("", false)]
+		[TestCase("suffix", true)]
+		[TestCase("suffix", false)]
+		[TestCase(".g", true)]
+		[TestCase(".g", false)]
+		public void GenerateWithCustomFileNameSuffix(string suffix, bool isTypeScript)
+		{
+			const string definition = "service TestApi { }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = isTypeScript, Express = true, FileNameSuffix = suffix };
+			var result = generator.GenerateOutput(service);
+			Assert.IsNotNull(result);
+
+			Assert.AreEqual(isTypeScript ? 3 : 2, result.Files.Count);
+			var fullSuffix = suffix + (isTypeScript ? ".ts" : ".js");
+			Assert.NotNull(result.Files.SingleOrDefault(f => f.Name == $"testApi{fullSuffix}"));
+			Assert.NotNull(result.Files.SingleOrDefault(f => f.Name == $"testApiServer{fullSuffix}"));
+
+			if (isTypeScript)
+				Assert.NotNull(result.Files.SingleOrDefault(f => f.Name == $"testApiTypes{fullSuffix}"));
+		}
+
 		private void ThrowsServiceDefinitionException(string definition, string message)
 		{
 			var parser = new FsdParser();
