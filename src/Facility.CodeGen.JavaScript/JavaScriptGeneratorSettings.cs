@@ -34,5 +34,10 @@ namespace Facility.CodeGen.JavaScript
 		/// True to disable ESLint via code comment.
 		/// </summary>
 		public bool DisableESLint { get; set; }
+
+		/// <summary>
+		/// Suffix to append to generated file names before the extension.
+		/// </summary>
+		public string? FileNameSuffix { get; set; }
 	}
 }
