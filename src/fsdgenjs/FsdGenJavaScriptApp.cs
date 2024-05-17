@@ -26,6 +26,8 @@ namespace fsdgenjs
 			"      Generates a Fastify plugin. When specified, only the server plugin is generated, not the client.",
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
+			"   --file-name-suffix",
+			"      Suffix to append to generated file names before the file extension.",
 		];
 
 		protected override CodeGenerator CreateGenerator() => new JavaScriptGenerator();
@@ -38,6 +40,7 @@ namespace fsdgenjs
 				Express = args.ReadFlag("express"),
 				Fastify = args.ReadFlag("fastify"),
 				DisableESLint = args.ReadFlag("disable-eslint"),
+				FileNameSuffix = args.ReadOption("file-name-suffix"),
 			};
 	}
 }

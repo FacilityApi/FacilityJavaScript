@@ -47,6 +47,11 @@ namespace Facility.CodeGen.JavaScript
 		public bool DisableESLint { get; set; }
 
 		/// <summary>
+		/// Suffix to append to generated file names before the extension.
+		/// </summary>
+		public string? FileNameSuffix { get; set; }
+
+		/// <summary>
 		/// Generates the JavaScript/TypeScript output.
 		/// </summary>
 		public override CodeGenOutput GenerateOutput(ServiceInfo service)
@@ -58,9 +63,9 @@ namespace Facility.CodeGen.JavaScript
 
 			var moduleName = ModuleName ?? service.Name;
 			var capModuleName = CodeGenUtility.Capitalize(moduleName);
-			var typesFileName = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (TypeScript ? ".ts" : ".js");
-			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (TypeScript ? ".ts" : ".js");
-			var serverFileName = CodeGenUtility.Uncapitalize(moduleName) + "Server" + (TypeScript ? ".ts" : ".js");
+			var typesFileName = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
+			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
+			var serverFileName = CodeGenUtility.Uncapitalize(moduleName) + "Server" + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
 
 			var errors = new List<ServiceDefinitionError>();
 			var namedTexts = new List<CodeGenFile>();
@@ -529,6 +534,7 @@ namespace Facility.CodeGen.JavaScript
 			Express = ourSettings.Express;
 			Fastify = ourSettings.Fastify;
 			DisableESLint = ourSettings.DisableESLint;
+			FileNameSuffix = ourSettings.FileNameSuffix;
 		}
 
 		/// <summary>
