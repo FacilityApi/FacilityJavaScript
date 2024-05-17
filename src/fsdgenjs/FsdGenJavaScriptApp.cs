@@ -9,13 +9,13 @@ namespace fsdgenjs
 	{
 		public static int Main(string[] args) => new FsdGenJavaScriptApp().Run(args);
 
-		protected override IReadOnlyList<string> Description => new[]
-		{
+		protected override IReadOnlyList<string> Description =>
+		[
 			"Generates a JavaScript client for a Facility Service Definition.",
-		};
+		];
 
-		protected override IReadOnlyList<string> ExtraUsage => new[]
-		{
+		protected override IReadOnlyList<string> ExtraUsage =>
+		[
 			"   --module <name>",
 			"      The module name used by the generated JavaScript.",
 			"   --typescript",
@@ -28,7 +28,7 @@ namespace fsdgenjs
 			"      Disables ESLint via code comment.",
 			"   --file-name-suffix",
 			"      Suffix to append to generated file names before the file extension.",
-		};
+		];
 
 		protected override CodeGenerator CreateGenerator() => new JavaScriptGenerator();
 
