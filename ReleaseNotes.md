@@ -5,6 +5,7 @@ These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesN
 ## 2.10.0
 
 * Add `file-name-suffix` generator setting.
+* Support generating Fastify plugins.
 
 ## 2.9.0
 
