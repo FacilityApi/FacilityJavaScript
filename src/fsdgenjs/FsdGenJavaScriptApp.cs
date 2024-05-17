@@ -9,13 +9,13 @@ namespace fsdgenjs
 	{
 		public static int Main(string[] args) => new FsdGenJavaScriptApp().Run(args);
 
-		protected override IReadOnlyList<string> Description => new[]
-		{
+		protected override IReadOnlyList<string> Description =>
+		[
 			"Generates a JavaScript client for a Facility Service Definition.",
-		};
+		];
 
-		protected override IReadOnlyList<string> ExtraUsage => new[]
-		{
+		protected override IReadOnlyList<string> ExtraUsage =>
+		[
 			"   --module <name>",
 			"      The module name used by the generated JavaScript.",
 			"   --typescript",
@@ -26,7 +26,7 @@ namespace fsdgenjs
 			"      Generates a Fastify plugin. When specified, only the server plugin is generated, not the client.",
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
-		};
+		];
 
 		protected override CodeGenerator CreateGenerator() => new JavaScriptGenerator();
 

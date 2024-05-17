@@ -16,7 +16,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
-			Assert.IsNotNull(stream);
+			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
 
@@ -26,7 +26,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 				TypeScript = typeScript,
 			};
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 		}
 
 		[Test]
@@ -36,7 +36,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
-			Assert.IsNotNull(stream);
+			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
 
@@ -47,7 +47,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 				NewLine = "\n",
 			};
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "exampleApiTypes.ts");
 			const string expectedEnums = """
@@ -88,7 +88,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
-			Assert.IsNotNull(stream);
+			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
 
@@ -99,7 +99,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 				NewLine = "\n",
 			};
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var apiFile = result.Files.Single(f => f.Name == "exampleApi.ts");
 
@@ -132,11 +132,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { SomeExternalDto as IThing } from 'extern-dto-module';", typesFile.Text);
-			StringAssert.Contains("thing?: IThing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { SomeExternalDto as IThing } from 'extern-dto-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: IThing;"));
 		}
 
 		[Test]
@@ -163,11 +163,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { IThing } from 'extern-dto-module';", typesFile.Text);
-			StringAssert.Contains("thing?: IThing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { IThing } from 'extern-dto-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: IThing;"));
 		}
 
 		[Test]
@@ -178,11 +178,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { IThing } from 'extern-dto-module';", typesFile.Text);
-			StringAssert.Contains("thing?: IThing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { IThing } from 'extern-dto-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: IThing;"));
 		}
 
 		[Test]
@@ -193,11 +193,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { SomeExternalEnum as Thing } from 'extern-enum-module';", typesFile.Text);
-			StringAssert.Contains("thing?: Thing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { SomeExternalEnum as Thing } from 'extern-enum-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: Thing;"));
 		}
 
 		[Test]
@@ -224,11 +224,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { Thing } from 'extern-enum-module';", typesFile.Text);
-			StringAssert.Contains("thing?: Thing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { Thing } from 'extern-enum-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: Thing;"));
 		}
 
 		[Test]
@@ -239,11 +239,11 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
-			StringAssert.Contains("import { Thing } from 'extern-enum-module';", typesFile.Text);
-			StringAssert.Contains("thing?: Thing;", typesFile.Text);
+			Assert.That(typesFile.Text, Does.Contain("import { Thing } from 'extern-enum-module';"));
+			Assert.That(typesFile.Text, Does.Contain("thing?: Thing;"));
 		}
 
 		[Test]
@@ -253,7 +253,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
 			var parser = new FsdParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
-			Assert.IsNotNull(stream);
+			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
 				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
 
@@ -264,7 +264,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 				NewLine = "\n",
 			};
 			var result = generator.GenerateOutput(service);
-			Assert.IsNotNull(result);
+			Assert.That(result, Is.Not.Null);
 
 			var typesFile = result.Files.Single(f => f.Name == "exampleApiTypes.ts");
 			const string expectedErrorSet = """
