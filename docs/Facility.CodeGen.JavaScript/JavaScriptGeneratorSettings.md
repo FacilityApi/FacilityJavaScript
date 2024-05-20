@@ -13,6 +13,8 @@ public sealed class JavaScriptGeneratorSettings : FileGeneratorSettings
 | [JavaScriptGeneratorSettings](JavaScriptGeneratorSettings/JavaScriptGeneratorSettings.md)() | The default constructor. |
 | [DisableESLint](JavaScriptGeneratorSettings/DisableESLint.md) { get; set; } | True to disable ESLint via code comment. |
 | [Express](JavaScriptGeneratorSettings/Express.md) { get; set; } | True to generate Express service. |
+| [Fastify](JavaScriptGeneratorSettings/Fastify.md) { get; set; } | True to generate Fastify plugin. |
+| [FileNameSuffix](JavaScriptGeneratorSettings/FileNameSuffix.md) { get; set; } | Suffix to append to generated file names before the extension. |
 | [ModuleName](JavaScriptGeneratorSettings/ModuleName.md) { get; set; } | The name of the module (optional). |
 | [TypeScript](JavaScriptGeneratorSettings/TypeScript.md) { get; set; } | True to generate TypeScript. |
 

@@ -13,6 +13,8 @@ public sealed class JavaScriptGenerator : CodeGenerator
 | [JavaScriptGenerator](JavaScriptGenerator/JavaScriptGenerator.md)() | The default constructor. |
 | [DisableESLint](JavaScriptGenerator/DisableESLint.md) { get; set; } | True to disable ESLint via code comment. |
 | [Express](JavaScriptGenerator/Express.md) { get; set; } | True to generate Express service. |
+| [Fastify](JavaScriptGenerator/Fastify.md) { get; set; } | True to generate Fastify plugin. |
+| [FileNameSuffix](JavaScriptGenerator/FileNameSuffix.md) { get; set; } | Suffix to append to generated file names before the extension. |
 | [ModuleName](JavaScriptGenerator/ModuleName.md) { get; set; } | The name of the module (optional). |
 | override [SupportsSingleOutput](JavaScriptGenerator/SupportsSingleOutput.md) { get; } | Supports writing output to a single file. |
 | [TypeScript](JavaScriptGenerator/TypeScript.md) { get; set; } | True to generate TypeScript. |
