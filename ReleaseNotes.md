@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.10.1
+
+* Fix TypeScript file name references when using `file-name-suffix` generator setting.
+
 ## 2.10.0
 
 * Add `file-name-suffix` generator setting.
