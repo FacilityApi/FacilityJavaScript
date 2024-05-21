@@ -296,11 +296,27 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(result.Files, Has.Count.EqualTo(isTypeScript ? 3 : 2));
 			var fullSuffix = suffix + (isTypeScript ? ".ts" : ".js");
 			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f.Name == $"testApi{fullSuffix}"));
-			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f.Name == $"testApi{fullSuffix}"));
 			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f.Name == $"testApiServer{fullSuffix}"));
 
 			if (isTypeScript)
 				Assert.That(result.Files.SingleOrDefault(f => f.Name == $"testApiTypes{fullSuffix}"), Is.Not.Null);
+		}
+
+		[Test]
+		public void GenerateWithCustomFileNameSuffix_TypeScriptFileNameReferencesCorrect()
+		{
+			const string definition = "service TestApi { }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true, FileNameSuffix = ".g" };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var clientFile = result.Files.Single(x => x.Name == "testApi.g.ts");
+			Assert.That(clientFile.Text, Does.Contain("export * from './testApiTypes.g';"));
+
+			var serverFile = result.Files.Single(x => x.Name == "testApiServer.g.ts");
+			Assert.That(serverFile.Text, Does.Contain("export * from './testApiTypes.g';"));
 		}
 
 		private void ThrowsServiceDefinitionException(string definition, string message)

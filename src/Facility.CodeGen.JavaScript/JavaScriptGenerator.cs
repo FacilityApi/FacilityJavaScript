@@ -63,7 +63,8 @@ namespace Facility.CodeGen.JavaScript
 
 			var moduleName = ModuleName ?? service.Name;
 			var capModuleName = CodeGenUtility.Capitalize(moduleName);
-			var typesFileName = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
+			var typesFileNameNoExt = CodeGenUtility.Uncapitalize(moduleName) + "Types" + (FileNameSuffix ?? "");
+			var typesFileName = typesFileNameNoExt + (TypeScript ? ".ts" : ".js");
 			var clientFileName = CodeGenUtility.Uncapitalize(moduleName) + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
 			var serverFileName = CodeGenUtility.Uncapitalize(moduleName) + "Server" + (FileNameSuffix ?? "") + (TypeScript ? ".ts" : ".js");
 
@@ -144,8 +145,8 @@ namespace Facility.CodeGen.JavaScript
 
 				if (TypeScript)
 				{
-					WriteImports(code, typeNames, $"./{CodeGenUtility.Uncapitalize(moduleName)}Types");
-					code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
+					WriteImports(code, typeNames, $"./{typesFileNameNoExt}");
+					code.WriteLine($"export * from './{typesFileNameNoExt}';");
 				}
 
 				code.WriteLine();
@@ -385,8 +386,8 @@ namespace Facility.CodeGen.JavaScript
 					WriteImports(code, facilityImports, "facility-core");
 					if (TypeScript)
 					{
-						WriteImports(code, typeNames, $"./{CodeGenUtility.Uncapitalize(moduleName)}Types");
-						code.WriteLine($"export * from './{CodeGenUtility.Uncapitalize(moduleName)}Types';");
+						WriteImports(code, typeNames, $"./{typesFileNameNoExt}");
+						code.WriteLine($"export * from './{typesFileNameNoExt}';");
 					}
 
 					code.WriteLine();
