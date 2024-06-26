@@ -974,6 +974,7 @@ namespace Facility.CodeGen.JavaScript
 			switch (fieldTypeKind)
 			{
 				case ServiceTypeKind.Enum:
+				case ServiceTypeKind.ExternalEnum:
 					return $"request.{fieldName}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
@@ -987,6 +988,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Double:
 					return $"encodeURIComponent(request.{fieldName}.toString())";
 				case ServiceTypeKind.Dto:
+				case ServiceTypeKind.ExternalDto:
 				case ServiceTypeKind.Error:
 				case ServiceTypeKind.Object:
 					throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
@@ -1002,6 +1004,7 @@ namespace Facility.CodeGen.JavaScript
 			switch (fieldTypeKind)
 			{
 				case ServiceTypeKind.Enum:
+				case ServiceTypeKind.ExternalEnum:
 					return $"{value}{IfTypeScript($" as {field.TypeName}")}";
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
@@ -1016,6 +1019,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Double:
 					return $"parseFloat({value})";
 				case ServiceTypeKind.Dto:
+				case ServiceTypeKind.ExternalDto:
 				case ServiceTypeKind.Error:
 				case ServiceTypeKind.Object:
 					throw new NotSupportedException("Field type not supported on path/query/header: " + fieldTypeKind);
@@ -1031,6 +1035,7 @@ namespace Facility.CodeGen.JavaScript
 			switch (fieldTypeKind)
 			{
 				case ServiceTypeKind.Enum:
+				case ServiceTypeKind.ExternalEnum:
 				case ServiceTypeKind.String:
 				case ServiceTypeKind.Bytes:
 				case ServiceTypeKind.DateTime:
@@ -1042,6 +1047,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Double:
 					return $"{value}.toString()";
 				case ServiceTypeKind.Dto:
+				case ServiceTypeKind.ExternalDto:
 				case ServiceTypeKind.Error:
 				case ServiceTypeKind.Object:
 					throw new NotSupportedException("Field type not supported on path/query: " + fieldTypeKind);
