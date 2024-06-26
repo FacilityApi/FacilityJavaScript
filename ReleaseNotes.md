@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 2.11.0
+
+* Enable use of external enumerations as URI and header request parameters.
+
 ## 2.10.1
 
 * Fix TypeScript file name references when using `file-name-suffix` generator setting.
