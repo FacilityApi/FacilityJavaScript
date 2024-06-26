@@ -202,6 +202,42 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumAsUriParam()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; [http(method: GET, path: \"/myMethod\")] method myMethod { e: Thing; }: {} }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.Contain("export interface IMyMethodRequest"));
+			Assert.That(typesFile.Text, Does.Contain("e?: Thing;"));
+
+			var serverFile = result.Files.Single(f => f.Name == "testApiServer.ts");
+			Assert.That(serverFile.Text, Does.Contain("request.e = req.query['e'] as Thing;"));
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_ExternEnumAsHeader()
+		{
+			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; [http(method: GET, path: \"/myMethod\")] method myMethod { [http(from: header, name: \"Thing-Header\")] e: Thing; }: {} }";
+			var parser = new FsdParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.Contain("export interface IMyMethodRequest"));
+			Assert.That(typesFile.Text, Does.Contain("e?: Thing;"));
+
+			var serverFile = result.Files.Single(f => f.Name == "testApiServer.ts");
+			Assert.That(serverFile.Text, Does.Contain("request.e = req.header('Thing-Header');"));
+		}
+
+		[Test]
 		public void GenerateExampleApiTypeScript_ExternEnumWithoutJsAttribute()
 		{
 			ThrowsServiceDefinitionException(
