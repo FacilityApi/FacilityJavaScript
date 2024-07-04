@@ -15,7 +15,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		{
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
@@ -35,7 +35,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		{
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
@@ -87,7 +87,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		{
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
@@ -129,7 +129,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternDataWithNameAndModuel()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalDto\", module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -160,7 +160,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternDataWithoutName()
 		{
 			const string definition = "[csharp] service TestApi { [js(module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -175,7 +175,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternDataNameSameAsAlias()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"IThing\", module: \"extern-dto-module\")] extern data Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -190,7 +190,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternEnumWithNameAndModule()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -205,7 +205,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternEnumAsUriParam()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; [http(method: GET, path: \"/myMethod\")] method myMethod { e: Thing; }: {} }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true };
 			var result = generator.GenerateOutput(service);
@@ -223,7 +223,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternEnumAsHeader()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"SomeExternalEnum\", module: \"extern-enum-module\")] extern enum Thing; [http(method: GET, path: \"/myMethod\")] method myMethod { [http(from: header, name: \"Thing-Header\")] e: Thing; }: {} }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true };
 			var result = generator.GenerateOutput(service);
@@ -257,7 +257,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternEnumWithoutName()
 		{
 			const string definition = "[csharp] service TestApi { [js(module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -272,7 +272,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateExampleApiTypeScript_ExternEnumNameIsSameAsAlias()
 		{
 			const string definition = "[csharp] service TestApi { [js(name: \"Thing\", module: \"extern-enum-module\")] extern enum Thing; data Test { thing: Thing; } }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			var result = generator.GenerateOutput(service);
@@ -288,7 +288,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		{
 			ServiceInfo service;
 			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
 			Assert.That(stream, Is.Not.Null);
 			using (var reader = new StreamReader(stream))
@@ -323,7 +323,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateWithCustomFileNameSuffix(string suffix, bool isTypeScript)
 		{
 			const string definition = "service TestApi { }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = isTypeScript, Express = true, FileNameSuffix = suffix };
 			var result = generator.GenerateOutput(service);
@@ -342,7 +342,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		public void GenerateWithCustomFileNameSuffix_TypeScriptFileNameReferencesCorrect()
 		{
 			const string definition = "service TestApi { }";
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true, Express = true, FileNameSuffix = ".g" };
 			var result = generator.GenerateOutput(service);
@@ -357,11 +357,13 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 		private void ThrowsServiceDefinitionException(string definition, string message)
 		{
-			var parser = new FsdParser();
+			var parser = CreateParser();
 			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
 			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
 			Action action = () => generator.GenerateOutput(service);
 			action.Should().Throw<ServiceDefinitionException>().WithMessage(message);
 		}
+
+		private static FsdParser CreateParser() => new FsdParser(new FsdParserSettings { SupportsEvents = true });
 	}
 }

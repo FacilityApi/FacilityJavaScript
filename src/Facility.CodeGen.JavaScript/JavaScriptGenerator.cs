@@ -1,6 +1,7 @@
 using System.Globalization;
 using Facility.Definition;
 using Facility.Definition.CodeGen;
+using Facility.Definition.Fsd;
 using Facility.Definition.Http;
 
 namespace Facility.CodeGen.JavaScript
@@ -13,8 +14,18 @@ namespace Facility.CodeGen.JavaScript
 		/// <summary>
 		/// Generates JavaScript/TypeScript.
 		/// </summary>
+		/// <param name="parser">The parser.</param>
 		/// <param name="settings">The settings.</param>
 		/// <returns>The number of updated files.</returns>
+		public static int GenerateCSharp(ServiceParser parser, JavaScriptGeneratorSettings settings) =>
+			FileGenerator.GenerateFiles(parser, new JavaScriptGenerator { GeneratorName = nameof(JavaScriptGenerator) }, settings);
+
+		/// <summary>
+		/// Generates JavaScript/TypeScript.
+		/// </summary>
+		/// <param name="settings">The settings.</param>
+		/// <returns>The number of updated files.</returns>
+		[Obsolete("Use the overload that takes a parser.")]
 		public static int GenerateJavaScript(JavaScriptGeneratorSettings settings) =>
 			FileGenerator.GenerateFiles(new JavaScriptGenerator { GeneratorName = nameof(JavaScriptGenerator) }, settings);
 

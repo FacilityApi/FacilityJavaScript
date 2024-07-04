@@ -2,6 +2,7 @@ using ArgsReading;
 using Facility.CodeGen.Console;
 using Facility.CodeGen.JavaScript;
 using Facility.Definition.CodeGen;
+using Facility.Definition.Fsd;
 
 namespace fsdgenjs
 {
@@ -29,6 +30,8 @@ namespace fsdgenjs
 			"   --file-name-suffix",
 			"      Suffix to append to generated file names before the file extension.",
 		];
+
+		protected override ServiceParser CreateParser() => new FsdParser(new FsdParserSettings { SupportsEvents = true });
 
 		protected override CodeGenerator CreateGenerator() => new JavaScriptGenerator();
 
