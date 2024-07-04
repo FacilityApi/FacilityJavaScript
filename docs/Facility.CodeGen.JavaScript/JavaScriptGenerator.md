@@ -20,7 +20,7 @@ public sealed class JavaScriptGenerator : CodeGenerator
 | [TypeScript](JavaScriptGenerator/TypeScript.md) { get; set; } | True to generate TypeScript. |
 | override [ApplySettings](JavaScriptGenerator/ApplySettings.md)(…) | Applies generator-specific settings. |
 | override [GenerateOutput](JavaScriptGenerator/GenerateOutput.md)(…) | Generates the JavaScript/TypeScript output. |
-| static [GenerateJavaScript](JavaScriptGenerator/GenerateJavaScript.md)(…) | Generates JavaScript/TypeScript. |
+| static [GenerateCSharp](JavaScriptGenerator/GenerateCSharp.md)(…) | Generates JavaScript/TypeScript. |
 
 ## See Also
 

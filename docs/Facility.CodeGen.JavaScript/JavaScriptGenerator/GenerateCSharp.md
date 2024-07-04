@@ -1,13 +1,14 @@
-# JavaScriptGenerator.GenerateJavaScript method
+# JavaScriptGenerator.GenerateCSharp method
 
 Generates JavaScript/TypeScript.
 
 ```csharp
-public static int GenerateJavaScript(JavaScriptGeneratorSettings settings)
+public static int GenerateCSharp(ServiceParser parser, JavaScriptGeneratorSettings settings)
 ```
 
 | parameter | description |
 | --- | --- |
+| parser | The parser. |
 | settings | The settings. |
 
 ## Return Value
