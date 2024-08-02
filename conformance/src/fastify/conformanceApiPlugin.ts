@@ -905,7 +905,7 @@ export interface ICreateWidgetResponse {
 /** Request for GetWidget. */
 export interface IGetWidgetRequest {
   /** The widget ID. */
-  id?: number;
+  id: number;
 
   /** Don't get the widget if it has this ETag. */
   ifNotETag?: string;
@@ -944,7 +944,7 @@ export interface IDeleteWidgetResponse {
 /** Request for GetWidgetBatch. */
 export interface IGetWidgetBatchRequest {
   /** The IDs of the widgets to return. */
-  ids?: number[];
+  ids: number[];
 }
 
 /** Response for GetWidgetBatch. */
@@ -1075,9 +1075,9 @@ export interface IMixedResponse {
 
 /** Request for Required. */
 export interface IRequiredRequest {
-  query?: string;
+  query: string;
 
-  normal?: string;
+  normal: string;
 
   widget?: IWidget;
 
@@ -1098,7 +1098,7 @@ export interface IRequiredRequest {
 
 /** Response for Required. */
 export interface IRequiredResponse {
-  normal?: string;
+  normal: string;
 }
 
 /** Request for MirrorBytes. */
@@ -1145,7 +1145,7 @@ export interface IWidget {
   id?: number;
 
   /** The name of the widget. */
-  name?: string;
+  name: string;
 }
 
 export interface IAny {
