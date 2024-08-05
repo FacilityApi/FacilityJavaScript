@@ -314,6 +314,42 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(typesFile.Text, Contains.Substring(expectedErrorSet));
 		}
 
+		[Test]
+		public void GenerateExampleApiTypeScript_DataPropertiesOptional()
+		{
+			const string definition = "service TestApi { data Widget { id: string; name: string; price: decimal; } }";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.Contain("export interface IWidget {"));
+			Assert.That(typesFile.Text, Does.Contain("id?: string;"));
+			Assert.That(typesFile.Text, Does.Contain("name?: string;"));
+			Assert.That(typesFile.Text, Does.Contain("price?: number;"));
+			Assert.That(typesFile.Text, Does.Contain("}"));
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_DataPropertiesRequired()
+		{
+			const string definition = "service TestApi { data Widget { [required] id: string; name: string!; price: decimal; } }";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.Contain("export interface IWidget {"));
+			Assert.That(typesFile.Text, Does.Contain("id?: string;"));
+			Assert.That(typesFile.Text, Does.Contain("name?: string;"));
+			Assert.That(typesFile.Text, Does.Contain("price?: number;"));
+			Assert.That(typesFile.Text, Does.Contain("}"));
+		}
+
 		[TestCase("", true)]
 		[TestCase("", false)]
 		[TestCase("suffix", true)]
