@@ -930,7 +930,7 @@ namespace Facility.CodeGen.JavaScript
 				{
 					code.WriteLineSkipOnce();
 					WriteJsDoc(code, fieldInfo);
-					code.WriteLine($"{fieldInfo.Name}?: {RenderFieldType(service.GetFieldType(fieldInfo)!)};");
+					code.WriteLine($"{fieldInfo.Name}{(fieldInfo.IsRequired ? "" : "?")}: {RenderFieldType(service.GetFieldType(fieldInfo)!)};");
 				}
 			}
 		}

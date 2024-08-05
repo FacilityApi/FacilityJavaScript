@@ -344,8 +344,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
 			Assert.That(typesFile.Text, Does.Contain("export interface IWidget {"));
-			Assert.That(typesFile.Text, Does.Contain("id?: string;"));
-			Assert.That(typesFile.Text, Does.Contain("name?: string;"));
+			Assert.That(typesFile.Text, Does.Contain("id: string;"));
+			Assert.That(typesFile.Text, Does.Contain("name: string;"));
 			Assert.That(typesFile.Text, Does.Contain("price?: number;"));
 			Assert.That(typesFile.Text, Does.Contain("}"));
 		}

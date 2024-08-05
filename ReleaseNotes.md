@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.0.0
+
+* Support required fields as not optional in TypeScript.
+
 ## 2.11.1
 
 * Ignore events for now.
