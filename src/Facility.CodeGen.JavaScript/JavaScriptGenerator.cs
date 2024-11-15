@@ -218,7 +218,7 @@ namespace Facility.CodeGen.JavaScript
 						{
 							var hasPathFields = httpMethodInfo.PathFields.Count != 0;
 							var jsUriDelim = hasPathFields ? "`" : "'";
-#if NET6_0_OR_GREATER
+#if !NETSTANDARD2_0
 							var jsUri = string.Concat(jsUriDelim, httpMethodInfo.Path.AsSpan(1), jsUriDelim);
 #else
 							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
@@ -1245,7 +1245,7 @@ namespace Facility.CodeGen.JavaScript
 			return false;
 		}
 
-#if NET6_0_OR_GREATER
+#if !NETSTANDARD2_0
 		private static string ReplaceOrdinal(string value, string oldValue, string newValue) => value.Replace(oldValue, newValue, StringComparison.Ordinal);
 #else
 		private static string ReplaceOrdinal(string value, string oldValue, string newValue) => value.Replace(oldValue, newValue);
