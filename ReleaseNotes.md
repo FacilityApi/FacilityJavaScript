@@ -2,6 +2,11 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.1.0
+
+* Drop support for end-of-life frameworks.
+* Use roll forward with .NET tool.
+
 ## 3.0.0
 
 * Support required fields as not optional in TypeScript.
