@@ -589,12 +589,6 @@ namespace Facility.CodeGen.JavaScript
 				}
 				WriteImports(code, facilityImports, "facility-core");
 
-				code.WriteLine();
-				WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
-
-				code.WriteLine();
-				WriteParseBooleanFunction("parseBoolean", code);
-
 				if (TypeScript)
 				{
 					code.WriteLine();
@@ -831,6 +825,12 @@ namespace Facility.CodeGen.JavaScript
 				}
 
 				WriteJsonSchemaDtos(code, service);
+
+				code.WriteLine();
+				WriteStandardErrorCodesVariable("standardErrorCodes", code, httpServiceInfo.ErrorSets);
+
+				code.WriteLine();
+				WriteParseBooleanFunction("parseBoolean", code);
 
 				if (TypeScript)
 					WriteTypes(code, httpServiceInfo);

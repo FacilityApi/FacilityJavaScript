@@ -3,34 +3,6 @@
 'use strict';
 
 
-const standardErrorCodes = {
-  'NotModified': 304,
-  'InvalidRequest': 400,
-  'NotAuthenticated': 401,
-  'NotAuthorized': 403,
-  'NotFound': 404,
-  'Conflict': 409,
-  'RequestTooLarge': 413,
-  'TooManyRequests': 429,
-  'InternalError': 500,
-  'ServiceUnavailable': 503,
-  'NotAdmin': 403,
-  'TooHappy': 500,
-};
-
-function parseBoolean(value) {
-  if (typeof value === 'string') {
-    const lowerValue = value.toLowerCase();
-    if (lowerValue === 'true') {
-      return true;
-    }
-    if (lowerValue === 'false') {
-      return false;
-    }
-  }
-  return undefined;
-}
-
 export const jsConformanceApiPlugin = async (fastify, opts) => {
   const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
 
@@ -821,3 +793,31 @@ const jsonSchemas = [
     enum: [ 'yes', 'no', 'maybe' ],
   },
 ];
+
+const standardErrorCodes = {
+  'NotModified': 304,
+  'InvalidRequest': 400,
+  'NotAuthenticated': 401,
+  'NotAuthorized': 403,
+  'NotFound': 404,
+  'Conflict': 409,
+  'RequestTooLarge': 413,
+  'TooManyRequests': 429,
+  'InternalError': 500,
+  'ServiceUnavailable': 503,
+  'NotAdmin': 403,
+  'TooHappy': 500,
+};
+
+function parseBoolean(value) {
+  if (typeof value === 'string') {
+    const lowerValue = value.toLowerCase();
+    if (lowerValue === 'true') {
+      return true;
+    }
+    if (lowerValue === 'false') {
+      return false;
+    }
+  }
+  return undefined;
+}

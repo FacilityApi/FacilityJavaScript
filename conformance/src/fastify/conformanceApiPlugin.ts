@@ -4,34 +4,6 @@
 import { FastifyPluginAsync, RegisterOptions } from 'fastify';
 import { IServiceResult, IServiceError } from 'facility-core';
 
-const standardErrorCodes: { [code: string]: number } = {
-  'NotModified': 304,
-  'InvalidRequest': 400,
-  'NotAuthenticated': 401,
-  'NotAuthorized': 403,
-  'NotFound': 404,
-  'Conflict': 409,
-  'RequestTooLarge': 413,
-  'TooManyRequests': 429,
-  'InternalError': 500,
-  'ServiceUnavailable': 503,
-  'NotAdmin': 403,
-  'TooHappy': 500,
-};
-
-function parseBoolean(value: string | undefined) {
-  if (typeof value === 'string') {
-    const lowerValue = value.toLowerCase();
-    if (lowerValue === 'true') {
-      return true;
-    }
-    if (lowerValue === 'false') {
-      return false;
-    }
-  }
-  return undefined;
-}
-
 export type ConformanceApiPluginOptions = RegisterOptions & {
   api: IConformanceApi;
   caseInsenstiveQueryStringKeys?: boolean;
@@ -828,6 +800,34 @@ const jsonSchemas = [
     enum: [ 'yes', 'no', 'maybe' ],
   } as const,
 ] as const;
+
+const standardErrorCodes: { [code: string]: number } = {
+  'NotModified': 304,
+  'InvalidRequest': 400,
+  'NotAuthenticated': 401,
+  'NotAuthorized': 403,
+  'NotFound': 404,
+  'Conflict': 409,
+  'RequestTooLarge': 413,
+  'TooManyRequests': 429,
+  'InternalError': 500,
+  'ServiceUnavailable': 503,
+  'NotAdmin': 403,
+  'TooHappy': 500,
+};
+
+function parseBoolean(value: string | undefined) {
+  if (typeof value === 'string') {
+    const lowerValue = value.toLowerCase();
+    if (lowerValue === 'true') {
+      return true;
+    }
+    if (lowerValue === 'false') {
+      return false;
+    }
+  }
+  return undefined;
+}
 
 /** API for a Facility test server. */
 export interface IConformanceApi {
