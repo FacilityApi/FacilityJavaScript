@@ -710,7 +710,7 @@ namespace Facility.CodeGen.JavaScript
 							}
 							using (code.Block("handler: async function (req, res) {", "}"))
 							{
-								code.WriteLine("const request" + IfTypeScript($": I{capMethodName}Request") + " = {};");
+								code.WriteLine("const request" + IfTypeScript($": Partial<I{capMethodName}Request>") + " = {};");
 								if (httpMethodInfo.PathFields.Count != 0)
 								{
 									code.WriteLine();
@@ -756,7 +756,7 @@ namespace Facility.CodeGen.JavaScript
 								}
 
 								code.WriteLine();
-								code.WriteLine($"const result = await api.{methodName}(request);");
+								code.WriteLine($"const result = await api.{methodName}(request{IfTypeScript($" as I{capMethodName}Request")});");
 
 								code.WriteLine();
 								using (code.Block("if (result.error) {", "}"))

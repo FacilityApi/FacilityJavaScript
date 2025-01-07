@@ -92,9 +92,9 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IGetApiInfoRequest = {};
+      const request: Partial<IGetApiInfoRequest> = {};
 
-      const result = await api.getApiInfo(request);
+      const result = await api.getApiInfo(request as IGetApiInfoRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -125,12 +125,12 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IGetWidgetsRequest = {};
+      const request: Partial<IGetWidgetsRequest> = {};
 
       const query = req.query as Record<string, string>;
       if (typeof query['q'] === 'string') request.query = query['q'];
 
-      const result = await api.getWidgets(request);
+      const result = await api.getWidgets(request as IGetWidgetsRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -156,11 +156,11 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: ICreateWidgetRequest = {};
+      const request: Partial<ICreateWidgetRequest> = {};
 
       request.widget = req.body as never;
 
-      const result = await api.createWidget(request);
+      const result = await api.createWidget(request as ICreateWidgetRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -192,7 +192,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IGetWidgetRequest = {};
+      const request: Partial<IGetWidgetRequest> = {};
 
       const params = req.params as Record<string, string>;
       if (typeof params['id'] === 'string') request.id = parseInt(params['id'], 10);
@@ -200,7 +200,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       const headers = req.headers as Record<string, string>;
       if (typeof headers['if-none-match'] === 'string') request.ifNotETag = headers['if-none-match'];
 
-      const result = await api.getWidget(request);
+      const result = await api.getWidget(request as IGetWidgetRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -237,7 +237,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IDeleteWidgetRequest = {};
+      const request: Partial<IDeleteWidgetRequest> = {};
 
       const params = req.params as Record<string, string>;
       if (typeof params['id'] === 'string') request.id = parseInt(params['id'], 10);
@@ -245,7 +245,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       const headers = req.headers as Record<string, string>;
       if (typeof headers['if-match'] === 'string') request.ifETag = headers['if-match'];
 
-      const result = await api.deleteWidget(request);
+      const result = await api.deleteWidget(request as IDeleteWidgetRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -281,11 +281,11 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IGetWidgetBatchRequest = {};
+      const request: Partial<IGetWidgetBatchRequest> = {};
 
       request.ids = req.body as never;
 
-      const result = await api.getWidgetBatch(request);
+      const result = await api.getWidgetBatch(request as IGetWidgetBatchRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -319,13 +319,13 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IMirrorFieldsRequest = {};
+      const request: Partial<IMirrorFieldsRequest> = {};
 
       const body = req.body as Record<string, never>;
       request.field = body.field;
       request.matrix = body.matrix;
 
-      const result = await api.mirrorFields(request);
+      const result = await api.mirrorFields(request as IMirrorFieldsRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -351,7 +351,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: ICheckQueryRequest = {};
+      const request: Partial<ICheckQueryRequest> = {};
 
       const query = req.query as Record<string, string>;
       if (typeof query['string'] === 'string') request.string = query['string'];
@@ -364,7 +364,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       if (typeof query['enum'] === 'string') request.enum = query['enum'] as Answer;
       if (typeof query['datetime'] === 'string') request.datetime = query['datetime'];
 
-      const result = await api.checkQuery(request);
+      const result = await api.checkQuery(request as ICheckQueryRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -390,7 +390,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: ICheckPathRequest = {};
+      const request: Partial<ICheckPathRequest> = {};
 
       const params = req.params as Record<string, string>;
       if (typeof params['string'] === 'string') request.string = params['string'];
@@ -403,7 +403,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       if (typeof params['enum'] === 'string') request.enum = params['enum'] as Answer;
       if (typeof params['datetime'] === 'string') request.datetime = params['datetime'];
 
-      const result = await api.checkPath(request);
+      const result = await api.checkPath(request as ICheckPathRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -429,7 +429,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IMirrorHeadersRequest = {};
+      const request: Partial<IMirrorHeadersRequest> = {};
 
       const headers = req.headers as Record<string, string>;
       if (typeof headers['string'] === 'string') request.string = headers['string'];
@@ -442,7 +442,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       if (typeof headers['enum'] === 'string') request.enum = headers['enum'] as Answer;
       if (typeof headers['datetime'] === 'string') request.datetime = headers['datetime'];
 
-      const result = await api.mirrorHeaders(request);
+      const result = await api.mirrorHeaders(request as IMirrorHeadersRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -485,7 +485,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IMixedRequest = {};
+      const request: Partial<IMixedRequest> = {};
 
       const params = req.params as Record<string, string>;
       if (typeof params['path'] === 'string') request.path = params['path'];
@@ -499,7 +499,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       const body = req.body as Record<string, never>;
       request.normal = body.normal;
 
-      const result = await api.mixed(request);
+      const result = await api.mixed(request as IMixedRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -542,7 +542,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IRequiredRequest = {};
+      const request: Partial<IRequiredRequest> = {};
 
       const query = req.query as Record<string, string>;
       if (typeof query['query'] === 'string') request.query = query['query'];
@@ -558,7 +558,7 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       request.hasWidget = body.hasWidget;
       request.point = body.point;
 
-      const result = await api.required(request);
+      const result = await api.required(request as IRequiredRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -584,14 +584,14 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IMirrorBytesRequest = {};
+      const request: Partial<IMirrorBytesRequest> = {};
 
       const headers = req.headers as Record<string, string>;
       if (typeof headers['content-type'] === 'string') request.type = headers['content-type'];
 
       request.content = req.body as never;
 
-      const result = await api.mirrorBytes(request);
+      const result = await api.mirrorBytes(request as IMirrorBytesRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -621,14 +621,14 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IMirrorTextRequest = {};
+      const request: Partial<IMirrorTextRequest> = {};
 
       const headers = req.headers as Record<string, string>;
       if (typeof headers['content-type'] === 'string') request.type = headers['content-type'];
 
       request.content = req.body as never;
 
-      const result = await api.mirrorText(request);
+      const result = await api.mirrorText(request as IMirrorTextRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
@@ -658,11 +658,11 @@ export const conformanceApiPlugin: FastifyPluginAsync<ConformanceApiPluginOption
       },
     },
     handler: async function (req, res) {
-      const request: IBodyTypesRequest = {};
+      const request: Partial<IBodyTypesRequest> = {};
 
       request.content = req.body as never;
 
-      const result = await api.bodyTypes(request);
+      const result = await api.bodyTypes(request as IBodyTypesRequest);
 
       if (result.error) {
         const status = result.error.code && standardErrorCodes[result.error.code];
