@@ -15,6 +15,7 @@ export type ConformanceApiPluginOptions = fastifyTypes.RegisterOptions & {
   includeErrorDetails?: boolean;
 }
 
+/** EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump. */
 export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceApiPluginOptions> = async (fastify, opts) => {
   const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
 

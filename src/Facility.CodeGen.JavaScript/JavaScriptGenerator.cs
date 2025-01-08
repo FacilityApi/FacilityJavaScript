@@ -594,6 +594,7 @@ namespace Facility.CodeGen.JavaScript
 				}
 
 				code.WriteLine();
+				WriteJsDoc(code, "EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump.");
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": fastifyTypes.FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
 					code.WriteLine("const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");

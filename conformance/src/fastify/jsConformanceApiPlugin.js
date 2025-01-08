@@ -2,6 +2,7 @@
 /* eslint-disable */
 'use strict';
 
+/** EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump. */
 export const jsConformanceApiPlugin = async (fastify, opts) => {
   const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
 
