@@ -567,43 +567,39 @@ namespace Facility.CodeGen.JavaScript
 			{
 				WriteFileHeader(code);
 
-				if (!TypeScript)
-					code.WriteLine("'use strict';");
-
-				code.WriteLine();
-
-				var fastifyImports = new List<string>();
-				if (TypeScript)
-				{
-					fastifyImports.Add("FastifyPluginAsync");
-					fastifyImports.Add("RegisterOptions");
-				}
-
-				WriteImports(code, fastifyImports, "fastify");
-
-				var facilityImports = new List<string>();
-				if (TypeScript)
-				{
-					facilityImports.Add("IServiceResult");
-					facilityImports.Add("IServiceError");
-				}
-				WriteImports(code, facilityImports, "facility-core");
-
 				if (TypeScript)
 				{
 					code.WriteLine();
-					using (code.Block($"export type {capModuleName}PluginOptions = RegisterOptions & {{", "}"))
+					code.WriteLine("import type * as fastifyTypes from 'fastify';");
+					code.WriteLine("import type { IServiceResult, IServiceError } from 'facility-core';");
+
+					code.WriteLine();
+					using (code.Block($"export type {capModuleName}PluginOptions = fastifyTypes.RegisterOptions & {{", "}"))
 					{
-						code.WriteLine($"api: I{capModuleName};");
+						WriteJsDoc(code, $"The `I{capModuleName}` service implementation. Can be a service instance or a factory function which is called on each request.");
+						code.WriteLine($"serviceOrFactory: I{capModuleName} | ((req: fastifyTypes.FastifyRequest) => I{capModuleName});");
+
+						code.WriteLine();
+						WriteJsDoc(code, "Whether to make query string keys case insensitive. Defalts to false.");
 						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
+
+						code.WriteLine();
+						WriteJsDoc(code, "Whether to include error details in the response. Defaults to false.");
 						code.WriteLine("includeErrorDetails?: boolean;");
 					}
 				}
+				else
+				{
+					code.WriteLine("'use strict';");
+				}
 
 				code.WriteLine();
-				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
+				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": fastifyTypes.FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { api, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+					code.WriteLine("const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+
+					code.WriteLine();
+					code.WriteLine("const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
 
 					code.WriteLine();
 					using (code.Block("for (const jsonSchema of jsonSchemas) {", "}"))
@@ -650,7 +646,7 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine("const lowerKey = key.toLowerCase();");
 								using (code.Block("if (lowerKey !== key) {", "}"))
 								{
-									code.WriteLine("query[lowerKey] = query[key];");
+									code.WriteLine($"query[lowerKey] = query[key]{IfTypeScript(" as string")};");
 									code.WriteLine("delete query[key];");
 								}
 							}
@@ -750,7 +746,7 @@ namespace Facility.CodeGen.JavaScript
 								}
 
 								code.WriteLine();
-								code.WriteLine($"const result = await api.{methodName}(request{IfTypeScript($" as I{capMethodName}Request")});");
+								code.WriteLine($"const result = await getService(req).{methodName}(request{IfTypeScript($" as I{capMethodName}Request")});");
 
 								code.WriteLine();
 								using (code.Block("if (result.error) {", "}"))
