@@ -349,6 +349,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const query = req.query;
       if (typeof query['string'] === 'string') request.string = query['string'];
       if (typeof query['boolean'] === 'string') request.boolean = parseBoolean(query['boolean']);
+      if (typeof query['float'] === 'string') request.float = parseFloat(query['float']);
       if (typeof query['double'] === 'string') request.double = parseFloat(query['double']);
       if (typeof query['int32'] === 'string') request.int32 = parseInt(query['int32'], 10);
       if (typeof query['int64'] === 'string') request.int64 = parseInt(query['int64'], 10);
@@ -374,7 +375,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
   });
 
   fastify.route({
-    url: '/checkPath/:string/:boolean/:double/:int32/:int64/:decimal/:enum/:datetime',
+    url: '/checkPath/:string/:boolean/:float/:double/:int32/:int64/:decimal/:enum/:datetime',
     method: 'GET',
     schema: {
       response: {
@@ -387,6 +388,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const params = req.params;
       if (typeof params['string'] === 'string') request.string = params['string'];
       if (typeof params['boolean'] === 'string') request.boolean = parseBoolean(params['boolean']);
+      if (typeof params['float'] === 'string') request.float = parseFloat(params['float']);
       if (typeof params['double'] === 'string') request.double = parseFloat(params['double']);
       if (typeof params['int32'] === 'string') request.int32 = parseInt(params['int32'], 10);
       if (typeof params['int64'] === 'string') request.int64 = parseInt(params['int64'], 10);
@@ -425,6 +427,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const headers = req.headers;
       if (typeof headers['string'] === 'string') request.string = headers['string'];
       if (typeof headers['boolean'] === 'string') request.boolean = parseBoolean(headers['boolean']);
+      if (typeof headers['float'] === 'string') request.float = parseFloat(headers['float']);
       if (typeof headers['double'] === 'string') request.double = parseFloat(headers['double']);
       if (typeof headers['int32'] === 'string') request.int32 = parseInt(headers['int32'], 10);
       if (typeof headers['int64'] === 'string') request.int64 = parseInt(headers['int64'], 10);
@@ -443,6 +446,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       if (result.value) {
         if (result.value.string != null) res.header('string', result.value.string);
         if (result.value.boolean != null) res.header('boolean', result.value.boolean);
+        if (result.value.float != null) res.header('float', result.value.float);
         if (result.value.double != null) res.header('double', result.value.double);
         if (result.value.int32 != null) res.header('int32', result.value.int32);
         if (result.value.int64 != null) res.header('int64', result.value.int64);
@@ -696,6 +700,7 @@ const jsonSchemas = [
     properties: {
       string: { type: 'string' },
       boolean: { type: 'boolean' },
+      float: { type: 'number' },
       double: { type: 'number' },
       int32: { type: 'integer' },
       int64: { type: 'integer' },
@@ -718,6 +723,7 @@ const jsonSchemas = [
     properties: {
       string: { type: 'array', items: { type: 'string' } },
       boolean: { type: 'array', items: { type: 'boolean' } },
+      float: { type: 'array', items: { type: 'number' } },
       double: { type: 'array', items: { type: 'number' } },
       int32: { type: 'array', items: { type: 'integer' } },
       int64: { type: 'array', items: { type: 'integer' } },
@@ -740,6 +746,7 @@ const jsonSchemas = [
     properties: {
       string: { type: 'object', additionalProperties: { type: 'string' } },
       boolean: { type: 'object', additionalProperties: { type: 'boolean' } },
+      float: { type: 'object', additionalProperties: { type: 'number' } },
       double: { type: 'object', additionalProperties: { type: 'number' } },
       int32: { type: 'object', additionalProperties: { type: 'integer' } },
       int64: { type: 'object', additionalProperties: { type: 'integer' } },
@@ -762,6 +769,7 @@ const jsonSchemas = [
     properties: {
       string: { type: 'object', properties: { value: { type: 'string' }, error: { $ref: '_error' } } },
       boolean: { type: 'object', properties: { value: { type: 'boolean' }, error: { $ref: '_error' } } },
+      float: { type: 'object', properties: { value: { type: 'number' }, error: { $ref: '_error' } } },
       double: { type: 'object', properties: { value: { type: 'number' }, error: { $ref: '_error' } } },
       int32: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } },
       int64: { type: 'object', properties: { value: { type: 'integer' }, error: { $ref: '_error' } } },
@@ -784,6 +792,7 @@ const jsonSchemas = [
     properties: {
       string: { oneOf: [ { type: 'string' }, { type: 'null' } ] },
       boolean: { oneOf: [ { type: 'boolean' }, { type: 'null' } ] },
+      float: { oneOf: [ { type: 'number' }, { type: 'null' } ] },
       double: { oneOf: [ { type: 'number' }, { type: 'null' } ] },
       int32: { oneOf: [ { type: 'integer' }, { type: 'null' } ] },
       int64: { oneOf: [ { type: 'integer' }, { type: 'null' } ] },

@@ -842,7 +842,7 @@ namespace Facility.CodeGen.JavaScript
 			{
 				ServiceTypeKind.String or ServiceTypeKind.Bytes or ServiceTypeKind.DateTime or ServiceTypeKind.ExternalEnum => "{ type: 'string' }",
 				ServiceTypeKind.Boolean => "{ type: 'boolean' }",
-				ServiceTypeKind.Double or ServiceTypeKind.Decimal => "{ type: 'number' }",
+				ServiceTypeKind.Float or ServiceTypeKind.Double or ServiceTypeKind.Decimal => "{ type: 'number' }",
 				ServiceTypeKind.Int32 or ServiceTypeKind.Int64 => "{ type: 'integer' }",
 				ServiceTypeKind.Object or ServiceTypeKind.ExternalDto => "{ type: 'object', additionalProperties: true }",
 				ServiceTypeKind.Error => "{ $ref: '_error' }",
@@ -951,6 +951,7 @@ namespace Facility.CodeGen.JavaScript
 					return fieldType.ExternalEnum!.Name;
 				case ServiceTypeKind.Boolean:
 					return "boolean";
+				case ServiceTypeKind.Float:
 				case ServiceTypeKind.Double:
 				case ServiceTypeKind.Int32:
 				case ServiceTypeKind.Int64:
@@ -996,6 +997,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Int64:
 				case ServiceTypeKind.Decimal:
 					return $"request.{fieldName}.toString()";
+				case ServiceTypeKind.Float:
 				case ServiceTypeKind.Double:
 					return $"encodeURIComponent(request.{fieldName}.toString())";
 				case ServiceTypeKind.Dto:
@@ -1027,6 +1029,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Int64:
 					return $"parseInt({value}, 10)";
 				case ServiceTypeKind.Decimal:
+				case ServiceTypeKind.Float:
 				case ServiceTypeKind.Double:
 					return $"parseFloat({value})";
 				case ServiceTypeKind.Dto:
@@ -1055,6 +1058,7 @@ namespace Facility.CodeGen.JavaScript
 				case ServiceTypeKind.Int32:
 				case ServiceTypeKind.Int64:
 				case ServiceTypeKind.Decimal:
+				case ServiceTypeKind.Float:
 				case ServiceTypeKind.Double:
 					return $"{value}.toString()";
 				case ServiceTypeKind.Dto:
