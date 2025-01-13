@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.2.0
+
+* Support `float` field type.
+
 ## 3.1.0
 
 * Drop support for end-of-life frameworks.
