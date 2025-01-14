@@ -156,6 +156,8 @@ export interface ICheckQueryRequest {
 
   boolean?: boolean;
 
+  float?: number;
+
   double?: number;
 
   int32?: number;
@@ -178,6 +180,8 @@ export interface ICheckPathRequest {
   string?: string;
 
   boolean?: boolean;
+
+  float?: number;
 
   double?: number;
 
@@ -202,6 +206,8 @@ export interface IMirrorHeadersRequest {
 
   boolean?: boolean;
 
+  float?: number;
+
   double?: number;
 
   int32?: number;
@@ -220,6 +226,8 @@ export interface IMirrorHeadersResponse {
   string?: string;
 
   boolean?: boolean;
+
+  float?: number;
 
   double?: number;
 
@@ -336,6 +344,8 @@ export interface IAny {
 
   boolean?: boolean;
 
+  float?: number;
+
   double?: number;
 
   int32?: number;
@@ -369,6 +379,8 @@ export interface IAnyArray {
   string?: string[];
 
   boolean?: boolean[];
+
+  float?: number[];
 
   double?: number[];
 
@@ -404,6 +416,8 @@ export interface IAnyMap {
 
   boolean?: { [name: string]: boolean };
 
+  float?: { [name: string]: number };
+
   double?: { [name: string]: number };
 
   int32?: { [name: string]: number };
@@ -438,6 +452,8 @@ export interface IAnyResult {
 
   boolean?: IServiceResult<boolean>;
 
+  float?: IServiceResult<number>;
+
   double?: IServiceResult<number>;
 
   int32?: IServiceResult<number>;
@@ -471,6 +487,8 @@ export interface IAnyNullable {
   string?: (string | null);
 
   boolean?: (boolean | null);
+
+  float?: (number | null);
 
   double?: (number | null);
 

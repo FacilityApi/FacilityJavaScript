@@ -251,6 +251,7 @@ class JsConformanceApiHttpClient {
     const query = [];
     request.string == null || query.push('string=' + encodeURIComponent(request.string));
     request.boolean == null || query.push('boolean=' + request.boolean.toString());
+    request.float == null || query.push('float=' + encodeURIComponent(request.float.toString()));
     request.double == null || query.push('double=' + encodeURIComponent(request.double.toString()));
     request.int32 == null || query.push('int32=' + request.int32.toString());
     request.int64 == null || query.push('int64=' + request.int64.toString());
@@ -286,6 +287,10 @@ class JsConformanceApiHttpClient {
     if (!uriPartBoolean) {
       return Promise.resolve(createRequiredRequestFieldError('boolean'));
     }
+    const uriPartFloat = request.float != null && encodeURIComponent(request.float.toString());
+    if (!uriPartFloat) {
+      return Promise.resolve(createRequiredRequestFieldError('float'));
+    }
     const uriPartDouble = request.double != null && encodeURIComponent(request.double.toString());
     if (!uriPartDouble) {
       return Promise.resolve(createRequiredRequestFieldError('double'));
@@ -310,7 +315,7 @@ class JsConformanceApiHttpClient {
     if (!uriPartDatetime) {
       return Promise.resolve(createRequiredRequestFieldError('datetime'));
     }
-    const uri = `checkPath/${uriPartString}/${uriPartBoolean}/${uriPartDouble}/${uriPartInt32}/${uriPartInt64}/${uriPartDecimal}/${uriPartEnum}/${uriPartDatetime}`;
+    const uri = `checkPath/${uriPartString}/${uriPartBoolean}/${uriPartFloat}/${uriPartDouble}/${uriPartInt32}/${uriPartInt64}/${uriPartDecimal}/${uriPartEnum}/${uriPartDatetime}`;
     const fetchRequest = {
       method: 'GET',
     };
@@ -339,6 +344,9 @@ class JsConformanceApiHttpClient {
     }
     if (request.boolean != null) {
       fetchRequest.headers['boolean'] = request.boolean.toString();
+    }
+    if (request.float != null) {
+      fetchRequest.headers['float'] = request.float.toString();
     }
     if (request.double != null) {
       fetchRequest.headers['double'] = request.double.toString();
@@ -376,6 +384,10 @@ class JsConformanceApiHttpClient {
         headerValue = result.response.headers.get('boolean');
         if (headerValue != null) {
           value.boolean = parseBoolean(headerValue);
+        }
+        headerValue = result.response.headers.get('float');
+        if (headerValue != null) {
+          value.float = parseFloat(headerValue);
         }
         headerValue = result.response.headers.get('double');
         if (headerValue != null) {
