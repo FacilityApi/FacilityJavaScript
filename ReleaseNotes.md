@@ -2,6 +2,11 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.3.0
+
+* Allow for request scoped services in fastify plugin.
+* Make fastify plugin support "experimental" for now.
+
 ## 3.2.0
 
 * Support `float` field type.
