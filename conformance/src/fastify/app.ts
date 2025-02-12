@@ -6,7 +6,8 @@ import { jsConformanceApiPlugin } from "./jsConformanceApiPlugin.js";
 
 const app: FastifyPluginAsync<FastifyServerOptions> = async (fastify): Promise<void> => {
 	const conformanceApiPluginOptions: ConformanceApiPluginOptions = {
-		api: new ConformanceApiService(conformanceTestsJson.tests),
+		serviceOrFactory: () =>
+			new ConformanceApiService(conformanceTestsJson.tests),
 		caseInsenstiveQueryStringKeys: true,
 		includeErrorDetails: true,
 	};
