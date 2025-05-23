@@ -5,14 +5,15 @@
 import { HttpClientUtility } from 'facility-core';
 
 /** Provides access to ExampleApi over HTTP via fetch. */
-export function createHttpClient({ fetch, baseUri }) {
-  return new ExampleApiHttpClient(fetch, baseUri);
+export function createHttpClient(options) {
+  return new ExampleApiHttpClient(options);
 }
 
 const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
 
-class ExampleApiHttpClient {
-  constructor(fetch, baseUri) {
+/** Provides access to ExampleApi over HTTP via fetch. */
+export class ExampleApiHttpClient {
+  constructor({ fetch, baseUri }) {
     if (typeof fetch !== 'function') {
       throw new TypeError('fetch must be a function.');
     }
