@@ -162,8 +162,8 @@ namespace Facility.CodeGen.JavaScript
 
 				code.WriteLine();
 				WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
-				using (code.Block("export function createHttpClient({ fetch, baseUri }" + IfTypeScript(": IHttpClientOptions") + ")" + IfTypeScript($": I{capModuleName}") + " {", "}"))
-					code.WriteLine($"return new {capModuleName}HttpClient(fetch, baseUri);");
+				using (code.Block("export function createHttpClient(options" + IfTypeScript(": IHttpClientOptions") + ")" + IfTypeScript($": I{capModuleName}") + " {", "}"))
+					code.WriteLine($"return new {capModuleName}HttpClient(options);");
 
 				code.WriteLine();
 				code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
@@ -192,9 +192,10 @@ namespace Facility.CodeGen.JavaScript
 				}
 
 				code.WriteLine();
-				using (code.Block($"class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
+				WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
+				using (code.Block($"export class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
 				{
-					using (code.Block("constructor(fetch" + IfTypeScript(": IFetch") + ", baseUri" + IfTypeScript("?: string") + ") {", "}"))
+					using (code.Block("constructor({ fetch, baseUri }" + IfTypeScript(": IHttpClientOptions") + ") {", "}"))
 					{
 						using (code.Block("if (typeof fetch !== 'function') {", "}"))
 							code.WriteLine("throw new TypeError('fetch must be a function.');");

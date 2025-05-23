@@ -6,8 +6,8 @@ import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRe
 export * from './conformanceApiTypes';
 
 /** Provides access to ConformanceApi over HTTP via fetch. */
-export function createHttpClient({ fetch, baseUri }: IHttpClientOptions): IConformanceApi {
-  return new ConformanceApiHttpClient(fetch, baseUri);
+export function createHttpClient(options: IHttpClientOptions): IConformanceApi {
+  return new ConformanceApiHttpClient(options);
 }
 
 const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
@@ -27,8 +27,9 @@ function parseBoolean(value: string | undefined) {
   return undefined;
 }
 
-class ConformanceApiHttpClient implements IConformanceApi {
-  constructor(fetch: IFetch, baseUri?: string) {
+/** Provides access to ConformanceApi over HTTP via fetch. */
+export class ConformanceApiHttpClient implements IConformanceApi {
+  constructor({ fetch, baseUri }: IHttpClientOptions) {
     if (typeof fetch !== 'function') {
       throw new TypeError('fetch must be a function.');
     }
