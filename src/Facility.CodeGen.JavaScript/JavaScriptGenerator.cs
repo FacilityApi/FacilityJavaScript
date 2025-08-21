@@ -40,7 +40,7 @@ namespace Facility.CodeGen.JavaScript
 		public bool TypeScript { get; set; }
 
 		/// <summary>
-		/// True to omit generated HTTP code
+		/// True to omit generated HTTP code.
 		/// </summary>
 		public bool NoHttp { get; set; }
 
