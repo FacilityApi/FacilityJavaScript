@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.5.0
+
+* Add option to omit generated HTTP client.
+
 ## 3.4.0
 
 * Export generated HttpClient class, allowing the class to be extended.

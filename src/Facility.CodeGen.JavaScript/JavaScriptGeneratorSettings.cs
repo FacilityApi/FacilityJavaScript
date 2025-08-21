@@ -18,6 +18,11 @@ namespace Facility.CodeGen.JavaScript
 		public bool TypeScript { get; set; }
 
 		/// <summary>
+		/// True to omit generated HTTP client code.
+		/// </summary>
+		public bool NoHttp { get; set; }
+
+		/// <summary>
 		/// True to generate Express service.
 		/// </summary>
 		public bool Express { get; set; }

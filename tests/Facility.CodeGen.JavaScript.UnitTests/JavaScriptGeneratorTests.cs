@@ -141,6 +141,58 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
+		public void GenerateExampleApiTypeScript_OmitHttpClient()
+		{
+			ServiceInfo service;
+			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
+			var parser = CreateParser();
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
+			Assert.That(stream, Is.Not.Null);
+			using (var reader = new StreamReader(stream))
+				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
+
+			var generator = new JavaScriptGenerator
+			{
+				GeneratorName = "JavaScriptGeneratorTests",
+				TypeScript = true,
+				NoHttp = true,
+				NewLine = "\n",
+			};
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var files = result.Files.Select(x => x.Name).ToList();
+			Assert.That(files, Does.Not.Contain("exampleApi.ts"));
+			Assert.That(files, Does.Contain("exampleApiTypes.ts"));
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_OmitHttpClientWithExpress()
+		{
+			ServiceInfo service;
+			const string fileName = "Facility.CodeGen.JavaScript.UnitTests.ExampleApi.fsd";
+			var parser = CreateParser();
+			var stream = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(fileName)!;
+			Assert.That(stream, Is.Not.Null);
+			using (var reader = new StreamReader(stream))
+				service = parser.ParseDefinition(new ServiceDefinitionText(Path.GetFileName(fileName), reader.ReadToEnd()));
+
+			var generator = new JavaScriptGenerator
+			{
+				GeneratorName = "JavaScriptGeneratorTests",
+				TypeScript = true,
+				NoHttp = true,
+				Express = true,
+				NewLine = "\n",
+			};
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var expressServerContents = result.Files.Single(x => x.Name == "exampleApiServer.ts");
+			Assert.That(expressServerContents.Text, Does.Not.Contain("from 'exampleApi';"));
+		}
+
+		[Test]
 		public void GenerateExampleApiTypeScript_ExternDataWithoutJsAttribute()
 		{
 			ThrowsServiceDefinitionException(

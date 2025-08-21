@@ -27,6 +27,8 @@ namespace fsdgenjs
 			"      Generates a Fastify plugin. When specified, only the server plugin is generated, not the client. EXPERIMENTAL: This option is subject to change/removal without a major version bump.",
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
+			"   --no-http",
+			"      Omits generated HTTP client code.",
 			"   --file-name-suffix",
 			"      Suffix to append to generated file names before the file extension.",
 		];
@@ -40,6 +42,7 @@ namespace fsdgenjs
 			{
 				ModuleName = args.ReadOption("module"),
 				TypeScript = args.ReadFlag("typescript"),
+				NoHttp = args.ReadFlag("no-http"),
 				Express = args.ReadFlag("express"),
 				Fastify = args.ReadFlag("fastify"),
 				DisableESLint = args.ReadFlag("disable-eslint"),
