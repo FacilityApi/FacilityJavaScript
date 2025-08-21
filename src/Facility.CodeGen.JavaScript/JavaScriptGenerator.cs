@@ -229,7 +229,7 @@ namespace Facility.CodeGen.JavaScript
 #if !NETSTANDARD2_0
 								var jsUri = string.Concat(jsUriDelim, httpMethodInfo.Path.AsSpan(1), jsUriDelim);
 #else
-							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
+								var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
 #endif
 								if (hasPathFields)
 								{
