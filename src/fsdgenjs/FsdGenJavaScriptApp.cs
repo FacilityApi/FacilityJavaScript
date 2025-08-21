@@ -28,7 +28,7 @@ namespace fsdgenjs
 			"   --disable-eslint",
 			"      Disables ESLint via code comment.",
 			"   --no-http",
-			"      Omits generated HTTP client code",
+			"      Omits generated HTTP client code.",
 			"   --file-name-suffix",
 			"      Suffix to append to generated file names before the file extension.",
 		];
