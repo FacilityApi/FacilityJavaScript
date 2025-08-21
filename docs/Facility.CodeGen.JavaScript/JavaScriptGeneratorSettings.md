@@ -16,6 +16,7 @@ public sealed class JavaScriptGeneratorSettings : FileGeneratorSettings
 | [Fastify](JavaScriptGeneratorSettings/Fastify.md) { get; set; } | True to generate Fastify plugin. |
 | [FileNameSuffix](JavaScriptGeneratorSettings/FileNameSuffix.md) { get; set; } | Suffix to append to generated file names before the extension. |
 | [ModuleName](JavaScriptGeneratorSettings/ModuleName.md) { get; set; } | The name of the module (optional). |
+| [NoHttp](JavaScriptGeneratorSettings/NoHttp.md) { get; set; } | True to omit generated HTTP client code. |
 | [TypeScript](JavaScriptGeneratorSettings/TypeScript.md) { get; set; } | True to generate TypeScript. |
 
 ## See Also

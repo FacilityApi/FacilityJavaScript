@@ -16,6 +16,7 @@ public sealed class JavaScriptGenerator : CodeGenerator
 | [Fastify](JavaScriptGenerator/Fastify.md) { get; set; } | True to generate Fastify plugin. |
 | [FileNameSuffix](JavaScriptGenerator/FileNameSuffix.md) { get; set; } | Suffix to append to generated file names before the extension. |
 | [ModuleName](JavaScriptGenerator/ModuleName.md) { get; set; } | The name of the module (optional). |
+| [NoHttp](JavaScriptGenerator/NoHttp.md) { get; set; } | True to omit generated HTTP code. |
 | override [SupportsSingleOutput](JavaScriptGenerator/SupportsSingleOutput.md) { get; } | Supports writing output to a single file. |
 | [TypeScript](JavaScriptGenerator/TypeScript.md) { get; set; } | True to generate TypeScript. |
 | override [ApplySettings](JavaScriptGenerator/ApplySettings.md)(…) | Applies generator-specific settings. |
