@@ -40,6 +40,11 @@ namespace Facility.CodeGen.JavaScript
 		public bool TypeScript { get; set; }
 
 		/// <summary>
+		/// True to omit generated HTTP code
+		/// </summary>
+		public bool NoHttp { get; set; }
+
+		/// <summary>
 		/// True to generate Express service.
 		/// </summary>
 		public bool Express { get; set; }
@@ -137,248 +142,251 @@ namespace Facility.CodeGen.JavaScript
 				}));
 			}
 
-			namedTexts.Add(CreateFile(clientFileName, code =>
+			if (!NoHttp)
 			{
-				WriteFileHeader(code);
-
-				if (!TypeScript)
-					code.WriteLine("'use strict';");
-
-				code.WriteLine();
-				var facilityImports = new List<string> { "HttpClientUtility" };
-				if (TypeScript)
+				namedTexts.Add(CreateFile(clientFileName, code =>
 				{
-					if (httpServiceInfo.Methods.Any())
-						facilityImports.Add("IServiceResult");
-					facilityImports.Add("IHttpClientOptions");
-				}
-				WriteImports(code, facilityImports, "facility-core");
+					WriteFileHeader(code);
 
-				if (TypeScript)
-				{
-					WriteImports(code, typeNames, $"./{typesFileNameNoExt}");
-					code.WriteLine($"export * from './{typesFileNameNoExt}';");
-				}
+					if (!TypeScript)
+						code.WriteLine("'use strict';");
 
-				code.WriteLine();
-				WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
-				using (code.Block("export function createHttpClient(options" + IfTypeScript(": IHttpClientOptions") + ")" + IfTypeScript($": I{capModuleName}") + " {", "}"))
-					code.WriteLine($"return new {capModuleName}HttpClient(options);");
-
-				code.WriteLine();
-				code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
-				if (TypeScript)
-				{
-					code.WriteLine("type IFetch = HttpClientUtility.IFetch;");
-					code.WriteLine("type IFetchRequest = HttpClientUtility.IFetchRequest;");
-				}
-
-				// TODO: export this from facility-core?
-				if (httpServiceInfo.Methods.Any(x => x.RequestHeaderFields.Any(y => service.GetFieldType(y.ServiceField)!.Kind == ServiceTypeKind.Boolean)))
-				{
 					code.WriteLine();
-					using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+					var facilityImports = new List<string> { "HttpClientUtility" };
+					if (TypeScript)
 					{
-						using (code.Block("if (typeof value === 'string') {", "}"))
-						{
-							code.WriteLine("const lowerValue = value.toLowerCase();");
-							using (code.Block("if (lowerValue === 'true') {", "}"))
-								code.WriteLine("return true;");
-							using (code.Block("if (lowerValue === 'false') {", "}"))
-								code.WriteLine("return false;");
-						}
-						code.WriteLine("return undefined;");
+						if (httpServiceInfo.Methods.Any())
+							facilityImports.Add("IServiceResult");
+						facilityImports.Add("IHttpClientOptions");
 					}
-				}
-
-				code.WriteLine();
-				WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
-				using (code.Block($"export class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
-				{
-					using (code.Block("constructor({ fetch, baseUri }" + IfTypeScript(": IHttpClientOptions") + ") {", "}"))
-					{
-						using (code.Block("if (typeof fetch !== 'function') {", "}"))
-							code.WriteLine("throw new TypeError('fetch must be a function.');");
-						using (code.Block("if (typeof baseUri === 'undefined') {", "}"))
-							code.WriteLine($"baseUri = '{httpServiceInfo.Url ?? ""}';");
-						using (code.Block(@"if (/[^\/]$/.test(baseUri)) {", "}"))
-							code.WriteLine("baseUri += '/';");
-
-						code.WriteLine("this._fetch = fetch;");
-						code.WriteLine("this._baseUri = baseUri;");
-					}
-
-					foreach (var httpMethodInfo in httpServiceInfo.Methods)
-					{
-						var methodName = httpMethodInfo.ServiceMethod.Name;
-						var capMethodName = CodeGenUtility.Capitalize(methodName);
-
-						code.WriteLine();
-						WriteJsDoc(code, httpMethodInfo.ServiceMethod);
-						using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
-						{
-							var hasPathFields = httpMethodInfo.PathFields.Count != 0;
-							var jsUriDelim = hasPathFields ? "`" : "'";
-#if !NETSTANDARD2_0
-							var jsUri = string.Concat(jsUriDelim, httpMethodInfo.Path.AsSpan(1), jsUriDelim);
-#else
-							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
-#endif
-							if (hasPathFields)
-							{
-								foreach (var httpPathField in httpMethodInfo.PathFields)
-								{
-									code.WriteLine($"const uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)} = request.{httpPathField.ServiceField.Name} != null && {RenderUriComponent(httpPathField.ServiceField, service)};");
-									using (code.Block($"if (!uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}) {{", "}"))
-										code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpPathField.ServiceField.Name}'));");
-								}
-								foreach (var httpPathField in httpMethodInfo.PathFields)
-									jsUri = ReplaceOrdinal(jsUri, "{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
-							}
-
-							var hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
-							code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
-							if (hasQueryFields)
-							{
-								code.WriteLine("const query" + IfTypeScript(": string[]") + " = [];");
-								foreach (var httpQueryField in httpMethodInfo.QueryFields)
-									code.WriteLine($"request.{httpQueryField.ServiceField.Name} == null || query.push('{httpQueryField.Name}=' + {RenderUriComponent(httpQueryField.ServiceField, service)});");
-								using (code.Block("if (query.length) {", "}"))
-									code.WriteLine("uri = uri + '?' + query.join('&');");
-							}
-
-							if (httpMethodInfo.RequestBodyField != null)
-							{
-								using (code.Block($"if (!request.{httpMethodInfo.RequestBodyField.ServiceField.Name}) {{", "}"))
-									code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpMethodInfo.RequestBodyField.ServiceField.Name}'));");
-							}
-
-							using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
-							{
-								if (httpMethodInfo.RequestBodyField == null && httpMethodInfo.RequestNormalFields.Count == 0)
-								{
-									code.WriteLine($"method: '{httpMethodInfo.Method}',");
-									if (httpMethodInfo.RequestHeaderFields.Count != 0)
-										code.WriteLine("headers: {},");
-								}
-								else
-								{
-									code.WriteLine($"method: '{httpMethodInfo.Method}',");
-									code.WriteLine("headers: { 'Content-Type': 'application/json' },");
-
-									if (httpMethodInfo.RequestBodyField != null)
-									{
-										code.WriteLine($"body: JSON.stringify(request.{httpMethodInfo.RequestBodyField.ServiceField.Name})");
-									}
-									else if (httpMethodInfo.ServiceMethod.RequestFields.Count == httpMethodInfo.RequestNormalFields.Count)
-									{
-										code.WriteLine("body: JSON.stringify(request)");
-									}
-									else
-									{
-										using (code.Block("body: JSON.stringify({", "})"))
-										{
-											for (var httpFieldIndex = 0; httpFieldIndex < httpMethodInfo.RequestNormalFields.Count; httpFieldIndex++)
-											{
-												var httpFieldInfo = httpMethodInfo.RequestNormalFields[httpFieldIndex];
-												var isLastField = httpFieldIndex == httpMethodInfo.RequestNormalFields.Count - 1;
-												var fieldName = httpFieldInfo.ServiceField.Name;
-												code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
-											}
-										}
-									}
-								}
-							}
-
-							if (httpMethodInfo.RequestHeaderFields.Count != 0)
-							{
-								foreach (var httpHeaderField in httpMethodInfo.RequestHeaderFields)
-								{
-									using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
-										code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
-								}
-							}
-
-							code.WriteLine("return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)");
-							using (code.Indent())
-							using (code.Block(".then(result => {", "});"))
-							{
-								code.WriteLine("const status = result.response.status;");
-								var responseValueType = $"I{capMethodName}Response";
-								code.WriteLine("let value" + IfTypeScript($": {responseValueType} | null") + " = null;");
-								var validResponses = httpMethodInfo.ValidResponses;
-								var elsePrefix = "";
-								foreach (var validResponse in validResponses)
-								{
-									var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
-									code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
-									elsePrefix = "else ";
-
-									using (code.Indent())
-									{
-										var bodyField = validResponse.BodyField;
-										if (bodyField != null)
-										{
-											var responseBodyFieldName = bodyField.ServiceField.Name;
-
-											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
-											if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
-											{
-												code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
-											}
-											else
-											{
-												using (code.Block("if (result.json) {", "}"))
-												{
-													code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }}" + IfTypeScript($" as {responseValueType}") + ";");
-												}
-											}
-										}
-										else
-										{
-											if (validResponse.NormalFields!.Count == 0)
-											{
-												code.WriteLine("value = {};");
-											}
-											else
-											{
-												using (code.Block("if (result.json) {", "}"))
-												{
-													code.WriteLine("value = result.json" + IfTypeScript($" as {responseValueType} | null") + ";");
-												}
-											}
-										}
-									}
-									code.WriteLine("}");
-								}
-
-								using (code.Block("if (!value) {", "}"))
-									code.WriteLine("return createResponseError(status, result.json)" + IfTypeScript($" as IServiceResult<I{capMethodName}Response>") + ";");
-
-								if (httpMethodInfo.ResponseHeaderFields.Count != 0)
-								{
-									code.WriteLine("let headerValue" + IfTypeScript(": string | null | undefined") + ";");
-									foreach (var httpHeaderField in httpMethodInfo.ResponseHeaderFields)
-									{
-										code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
-										using (code.Block("if (headerValue != null) {", "}"))
-											code.WriteLine($"value.{httpHeaderField.ServiceField.Name} = {ParseFieldValue(httpHeaderField.ServiceField, service, "headerValue")};");
-									}
-								}
-
-								code.WriteLine("return { value: value };");
-							}
-						}
-					}
+					WriteImports(code, facilityImports, "facility-core");
 
 					if (TypeScript)
 					{
-						code.WriteLine();
-						code.WriteLine("private _fetch: IFetch;");
-						code.WriteLine("private _baseUri: string;");
+						WriteImports(code, typeNames, $"./{typesFileNameNoExt}");
+						code.WriteLine($"export * from './{typesFileNameNoExt}';");
 					}
-				}
-			}));
+
+					code.WriteLine();
+					WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
+					using (code.Block("export function createHttpClient(options" + IfTypeScript(": IHttpClientOptions") + ")" + IfTypeScript($": I{capModuleName}") + " {", "}"))
+						code.WriteLine($"return new {capModuleName}HttpClient(options);");
+
+					code.WriteLine();
+					code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
+					if (TypeScript)
+					{
+						code.WriteLine("type IFetch = HttpClientUtility.IFetch;");
+						code.WriteLine("type IFetchRequest = HttpClientUtility.IFetchRequest;");
+					}
+
+					// TODO: export this from facility-core?
+					if (httpServiceInfo.Methods.Any(x => x.RequestHeaderFields.Any(y => service.GetFieldType(y.ServiceField)!.Kind == ServiceTypeKind.Boolean)))
+					{
+						code.WriteLine();
+						using (code.Block("function parseBoolean(value" + IfTypeScript(": string | undefined") + ") {", "}"))
+						{
+							using (code.Block("if (typeof value === 'string') {", "}"))
+							{
+								code.WriteLine("const lowerValue = value.toLowerCase();");
+								using (code.Block("if (lowerValue === 'true') {", "}"))
+									code.WriteLine("return true;");
+								using (code.Block("if (lowerValue === 'false') {", "}"))
+									code.WriteLine("return false;");
+							}
+							code.WriteLine("return undefined;");
+						}
+					}
+
+					code.WriteLine();
+					WriteJsDoc(code, $"Provides access to {capModuleName} over HTTP via fetch.");
+					using (code.Block($"export class {capModuleName}HttpClient" + IfTypeScript($" implements I{capModuleName}") + " {", "}"))
+					{
+						using (code.Block("constructor({ fetch, baseUri }" + IfTypeScript(": IHttpClientOptions") + ") {", "}"))
+						{
+							using (code.Block("if (typeof fetch !== 'function') {", "}"))
+								code.WriteLine("throw new TypeError('fetch must be a function.');");
+							using (code.Block("if (typeof baseUri === 'undefined') {", "}"))
+								code.WriteLine($"baseUri = '{httpServiceInfo.Url ?? ""}';");
+							using (code.Block(@"if (/[^\/]$/.test(baseUri)) {", "}"))
+								code.WriteLine("baseUri += '/';");
+
+							code.WriteLine("this._fetch = fetch;");
+							code.WriteLine("this._baseUri = baseUri;");
+						}
+
+						foreach (var httpMethodInfo in httpServiceInfo.Methods)
+						{
+							var methodName = httpMethodInfo.ServiceMethod.Name;
+							var capMethodName = CodeGenUtility.Capitalize(methodName);
+
+							code.WriteLine();
+							WriteJsDoc(code, httpMethodInfo.ServiceMethod);
+							using (code.Block(IfTypeScript("public ") + $"{methodName}(request" + IfTypeScript($": I{capMethodName}Request") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript($": Promise<IServiceResult<I{capMethodName}Response>>") + " {", "}"))
+							{
+								var hasPathFields = httpMethodInfo.PathFields.Count != 0;
+								var jsUriDelim = hasPathFields ? "`" : "'";
+#if !NETSTANDARD2_0
+								var jsUri = string.Concat(jsUriDelim, httpMethodInfo.Path.AsSpan(1), jsUriDelim);
+#else
+							var jsUri = jsUriDelim + httpMethodInfo.Path.Substring(1) + jsUriDelim;
+#endif
+								if (hasPathFields)
+								{
+									foreach (var httpPathField in httpMethodInfo.PathFields)
+									{
+										code.WriteLine($"const uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)} = request.{httpPathField.ServiceField.Name} != null && {RenderUriComponent(httpPathField.ServiceField, service)};");
+										using (code.Block($"if (!uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}) {{", "}"))
+											code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpPathField.ServiceField.Name}'));");
+									}
+									foreach (var httpPathField in httpMethodInfo.PathFields)
+										jsUri = ReplaceOrdinal(jsUri, "{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+								}
+
+								var hasQueryFields = httpMethodInfo.QueryFields.Count != 0;
+								code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
+								if (hasQueryFields)
+								{
+									code.WriteLine("const query" + IfTypeScript(": string[]") + " = [];");
+									foreach (var httpQueryField in httpMethodInfo.QueryFields)
+										code.WriteLine($"request.{httpQueryField.ServiceField.Name} == null || query.push('{httpQueryField.Name}=' + {RenderUriComponent(httpQueryField.ServiceField, service)});");
+									using (code.Block("if (query.length) {", "}"))
+										code.WriteLine("uri = uri + '?' + query.join('&');");
+								}
+
+								if (httpMethodInfo.RequestBodyField != null)
+								{
+									using (code.Block($"if (!request.{httpMethodInfo.RequestBodyField.ServiceField.Name}) {{", "}"))
+										code.WriteLine($"return Promise.resolve(createRequiredRequestFieldError('{httpMethodInfo.RequestBodyField.ServiceField.Name}'));");
+								}
+
+								using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
+								{
+									if (httpMethodInfo.RequestBodyField == null && httpMethodInfo.RequestNormalFields.Count == 0)
+									{
+										code.WriteLine($"method: '{httpMethodInfo.Method}',");
+										if (httpMethodInfo.RequestHeaderFields.Count != 0)
+											code.WriteLine("headers: {},");
+									}
+									else
+									{
+										code.WriteLine($"method: '{httpMethodInfo.Method}',");
+										code.WriteLine("headers: { 'Content-Type': 'application/json' },");
+
+										if (httpMethodInfo.RequestBodyField != null)
+										{
+											code.WriteLine($"body: JSON.stringify(request.{httpMethodInfo.RequestBodyField.ServiceField.Name})");
+										}
+										else if (httpMethodInfo.ServiceMethod.RequestFields.Count == httpMethodInfo.RequestNormalFields.Count)
+										{
+											code.WriteLine("body: JSON.stringify(request)");
+										}
+										else
+										{
+											using (code.Block("body: JSON.stringify({", "})"))
+											{
+												for (var httpFieldIndex = 0; httpFieldIndex < httpMethodInfo.RequestNormalFields.Count; httpFieldIndex++)
+												{
+													var httpFieldInfo = httpMethodInfo.RequestNormalFields[httpFieldIndex];
+													var isLastField = httpFieldIndex == httpMethodInfo.RequestNormalFields.Count - 1;
+													var fieldName = httpFieldInfo.ServiceField.Name;
+													code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
+												}
+											}
+										}
+									}
+								}
+
+								if (httpMethodInfo.RequestHeaderFields.Count != 0)
+								{
+									foreach (var httpHeaderField in httpMethodInfo.RequestHeaderFields)
+									{
+										using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
+											code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
+									}
+								}
+
+								code.WriteLine("return fetchResponse(this._fetch, this._baseUri + uri, fetchRequest, context)");
+								using (code.Indent())
+								using (code.Block(".then(result => {", "});"))
+								{
+									code.WriteLine("const status = result.response.status;");
+									var responseValueType = $"I{capMethodName}Response";
+									code.WriteLine("let value" + IfTypeScript($": {responseValueType} | null") + " = null;");
+									var validResponses = httpMethodInfo.ValidResponses;
+									var elsePrefix = "";
+									foreach (var validResponse in validResponses)
+									{
+										var statusCodeAsString = ((int) validResponse.StatusCode).ToString(CultureInfo.InvariantCulture);
+										code.WriteLine($"{elsePrefix}if (status === {statusCodeAsString}) {{");
+										elsePrefix = "else ";
+
+										using (code.Indent())
+										{
+											var bodyField = validResponse.BodyField;
+											if (bodyField != null)
+											{
+												var responseBodyFieldName = bodyField.ServiceField.Name;
+
+												var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
+												if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+												{
+													code.WriteLine($"value = {{ {responseBodyFieldName}: true }};");
+												}
+												else
+												{
+													using (code.Block("if (result.json) {", "}"))
+													{
+														code.WriteLine($"value = {{ {responseBodyFieldName}: result.json }}" + IfTypeScript($" as {responseValueType}") + ";");
+													}
+												}
+											}
+											else
+											{
+												if (validResponse.NormalFields!.Count == 0)
+												{
+													code.WriteLine("value = {};");
+												}
+												else
+												{
+													using (code.Block("if (result.json) {", "}"))
+													{
+														code.WriteLine("value = result.json" + IfTypeScript($" as {responseValueType} | null") + ";");
+													}
+												}
+											}
+										}
+										code.WriteLine("}");
+									}
+
+									using (code.Block("if (!value) {", "}"))
+										code.WriteLine("return createResponseError(status, result.json)" + IfTypeScript($" as IServiceResult<I{capMethodName}Response>") + ";");
+
+									if (httpMethodInfo.ResponseHeaderFields.Count != 0)
+									{
+										code.WriteLine("let headerValue" + IfTypeScript(": string | null | undefined") + ";");
+										foreach (var httpHeaderField in httpMethodInfo.ResponseHeaderFields)
+										{
+											code.WriteLine($"headerValue = result.response.headers.get('{httpHeaderField.Name}');");
+											using (code.Block("if (headerValue != null) {", "}"))
+												code.WriteLine($"value.{httpHeaderField.ServiceField.Name} = {ParseFieldValue(httpHeaderField.ServiceField, service, "headerValue")};");
+										}
+									}
+
+									code.WriteLine("return { value: value };");
+								}
+							}
+						}
+
+						if (TypeScript)
+						{
+							code.WriteLine();
+							code.WriteLine("private _fetch: IFetch;");
+							code.WriteLine("private _baseUri: string;");
+						}
+					}
+				}));
+			}
 
 			if (Express)
 			{
@@ -548,6 +556,7 @@ namespace Facility.CodeGen.JavaScript
 			Fastify = ourSettings.Fastify;
 			DisableESLint = ourSettings.DisableESLint;
 			FileNameSuffix = ourSettings.FileNameSuffix;
+			NoHttp = ourSettings.NoHttp;
 		}
 
 		/// <summary>
