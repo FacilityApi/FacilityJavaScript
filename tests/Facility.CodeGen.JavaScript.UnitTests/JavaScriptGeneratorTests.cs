@@ -474,6 +474,32 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
+		public void GenerateExampleApiJavaScript_IncludesEvents()
+		{
+			const string definition = """
+				service TestApi {
+					[http(method: GET)]
+					event fibonacci {
+						count: int32!;
+					}: {
+						value: int32!;
+					}
+				}
+				""";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = false };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var apiFile = result.Files.Single(f => f.Name == "testApi.js");
+			Assert.That(apiFile.Text, Does.Contain("fibonacci(request, context)"));
+			Assert.That(apiFile.Text, Does.Contain("return createEventSourceStream(url, context);"));
+			Assert.That(apiFile.Text, Does.Contain("function createEventSourceStream(url, context)"));
+			Assert.That(apiFile.Text, Does.Contain("[Symbol.asyncIterator]: function()"));
+		}
+
+		[Test]
 		public void GenerateExampleApiTypeScript_EventsWithNonGetMethodShowWarning()
 		{
 			const string definition = """

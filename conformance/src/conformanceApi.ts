@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 import { HttpClientUtility, IServiceResult, IHttpClientOptions } from 'facility-core';
-import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from './conformanceApiTypes';
+import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IFibonacciRequest, IFibonacciResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from './conformanceApiTypes';
 export * from './conformanceApiTypes';
 
 /** Provides access to ConformanceApi over HTTP via fetch. */
@@ -603,6 +603,100 @@ export class ConformanceApiHttpClient implements IConformanceApi {
       });
   }
 
+  public fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>> {
+    let uri = 'fibonacci';
+    const query: string[] = [];
+    request.count == null || query.push('count=' + request.count.toString());
+    if (query.length) {
+      uri = uri + '?' + query.join('&');
+    }
+    const url = this._baseUri + uri;
+    return createEventSourceStream<IFibonacciResponse>(url, context);
+  }
+
   private _fetch: IFetch;
   private _baseUri: string;
+}
+
+/** Creates an async iterable stream from an EventSource connection. */
+function createEventSourceStream<T>(url: string, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>> {
+  return new Promise((resolve, reject) => {
+    try {
+      const eventSource = new EventSource(url);
+      let isResolved = false;
+
+      const asyncIterable: AsyncIterable<IServiceResult<T>> = {
+        [Symbol.asyncIterator]() {
+          const queue: Array<IServiceResult<T>> = [];
+          let resolveNext: ((value: IteratorResult<IServiceResult<T>>) => void) | null = null;
+          let isDone = false;
+          let error: any = null;
+
+          eventSource.addEventListener('message', (event: MessageEvent) => {
+            try {
+              const data = JSON.parse(event.data) as T;
+              const result: IServiceResult<T> = { value: data };
+              if (resolveNext) {
+                resolveNext({ value: result, done: false });
+                resolveNext = null;
+              }
+              else {
+                queue.push(result);
+              }
+            }
+            catch (parseError) {
+              const errorResult: IServiceResult<T> = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };
+              if (resolveNext) {
+                resolveNext({ value: errorResult, done: false });
+                resolveNext = null;
+              }
+              else {
+                queue.push(errorResult);
+              }
+            }
+          });
+
+          eventSource.addEventListener('error', (event: Event) => {
+            isDone = true;
+            error = event;
+            eventSource.close();
+            if (resolveNext) {
+              resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });
+              resolveNext = null;
+            }
+          });
+
+          return {
+            async next() {
+              if (queue.length > 0) {
+                return { value: queue.shift()!, done: false };
+              }
+              if (isDone) {
+                if (error) {
+                  return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };
+                }
+                return { value: undefined as any, done: true };
+              }
+              return new Promise((res) => {
+                resolveNext = res;
+              });
+            }
+            async return() {
+              eventSource.close();
+              isDone = true;
+              return { value: undefined as any, done: true };
+            }
+          };
+        }
+      };
+
+      isResolved = true;
+      resolve({ value: asyncIterable });
+    }
+    catch (err) {
+      if (!isResolved) {
+        reject(err);
+      }
+    }
+  });
 }

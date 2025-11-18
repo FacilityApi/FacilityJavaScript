@@ -599,4 +599,99 @@ export class JsConformanceApiHttpClient {
         return { value: value };
       });
   }
+
+  fibonacci(request, context) {
+    let uri = 'fibonacci';
+    const query = [];
+    request.count == null || query.push('count=' + request.count.toString());
+    if (query.length) {
+      uri = uri + '?' + query.join('&');
+    }
+    const url = this._baseUri + uri;
+    return createEventSourceStream(url, context);
+  }
+}
+
+/** Creates an async iterable stream from an EventSource connection. */
+function createEventSourceStream(url, context) {
+  return new Promise((resolve, reject) => {
+    try {
+      const eventSource = new EventSource(url);
+      let isResolved = false;
+
+      const asyncIterable = {
+        [Symbol.asyncIterator]: function() {
+          const queue = [];
+          let resolveNext = null;
+          let isDone = false;
+          let error = null;
+
+          eventSource.addEventListener('message', (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              const result = { value: data };
+              if (resolveNext) {
+                resolveNext({ value: result, done: false });
+                resolveNext = null;
+              }
+              else {
+                queue.push(result);
+              }
+            }
+            catch (parseError) {
+              const errorResult = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };
+              if (resolveNext) {
+                resolveNext({ value: errorResult, done: false });
+                resolveNext = null;
+              }
+              else {
+                queue.push(errorResult);
+              }
+            }
+          });
+
+          eventSource.addEventListener('error', (event) => {
+            isDone = true;
+            error = event;
+            eventSource.close();
+            if (resolveNext) {
+              resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });
+              resolveNext = null;
+            }
+          });
+
+          return {
+            next: async function() {
+              if (queue.length > 0) {
+                return { value: queue.shift(), done: false };
+              }
+              if (isDone) {
+                if (error) {
+                  return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };
+                }
+                return { value: undefined, done: true };
+              }
+              return new Promise((res) => {
+                resolveNext = res;
+              });
+            }
+            ,
+            return: async function() {
+              eventSource.close();
+              isDone = true;
+              return { value: undefined, done: true };
+            }
+          };
+        }
+      };
+
+      isResolved = true;
+      resolve({ value: asyncIterable });
+    }
+    catch (err) {
+      if (!isResolved) {
+        reject(err);
+      }
+    }
+  });
 }
