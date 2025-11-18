@@ -123,11 +123,14 @@ namespace Facility.CodeGen.JavaScript
 				{
 					WriteFileHeader(code);
 
-					var allFields = service.Dtos.SelectMany(x => x.Fields).Concat(service.Methods.SelectMany(x => x.RequestFields.Concat(x.ResponseFields))).ToList();
+					var allFields = service.Dtos.SelectMany(x => x.Fields)
+						.Concat(service.Methods.SelectMany(x => x.RequestFields.Concat(x.ResponseFields)))
+						.Concat(service.Events.SelectMany(x => x.RequestFields.Concat(x.ResponseFields)))
+						.ToList();
 
 					code.WriteLine();
 					var facilityImports = new List<string>();
-					if (httpServiceInfo.Methods.Any() || allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Result)))
+					if (httpServiceInfo.Methods.Any() || httpServiceInfo.Events.Any() || allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Result)))
 						facilityImports.Add("IServiceResult");
 					if (allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Error)))
 						facilityImports.Add("IServiceError");
@@ -378,12 +381,71 @@ namespace Facility.CodeGen.JavaScript
 							}
 						}
 
+						foreach (var httpEventInfo in httpServiceInfo.Events)
+						{
+							var eventName = httpEventInfo.ServiceMethod.Name;
+							var capEventName = CodeGenUtility.Capitalize(eventName);
+
+							code.WriteLine();
+							WriteJsDoc(code, httpEventInfo.ServiceMethod);
+							using (code.Block(IfTypeScript("public ") + $"{eventName}(request" + IfTypeScript($": I{capEventName}Request") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript($": Promise<IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>>") + " {", "}"))
+							{
+								// Validate that event uses GET method (EventSource limitation)
+								if (httpEventInfo.Method != "GET")
+								{
+									code.WriteLine("// WARNING: EventSource only supports GET requests. This event uses " + httpEventInfo.Method + ".");
+									code.WriteLine("return Promise.resolve({ error: { code: 'NotSupported', message: 'EventSource only supports GET requests for events.' } }" + IfTypeScript($" as IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>") + ");");
+									continue;
+								}
+
+								var hasPathFields = httpEventInfo.PathFields.Count != 0;
+								var jsUriDelim = hasPathFields ? "`" : "'";
+#if !NETSTANDARD2_0
+								var jsUri = string.Concat(jsUriDelim, httpEventInfo.Path.AsSpan(1), jsUriDelim);
+#else
+								var jsUri = jsUriDelim + httpEventInfo.Path.Substring(1) + jsUriDelim;
+#endif
+								if (hasPathFields)
+								{
+									foreach (var httpPathField in httpEventInfo.PathFields)
+									{
+										code.WriteLine($"const uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)} = request.{httpPathField.ServiceField.Name} != null && {RenderUriComponent(httpPathField.ServiceField, service)};");
+										using (code.Block($"if (!uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}) {{", "}"))
+											code.WriteLine($"return Promise.resolve({{ error: createRequiredRequestFieldError('{httpPathField.ServiceField.Name}').error }}" + IfTypeScript($" as IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>") + ");");
+									}
+									foreach (var httpPathField in httpEventInfo.PathFields)
+										jsUri = ReplaceOrdinal(jsUri, "{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+								}
+
+								var hasQueryFields = httpEventInfo.QueryFields.Count != 0;
+								code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
+								if (hasQueryFields)
+								{
+									code.WriteLine("const query" + IfTypeScript(": string[]") + " = [];");
+									foreach (var httpQueryField in httpEventInfo.QueryFields)
+										code.WriteLine($"request.{httpQueryField.ServiceField.Name} == null || query.push('{httpQueryField.Name}=' + {RenderUriComponent(httpQueryField.ServiceField, service)});");
+									using (code.Block("if (query.length) {", "}"))
+										code.WriteLine("uri = uri + '?' + query.join('&');");
+								}
+
+								code.WriteLine("const url = this._baseUri + uri;");
+								code.WriteLine("return createEventSourceStream" + IfTypeScript($"<I{capEventName}Response>") + "(url, context);");
+							}
+						}
+
 						if (TypeScript)
 						{
 							code.WriteLine();
 							code.WriteLine("private _fetch: IFetch;");
 							code.WriteLine("private _baseUri: string;");
 						}
+					}
+
+					// Generate SSE utility function if there are events
+					if (httpServiceInfo.Events.Count > 0)
+					{
+						code.WriteLine();
+						WriteEventSourceStreamHelper(code);
 					}
 				}));
 			}
@@ -1177,6 +1239,15 @@ namespace Facility.CodeGen.JavaScript
 					WriteJsDoc(code, httpMethodInfo.ServiceMethod);
 					code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
 				}
+
+				foreach (var httpEventInfo in httpServiceInfo.Events)
+				{
+					var eventName = httpEventInfo.ServiceMethod.Name;
+					var capEventName = CodeGenUtility.Capitalize(eventName);
+					code.WriteLineSkipOnce();
+					WriteJsDoc(code, httpEventInfo.ServiceMethod);
+					code.WriteLine($"{eventName}(request: I{capEventName}Request, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>>;");
+				}
 			}
 
 			foreach (var methodInfo in service.Methods)
@@ -1194,6 +1265,23 @@ namespace Facility.CodeGen.JavaScript
 					name: responseDtoName,
 					fields: methodInfo.ResponseFields,
 					summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+			}
+
+			foreach (var eventInfo in service.Events)
+			{
+				var requestDtoName = $"{CodeGenUtility.Capitalize(eventInfo.Name)}Request";
+				typeNames.Add($"I{requestDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: requestDtoName,
+					fields: eventInfo.RequestFields,
+					summary: $"Request for {CodeGenUtility.Capitalize(eventInfo.Name)}."), service);
+
+				var responseDtoName = $"{CodeGenUtility.Capitalize(eventInfo.Name)}Response";
+				typeNames.Add($"I{responseDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: responseDtoName,
+					fields: eventInfo.ResponseFields,
+					summary: $"Response for {CodeGenUtility.Capitalize(eventInfo.Name)}."), service);
 			}
 
 			foreach (var dtoInfo in service.Dtos)
@@ -1254,6 +1342,122 @@ namespace Facility.CodeGen.JavaScript
 			}
 
 			return false;
+		}
+
+		private void WriteEventSourceStreamHelper(CodeWriter code)
+		{
+			WriteJsDoc(code, "Creates an async iterable stream from an EventSource connection.");
+			using (code.Block("function createEventSourceStream" + IfTypeScript("<T>") + "(url" + IfTypeScript(": string") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript(": Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>") + " {", "}"))
+			{
+				using (code.Block("return new Promise((resolve, reject) => {", "});"))
+				{
+					using (code.Block("try {", "}"))
+					{
+						code.WriteLine("const eventSource = new EventSource(url);");
+						code.WriteLine("let isResolved = false;");
+						code.WriteLine();
+
+						using (code.Block("const asyncIterable" + IfTypeScript(": AsyncIterable<IServiceResult<T>>") + " = {", "};"))
+						{
+							using (code.Block(IfTypeScript("[Symbol.asyncIterator]() {") + (!TypeScript ? "[Symbol.asyncIterator]: function() {" : ""), "}"))
+							{
+								code.WriteLine("const queue" + IfTypeScript(": Array<IServiceResult<T>>") + " = [];");
+								code.WriteLine("let resolveNext" + IfTypeScript(": ((value: IteratorResult<IServiceResult<T>>) => void) | null") + " = null;");
+								code.WriteLine("let isDone = false;");
+								code.WriteLine("let error" + IfTypeScript(": any") + " = null;");
+								code.WriteLine();
+
+								using (code.Block("eventSource.addEventListener('message', (event" + IfTypeScript(": MessageEvent") + ") => {", "});"))
+								{
+									using (code.Block("try {", "}"))
+									{
+										code.WriteLine("const data = JSON.parse(event.data)" + IfTypeScript(" as T") + ";");
+										code.WriteLine("const result" + IfTypeScript(": IServiceResult<T>") + " = { value: data };");
+										using (code.Block("if (resolveNext) {", "}"))
+										{
+											code.WriteLine("resolveNext({ value: result, done: false });");
+											code.WriteLine("resolveNext = null;");
+										}
+										using (code.Block("else {", "}"))
+										{
+											code.WriteLine("queue.push(result);");
+										}
+									}
+									using (code.Block("catch (parseError) {", "}"))
+									{
+										code.WriteLine("const errorResult" + IfTypeScript(": IServiceResult<T>") + " = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };");
+										using (code.Block("if (resolveNext) {", "}"))
+										{
+											code.WriteLine("resolveNext({ value: errorResult, done: false });");
+											code.WriteLine("resolveNext = null;");
+										}
+										using (code.Block("else {", "}"))
+										{
+											code.WriteLine("queue.push(errorResult);");
+										}
+									}
+								}
+
+								code.WriteLine();
+								using (code.Block("eventSource.addEventListener('error', (event" + IfTypeScript(": Event") + ") => {", "});"))
+								{
+									code.WriteLine("isDone = true;");
+									code.WriteLine("error = event;");
+									code.WriteLine("eventSource.close();");
+									using (code.Block("if (resolveNext) {", "}"))
+									{
+										code.WriteLine("resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });");
+										code.WriteLine("resolveNext = null;");
+									}
+								}
+
+								code.WriteLine();
+								using (code.Block("return {", "};"))
+								{
+									using (code.Block(IfTypeScript("async next() {") + (!TypeScript ? "next: async function() {" : ""), "}"))
+									{
+										using (code.Block("if (queue.length > 0) {", "}"))
+										{
+											code.WriteLine("return { value: queue.shift()" + IfTypeScript("!") + ", done: false };");
+										}
+										using (code.Block("if (isDone) {", "}"))
+										{
+											using (code.Block("if (error) {", "}"))
+											{
+												code.WriteLine("return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };");
+											}
+											code.WriteLine("return { value: undefined" + IfTypeScript(" as any") + ", done: true };");
+										}
+										using (code.Block("return new Promise((res) => {", "});"))
+										{
+											code.WriteLine("resolveNext = res;");
+										}
+									}
+									if (!TypeScript)
+										code.WriteLine(",");
+									using (code.Block(IfTypeScript("async return() {") + (!TypeScript ? "return: async function() {" : ""), "}"))
+									{
+										code.WriteLine("eventSource.close();");
+										code.WriteLine("isDone = true;");
+										code.WriteLine("return { value: undefined" + IfTypeScript(" as any") + ", done: true };");
+									}
+								}
+							}
+						}
+
+						code.WriteLine();
+						code.WriteLine("isResolved = true;");
+						code.WriteLine("resolve({ value: asyncIterable });");
+					}
+					using (code.Block("catch (err) {", "}"))
+					{
+						using (code.Block("if (!isResolved) {", "}"))
+						{
+							code.WriteLine("reject(err);");
+						}
+					}
+				}
+			}
 		}
 
 #if !NETSTANDARD2_0
