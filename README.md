@@ -1,7 +1,7 @@
 # Facility JavaScript and TypeScript Support
 
 [JavaScript and TypeScript support](https://facilityapi.github.io/generate/javascript) for the [Facility API Framework](https://facilityapi.github.io/).
-[![Build](https://github.com/FacilityApi/FacilityJavaScript/workflows/Build/badge.svg)](https://github.com/FacilityApi/FacilityJavaScript/actions?query=workflow%3ABuild)
+[![Build](https://github.com/FacilityApi/FacilityJavaScript/actions/workflows/build.yaml/badge.svg?branch=master)](https://github.com/FacilityApi/FacilityJavaScript/actions/workflows/build.yaml?query=branch%3Amaster)
 
 Name | Description | npm/NuGet
 --- | --- | ---
