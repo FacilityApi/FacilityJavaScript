@@ -1,6 +1,3 @@
-// Declare global types for APIs available in browsers and Node.js
-declare const TextDecoder: any;
-
 /** A service result. */
 export interface IServiceResultBase {
 	/** The error. */
@@ -55,7 +52,7 @@ export namespace HttpClientUtility {
 		headers: {
 			get(name: string): string | null;
 		};
-		body?: any; // ReadableStream<Uint8Array> in browsers/Node.js
+		body?: ReadableStream<Uint8Array>;
 		json(): Promise<unknown>;
 	}
 
@@ -192,8 +189,7 @@ export namespace HttpClientUtility {
 						};
 
 						const readStream = (): void => {
-							reader.read().then((result: any) => {
-								const { done, value } = result;
+							reader.read().then(({ done, value }) => {
 								if (done) {
 									isDone = true;
 									if (resolveNext) {
