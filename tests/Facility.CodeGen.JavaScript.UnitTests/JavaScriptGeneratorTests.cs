@@ -500,7 +500,7 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 		}
 
 		[Test]
-		public void GenerateExampleApiTypeScript_EventsWithNonGetMethodShowWarning()
+		public void GenerateExampleApiTypeScript_EventsWithPostMethod()
 		{
 			const string definition = """
 				service TestApi {
@@ -519,8 +519,9 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(result, Is.Not.Null);
 
 			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
-			Assert.That(apiFile.Text, Does.Contain("// WARNING: EventSource only supports GET requests. This event uses POST."));
-			Assert.That(apiFile.Text, Does.Contain("return Promise.resolve({ error: { code: 'NotSupported', message: 'EventSource only supports GET requests for events.' }"));
+			Assert.That(apiFile.Text, Does.Contain("public postEvent(request: IPostEventRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IPostEventResponse>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream<IPostEventResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream<T>(fetchFunc: IFetch, url: string, fetchRequest: IFetchRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>"));
 		}
 
 		private void ThrowsServiceDefinitionException(string definition, string message)
