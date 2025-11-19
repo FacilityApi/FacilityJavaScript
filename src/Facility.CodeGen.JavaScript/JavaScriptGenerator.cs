@@ -420,63 +420,54 @@ namespace Facility.CodeGen.JavaScript
 										code.WriteLine("uri = uri + '?' + query.join('&');");
 								}
 
-								// For GET requests, use EventSource; for POST/others, use fetch with SSE parsing
-								if (httpEventInfo.Method == "GET")
+								// Build fetch request for all HTTP methods
+								using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
 								{
-									code.WriteLine("const url = this._baseUri + uri;");
-									code.WriteLine("return createEventSourceStream" + IfTypeScript($"<I{capEventName}Response>") + "(url, context);");
-								}
-								else
-								{
-									// Build fetch request for POST/other methods
-									using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
-									{
-										code.WriteLine($"method: '{httpEventInfo.Method}',");
+									code.WriteLine($"method: '{httpEventInfo.Method}',");
 
-										if (httpEventInfo.RequestBodyField == null && httpEventInfo.RequestNormalFields.Count == 0)
+									if (httpEventInfo.RequestBodyField == null && httpEventInfo.RequestNormalFields.Count == 0)
+									{
+										if (httpEventInfo.RequestHeaderFields.Count != 0)
+											code.WriteLine("headers: {},");
+									}
+									else
+									{
+										code.WriteLine("headers: { 'Content-Type': 'application/json' },");
+
+										if (httpEventInfo.RequestBodyField != null)
 										{
-											if (httpEventInfo.RequestHeaderFields.Count != 0)
-												code.WriteLine("headers: {},");
+											code.WriteLine($"body: JSON.stringify(request.{httpEventInfo.RequestBodyField.ServiceField.Name})");
+										}
+										else if (httpEventInfo.ServiceMethod.RequestFields.Count == httpEventInfo.RequestNormalFields.Count)
+										{
+											code.WriteLine("body: JSON.stringify(request)");
 										}
 										else
 										{
-											code.WriteLine("headers: { 'Content-Type': 'application/json' },");
-
-											if (httpEventInfo.RequestBodyField != null)
+											using (code.Block("body: JSON.stringify({", "})"))
 											{
-												code.WriteLine($"body: JSON.stringify(request.{httpEventInfo.RequestBodyField.ServiceField.Name})");
-											}
-											else if (httpEventInfo.ServiceMethod.RequestFields.Count == httpEventInfo.RequestNormalFields.Count)
-											{
-												code.WriteLine("body: JSON.stringify(request)");
-											}
-											else
-											{
-												using (code.Block("body: JSON.stringify({", "})"))
+												for (var httpFieldIndex = 0; httpFieldIndex < httpEventInfo.RequestNormalFields.Count; httpFieldIndex++)
 												{
-													for (var httpFieldIndex = 0; httpFieldIndex < httpEventInfo.RequestNormalFields.Count; httpFieldIndex++)
-													{
-														var httpFieldInfo = httpEventInfo.RequestNormalFields[httpFieldIndex];
-														var isLastField = httpFieldIndex == httpEventInfo.RequestNormalFields.Count - 1;
-														var fieldName = httpFieldInfo.ServiceField.Name;
-														code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
-													}
+													var httpFieldInfo = httpEventInfo.RequestNormalFields[httpFieldIndex];
+													var isLastField = httpFieldIndex == httpEventInfo.RequestNormalFields.Count - 1;
+													var fieldName = httpFieldInfo.ServiceField.Name;
+													code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
 												}
 											}
 										}
 									}
-
-									if (httpEventInfo.RequestHeaderFields.Count != 0)
-									{
-										foreach (var httpHeaderField in httpEventInfo.RequestHeaderFields)
-										{
-											using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
-												code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
-										}
-									}
-
-									code.WriteLine("return createFetchEventStream" + IfTypeScript($"<I{capEventName}Response>") + "(this._fetch, this._baseUri + uri, fetchRequest, context);");
 								}
+
+								if (httpEventInfo.RequestHeaderFields.Count != 0)
+								{
+									foreach (var httpHeaderField in httpEventInfo.RequestHeaderFields)
+									{
+										using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
+											code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
+									}
+								}
+
+								code.WriteLine("return createFetchEventStream" + IfTypeScript($"<I{capEventName}Response>") + "(this._fetch, this._baseUri + uri, fetchRequest, context);");
 							}
 						}
 
@@ -488,23 +479,11 @@ namespace Facility.CodeGen.JavaScript
 						}
 					}
 
-					// Generate SSE utility functions if there are events
+					// Generate SSE utility function if there are events
 					if (httpServiceInfo.Events.Count > 0)
 					{
-						var hasGetEvents = httpServiceInfo.Events.Any(e => e.Method == "GET");
-						var hasNonGetEvents = httpServiceInfo.Events.Any(e => e.Method != "GET");
-
-						if (hasGetEvents)
-						{
-							code.WriteLine();
-							WriteEventSourceStreamHelper(code);
-						}
-
-						if (hasNonGetEvents)
-						{
-							code.WriteLine();
-							WriteFetchEventStreamHelper(code);
-						}
+						code.WriteLine();
+						WriteFetchEventStreamHelper(code);
 					}
 				}));
 			}
@@ -1401,122 +1380,6 @@ namespace Facility.CodeGen.JavaScript
 			}
 
 			return false;
-		}
-
-		private void WriteEventSourceStreamHelper(CodeWriter code)
-		{
-			WriteJsDoc(code, "Creates an async iterable stream from an EventSource connection.");
-			using (code.Block("function createEventSourceStream" + IfTypeScript("<T>") + "(url" + IfTypeScript(": string") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript(": Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>") + " {", "}"))
-			{
-				using (code.Block("return new Promise((resolve, reject) => {", "});"))
-				{
-					using (code.Block("try {", "}"))
-					{
-						code.WriteLine("const eventSource = new EventSource(url);");
-						code.WriteLine("let isResolved = false;");
-						code.WriteLine();
-
-						using (code.Block("const asyncIterable" + IfTypeScript(": AsyncIterable<IServiceResult<T>>") + " = {", "};"))
-						{
-							using (code.Block(IfTypeScript("[Symbol.asyncIterator]() {") + (!TypeScript ? "[Symbol.asyncIterator]: function() {" : ""), "}"))
-							{
-								code.WriteLine("const queue" + IfTypeScript(": Array<IServiceResult<T>>") + " = [];");
-								code.WriteLine("let resolveNext" + IfTypeScript(": ((value: IteratorResult<IServiceResult<T>>) => void) | null") + " = null;");
-								code.WriteLine("let isDone = false;");
-								code.WriteLine("let error" + IfTypeScript(": any") + " = null;");
-								code.WriteLine();
-
-								using (code.Block("eventSource.addEventListener('message', (event" + IfTypeScript(": MessageEvent") + ") => {", "});"))
-								{
-									using (code.Block("try {", "}"))
-									{
-										code.WriteLine("const data = JSON.parse(event.data)" + IfTypeScript(" as T") + ";");
-										code.WriteLine("const result" + IfTypeScript(": IServiceResult<T>") + " = { value: data };");
-										using (code.Block("if (resolveNext) {", "}"))
-										{
-											code.WriteLine("resolveNext({ value: result, done: false });");
-											code.WriteLine("resolveNext = null;");
-										}
-										using (code.Block("else {", "}"))
-										{
-											code.WriteLine("queue.push(result);");
-										}
-									}
-									using (code.Block("catch (parseError) {", "}"))
-									{
-										code.WriteLine("const errorResult" + IfTypeScript(": IServiceResult<T>") + " = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };");
-										using (code.Block("if (resolveNext) {", "}"))
-										{
-											code.WriteLine("resolveNext({ value: errorResult, done: false });");
-											code.WriteLine("resolveNext = null;");
-										}
-										using (code.Block("else {", "}"))
-										{
-											code.WriteLine("queue.push(errorResult);");
-										}
-									}
-								}
-
-								code.WriteLine();
-								using (code.Block("eventSource.addEventListener('error', (event" + IfTypeScript(": Event") + ") => {", "});"))
-								{
-									code.WriteLine("isDone = true;");
-									code.WriteLine("error = event;");
-									code.WriteLine("eventSource.close();");
-									using (code.Block("if (resolveNext) {", "}"))
-									{
-										code.WriteLine("resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });");
-										code.WriteLine("resolveNext = null;");
-									}
-								}
-
-								code.WriteLine();
-								using (code.Block("return {", "};"))
-								{
-									using (code.Block(IfTypeScript("async next() {") + (!TypeScript ? "next: async function() {" : ""), "}"))
-									{
-										using (code.Block("if (queue.length > 0) {", "}"))
-										{
-											code.WriteLine("return { value: queue.shift()" + IfTypeScript("!") + ", done: false };");
-										}
-										using (code.Block("if (isDone) {", "}"))
-										{
-											using (code.Block("if (error) {", "}"))
-											{
-												code.WriteLine("return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };");
-											}
-											code.WriteLine("return { value: undefined" + IfTypeScript(" as any") + ", done: true };");
-										}
-										using (code.Block("return new Promise((res) => {", "});"))
-										{
-											code.WriteLine("resolveNext = res;");
-										}
-									}
-									if (!TypeScript)
-										code.WriteLine(",");
-									using (code.Block(IfTypeScript("async return() {") + (!TypeScript ? "return: async function() {" : ""), "}"))
-									{
-										code.WriteLine("eventSource.close();");
-										code.WriteLine("isDone = true;");
-										code.WriteLine("return { value: undefined" + IfTypeScript(" as any") + ", done: true };");
-									}
-								}
-							}
-						}
-
-						code.WriteLine();
-						code.WriteLine("isResolved = true;");
-						code.WriteLine("resolve({ value: asyncIterable });");
-					}
-					using (code.Block("catch (err) {", "}"))
-					{
-						using (code.Block("if (!isResolved) {", "}"))
-						{
-							code.WriteLine("reject(err);");
-						}
-					}
-				}
-			}
 		}
 
 		private void WriteFetchEventStreamHelper(CodeWriter code)

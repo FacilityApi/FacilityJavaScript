@@ -610,61 +610,89 @@ export class ConformanceApiHttpClient implements IConformanceApi {
     if (query.length) {
       uri = uri + '?' + query.join('&');
     }
-    const url = this._baseUri + uri;
-    return createEventSourceStream<IFibonacciResponse>(url, context);
+    const fetchRequest: IFetchRequest = {
+      method: 'GET',
+    };
+    return createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);
   }
 
   private _fetch: IFetch;
   private _baseUri: string;
 }
 
-/** Creates an async iterable stream from an EventSource connection. */
-function createEventSourceStream<T>(url: string, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>> {
-  return new Promise((resolve, reject) => {
-    try {
-      const eventSource = new EventSource(url);
-      let isResolved = false;
+/** Creates an async iterable stream from a fetch SSE response. */
+function createFetchEventStream<T>(fetchFunc: IFetch, url: string, fetchRequest: IFetchRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>> {
+  return new Promise((outerResolve, outerReject) => {
+    fetchFunc(url, fetchRequest, context).then(response => {
+      if (!response.ok) {
+        outerReject(new Error(`HTTP error! status: ${response.status}`));
+        return;
+      }
+      if (!response.body) {
+        outerReject(new Error('Response body is null'));
+        return;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
       const asyncIterable: AsyncIterable<IServiceResult<T>> = {
         [Symbol.asyncIterator]() {
           const queue: Array<IServiceResult<T>> = [];
           let resolveNext: ((value: IteratorResult<IServiceResult<T>>) => void) | null = null;
           let isDone = false;
-          let error: any = null;
 
-          eventSource.addEventListener('message', (event: MessageEvent) => {
-            try {
-              const data = JSON.parse(event.data) as T;
-              const result: IServiceResult<T> = { value: data };
-              if (resolveNext) {
-                resolveNext({ value: result, done: false });
-                resolveNext = null;
+          const processLine = (line: string) => {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              try {
+                const parsed = JSON.parse(data) as T;
+                const result: IServiceResult<T> = { value: parsed };
+                if (resolveNext) {
+                  resolveNext({ value: result, done: false });
+                  resolveNext = null;
+                }
+                else {
+                  queue.push(result);
+                }
               }
-              else {
-                queue.push(result);
+              catch (parseError) {
+                const errorResult: IServiceResult<T> = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data' } };
+                if (resolveNext) {
+                  resolveNext({ value: errorResult, done: false });
+                  resolveNext = null;
+                }
+                else {
+                  queue.push(errorResult);
+                }
               }
             }
-            catch (parseError) {
-              const errorResult: IServiceResult<T> = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };
-              if (resolveNext) {
-                resolveNext({ value: errorResult, done: false });
-                resolveNext = null;
-              }
-              else {
-                queue.push(errorResult);
-              }
-            }
-          });
+          };
 
-          eventSource.addEventListener('error', (event: Event) => {
-            isDone = true;
-            error = event;
-            eventSource.close();
-            if (resolveNext) {
-              resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });
-              resolveNext = null;
-            }
-          });
+          const readStream = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                isDone = true;
+                if (resolveNext) {
+                  resolveNext({ value: undefined as any, done: true });
+                }
+                return;
+              }
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              for (const line of lines) {
+                processLine(line);
+              }
+              readStream();
+            }).catch(() => {
+              isDone = true;
+              if (resolveNext) {
+                resolveNext({ value: { error: { code: 'InternalError', message: 'Stream read error' } }, done: false });
+              }
+            });
+          };
+          readStream();
 
           return {
             async next() {
@@ -672,9 +700,6 @@ function createEventSourceStream<T>(url: string, context?: unknown): Promise<ISe
                 return { value: queue.shift()!, done: false };
               }
               if (isDone) {
-                if (error) {
-                  return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };
-                }
                 return { value: undefined as any, done: true };
               }
               return new Promise((res) => {
@@ -682,21 +707,16 @@ function createEventSourceStream<T>(url: string, context?: unknown): Promise<ISe
               });
             }
             async return() {
-              eventSource.close();
+              reader.cancel();
               isDone = true;
               return { value: undefined as any, done: true };
             }
           };
         }
       };
-
-      isResolved = true;
-      resolve({ value: asyncIterable });
-    }
-    catch (err) {
-      if (!isResolved) {
-        reject(err);
-      }
-    }
+      outerResolve({ value: asyncIterable });
+    }).catch(err => {
+      outerReject(err);
+    });
   });
 }

@@ -607,58 +607,86 @@ export class JsConformanceApiHttpClient {
     if (query.length) {
       uri = uri + '?' + query.join('&');
     }
-    const url = this._baseUri + uri;
-    return createEventSourceStream(url, context);
+    const fetchRequest = {
+      method: 'GET',
+    };
+    return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);
   }
 }
 
-/** Creates an async iterable stream from an EventSource connection. */
-function createEventSourceStream(url, context) {
-  return new Promise((resolve, reject) => {
-    try {
-      const eventSource = new EventSource(url);
-      let isResolved = false;
+/** Creates an async iterable stream from a fetch SSE response. */
+function createFetchEventStream(fetchFunc, url, fetchRequest, context) {
+  return new Promise((outerResolve, outerReject) => {
+    fetchFunc(url, fetchRequest, context).then(response => {
+      if (!response.ok) {
+        outerReject(new Error(`HTTP error! status: ${response.status}`));
+        return;
+      }
+      if (!response.body) {
+        outerReject(new Error('Response body is null'));
+        return;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
       const asyncIterable = {
         [Symbol.asyncIterator]: function() {
           const queue = [];
           let resolveNext = null;
           let isDone = false;
-          let error = null;
 
-          eventSource.addEventListener('message', (event) => {
-            try {
-              const data = JSON.parse(event.data);
-              const result = { value: data };
-              if (resolveNext) {
-                resolveNext({ value: result, done: false });
-                resolveNext = null;
+          const processLine = (line) => {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              try {
+                const parsed = JSON.parse(data);
+                const result = { value: parsed };
+                if (resolveNext) {
+                  resolveNext({ value: result, done: false });
+                  resolveNext = null;
+                }
+                else {
+                  queue.push(result);
+                }
               }
-              else {
-                queue.push(result);
+              catch (parseError) {
+                const errorResult = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data' } };
+                if (resolveNext) {
+                  resolveNext({ value: errorResult, done: false });
+                  resolveNext = null;
+                }
+                else {
+                  queue.push(errorResult);
+                }
               }
             }
-            catch (parseError) {
-              const errorResult = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data', details: { parseError } } };
-              if (resolveNext) {
-                resolveNext({ value: errorResult, done: false });
-                resolveNext = null;
-              }
-              else {
-                queue.push(errorResult);
-              }
-            }
-          });
+          };
 
-          eventSource.addEventListener('error', (event) => {
-            isDone = true;
-            error = event;
-            eventSource.close();
-            if (resolveNext) {
-              resolveNext({ value: { error: { code: 'InternalError', message: 'EventSource error', details: { event } } }, done: false });
-              resolveNext = null;
-            }
-          });
+          const readStream = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                isDone = true;
+                if (resolveNext) {
+                  resolveNext({ value: undefined, done: true });
+                }
+                return;
+              }
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              for (const line of lines) {
+                processLine(line);
+              }
+              readStream();
+            }).catch(() => {
+              isDone = true;
+              if (resolveNext) {
+                resolveNext({ value: { error: { code: 'InternalError', message: 'Stream read error' } }, done: false });
+              }
+            });
+          };
+          readStream();
 
           return {
             next: async function() {
@@ -666,9 +694,6 @@ function createEventSourceStream(url, context) {
                 return { value: queue.shift(), done: false };
               }
               if (isDone) {
-                if (error) {
-                  return { value: { error: { code: 'InternalError', message: 'EventSource error' } }, done: false };
-                }
                 return { value: undefined, done: true };
               }
               return new Promise((res) => {
@@ -677,21 +702,16 @@ function createEventSourceStream(url, context) {
             }
             ,
             return: async function() {
-              eventSource.close();
+              reader.cancel();
               isDone = true;
               return { value: undefined, done: true };
             }
           };
         }
       };
-
-      isResolved = true;
-      resolve({ value: asyncIterable });
-    }
-    catch (err) {
-      if (!isResolved) {
-        reject(err);
-      }
-    }
+      outerResolve({ value: asyncIterable });
+    }).catch(err => {
+      outerReject(err);
+    });
   });
 }

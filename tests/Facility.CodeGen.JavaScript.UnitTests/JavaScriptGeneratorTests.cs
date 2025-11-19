@@ -469,8 +469,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
 			Assert.That(apiFile.Text, Does.Contain("public fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>>"));
-			Assert.That(apiFile.Text, Does.Contain("return createEventSourceStream<IFibonacciResponse>(url, context);"));
-			Assert.That(apiFile.Text, Does.Contain("function createEventSourceStream<T>(url: string, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream<T>(fetchFunc: IFetch, url: string, fetchRequest: IFetchRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>"));
 		}
 
 		[Test]
@@ -494,8 +494,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			var apiFile = result.Files.Single(f => f.Name == "testApi.js");
 			Assert.That(apiFile.Text, Does.Contain("fibonacci(request, context)"));
-			Assert.That(apiFile.Text, Does.Contain("return createEventSourceStream(url, context);"));
-			Assert.That(apiFile.Text, Does.Contain("function createEventSourceStream(url, context)"));
+			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream(fetchFunc, url, fetchRequest, context)"));
 			Assert.That(apiFile.Text, Does.Contain("[Symbol.asyncIterator]: function()"));
 		}
 
