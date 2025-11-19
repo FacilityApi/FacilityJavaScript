@@ -4,7 +4,7 @@ These are `facility-core` npm package releases. See also [Release Notes](Release
 
 ## 2.3.0
 
-* Add `HttpClientUtility.createFetchEventStream` for Server-Sent Events support.
+* Add support for Server-Sent Events.
 
 ## 2.2.0
 
