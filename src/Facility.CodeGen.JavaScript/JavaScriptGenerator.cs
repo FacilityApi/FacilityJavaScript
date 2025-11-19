@@ -158,7 +158,7 @@ namespace Facility.CodeGen.JavaScript
 					var facilityImports = new List<string> { "HttpClientUtility" };
 					if (TypeScript)
 					{
-						if (httpServiceInfo.Methods.Any())
+						if (httpServiceInfo.Methods.Any() || httpServiceInfo.Events.Any())
 							facilityImports.Add("IServiceResult");
 						facilityImports.Add("IHttpClientOptions");
 					}
@@ -176,7 +176,10 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine($"return new {capModuleName}HttpClient(options);");
 
 					code.WriteLine();
-					code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
+					var utilityImports = new List<string> { "fetchResponse", "createResponseError", "createRequiredRequestFieldError" };
+					if (httpServiceInfo.Events.Count > 0)
+						utilityImports.Add("createFetchEventStream");
+					code.WriteLine($"const {{ {string.Join(", ", utilityImports)} }} = HttpClientUtility;");
 					if (TypeScript)
 					{
 						code.WriteLine("type IFetch = HttpClientUtility.IFetch;");
@@ -467,7 +470,7 @@ namespace Facility.CodeGen.JavaScript
 									}
 								}
 
-								code.WriteLine("return createFetchEventStream" + IfTypeScript($"<I{capEventName}Response>") + "(this._fetch, this._baseUri + uri, fetchRequest, context);");
+								code.WriteLine("return " + (TypeScript ? "HttpClientUtility." : "") + "createFetchEventStream" + IfTypeScript($"<I{capEventName}Response>") + "(this._fetch, this._baseUri + uri, fetchRequest, context);");
 							}
 						}
 
@@ -477,13 +480,6 @@ namespace Facility.CodeGen.JavaScript
 							code.WriteLine("private _fetch: IFetch;");
 							code.WriteLine("private _baseUri: string;");
 						}
-					}
-
-					// Generate SSE utility function if there are events
-					if (httpServiceInfo.Events.Count > 0)
-					{
-						code.WriteLine();
-						WriteFetchEventStreamHelper(code);
 					}
 				}));
 			}

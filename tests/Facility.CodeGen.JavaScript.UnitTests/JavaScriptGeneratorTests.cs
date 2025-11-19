@@ -469,8 +469,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
 			Assert.That(apiFile.Text, Does.Contain("public fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>>"));
-			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
-			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream<T>(fetchFunc: IFetch, url: string, fetchRequest: IFetchRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return HttpClientUtility.createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
 		}
 
 		[Test]
@@ -495,8 +495,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			var apiFile = result.Files.Single(f => f.Name == "testApi.js");
 			Assert.That(apiFile.Text, Does.Contain("fibonacci(request, context)"));
 			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);"));
-			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream(fetchFunc, url, fetchRequest, context)"));
-			Assert.That(apiFile.Text, Does.Contain("[Symbol.asyncIterator]: function()"));
+			Assert.That(apiFile.Text, Does.Contain("const { fetchResponse, createResponseError, createRequiredRequestFieldError, createFetchEventStream } = HttpClientUtility;"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
 		}
 
 		[Test]
@@ -520,8 +520,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
 			Assert.That(apiFile.Text, Does.Contain("public postEvent(request: IPostEventRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IPostEventResponse>>>>"));
-			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream<IPostEventResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
-			Assert.That(apiFile.Text, Does.Contain("function createFetchEventStream<T>(fetchFunc: IFetch, url: string, fetchRequest: IFetchRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return HttpClientUtility.createFetchEventStream<IPostEventResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
 		}
 
 		private void ThrowsServiceDefinitionException(string definition, string message)

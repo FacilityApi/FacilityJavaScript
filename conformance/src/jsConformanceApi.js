@@ -9,7 +9,7 @@ export function createHttpClient(options) {
   return new JsConformanceApiHttpClient(options);
 }
 
-const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
+const { fetchResponse, createResponseError, createRequiredRequestFieldError, createFetchEventStream } = HttpClientUtility;
 
 function parseBoolean(value) {
   if (typeof value === 'string') {
@@ -612,106 +612,4 @@ export class JsConformanceApiHttpClient {
     };
     return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);
   }
-}
-
-/** Creates an async iterable stream from a fetch SSE response. */
-function createFetchEventStream(fetchFunc, url, fetchRequest, context) {
-  return new Promise((outerResolve, outerReject) => {
-    fetchFunc(url, fetchRequest, context).then(response => {
-      if (!response.ok) {
-        outerReject(new Error(`HTTP error! status: ${response.status}`));
-        return;
-      }
-      if (!response.body) {
-        outerReject(new Error('Response body is null'));
-        return;
-      }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      const asyncIterable = {
-        [Symbol.asyncIterator]: function() {
-          const queue = [];
-          let resolveNext = null;
-          let isDone = false;
-
-          const processLine = (line) => {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              try {
-                const parsed = JSON.parse(data);
-                const result = { value: parsed };
-                if (resolveNext) {
-                  resolveNext({ value: result, done: false });
-                  resolveNext = null;
-                }
-                else {
-                  queue.push(result);
-                }
-              }
-              catch (parseError) {
-                const errorResult = { error: { code: 'InvalidResponse', message: 'Failed to parse SSE data' } };
-                if (resolveNext) {
-                  resolveNext({ value: errorResult, done: false });
-                  resolveNext = null;
-                }
-                else {
-                  queue.push(errorResult);
-                }
-              }
-            }
-          };
-
-          const readStream = () => {
-            reader.read().then(({ done, value }) => {
-              if (done) {
-                isDone = true;
-                if (resolveNext) {
-                  resolveNext({ value: undefined, done: true });
-                }
-                return;
-              }
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop() || '';
-              for (const line of lines) {
-                processLine(line);
-              }
-              readStream();
-            }).catch(() => {
-              isDone = true;
-              if (resolveNext) {
-                resolveNext({ value: { error: { code: 'InternalError', message: 'Stream read error' } }, done: false });
-              }
-            });
-          };
-          readStream();
-
-          return {
-            next: async function() {
-              if (queue.length > 0) {
-                return { value: queue.shift(), done: false };
-              }
-              if (isDone) {
-                return { value: undefined, done: true };
-              }
-              return new Promise((res) => {
-                resolveNext = res;
-              });
-            }
-            ,
-            return: async function() {
-              reader.cancel();
-              isDone = true;
-              return { value: undefined, done: true };
-            }
-          };
-        }
-      };
-      outerResolve({ value: asyncIterable });
-    }).catch(err => {
-      outerReject(err);
-    });
-  });
 }
