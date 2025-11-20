@@ -443,6 +443,87 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(serverFile.Text, Does.Contain("export * from './testApiTypes.g';"));
 		}
 
+		[Test]
+		public void GenerateExampleApiTypeScript_IncludesEvents()
+		{
+			const string definition = """
+				service TestApi {
+					[http(method: GET)]
+					event fibonacci {
+						count: int32!;
+					}: {
+						value: int32!;
+					}
+				}
+				""";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.Contain("fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>>;"));
+			Assert.That(typesFile.Text, Does.Contain("export interface IFibonacciRequest"));
+			Assert.That(typesFile.Text, Does.Contain("export interface IFibonacciResponse"));
+
+			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
+			Assert.That(apiFile.Text, Does.Contain("public fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return HttpClientUtility.createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
+		}
+
+		[Test]
+		public void GenerateExampleApiJavaScript_IncludesEvents()
+		{
+			const string definition = """
+				service TestApi {
+					[http(method: GET)]
+					event fibonacci {
+						count: int32!;
+					}: {
+						value: int32!;
+					}
+				}
+				""";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = false };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var apiFile = result.Files.Single(f => f.Name == "testApi.js");
+			Assert.That(apiFile.Text, Does.Contain("fibonacci(request, context)"));
+			Assert.That(apiFile.Text, Does.Contain("return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Contain("const { fetchResponse, createResponseError, createRequiredRequestFieldError, createFetchEventStream } = HttpClientUtility;"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
+		}
+
+		[Test]
+		public void GenerateExampleApiTypeScript_EventsWithPostMethod()
+		{
+			const string definition = """
+				service TestApi {
+					[http(method: POST)]
+					event postEvent {
+						count: int32!;
+					}: {
+						value: int32!;
+					}
+				}
+				""";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator { GeneratorName = "JavaScriptGeneratorTests", TypeScript = true };
+			var result = generator.GenerateOutput(service);
+			Assert.That(result, Is.Not.Null);
+
+			var apiFile = result.Files.Single(f => f.Name == "testApi.ts");
+			Assert.That(apiFile.Text, Does.Contain("public postEvent(request: IPostEventRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IPostEventResponse>>>>"));
+			Assert.That(apiFile.Text, Does.Contain("return HttpClientUtility.createFetchEventStream<IPostEventResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);"));
+			Assert.That(apiFile.Text, Does.Not.Contain("function createFetchEventStream"));
+		}
+
 		private void ThrowsServiceDefinitionException(string definition, string message)
 		{
 			var parser = CreateParser();

@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 import { HttpClientUtility, IServiceResult, IHttpClientOptions } from 'facility-core';
-import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from './conformanceApiTypes';
+import { IConformanceApi, IGetApiInfoRequest, IGetApiInfoResponse, IGetWidgetsRequest, IGetWidgetsResponse, ICreateWidgetRequest, ICreateWidgetResponse, IGetWidgetRequest, IGetWidgetResponse, IDeleteWidgetRequest, IDeleteWidgetResponse, IGetWidgetBatchRequest, IGetWidgetBatchResponse, IMirrorFieldsRequest, IMirrorFieldsResponse, ICheckQueryRequest, ICheckQueryResponse, ICheckPathRequest, ICheckPathResponse, IMirrorHeadersRequest, IMirrorHeadersResponse, IMixedRequest, IMixedResponse, IRequiredRequest, IRequiredResponse, IMirrorBytesRequest, IMirrorBytesResponse, IMirrorTextRequest, IMirrorTextResponse, IBodyTypesRequest, IBodyTypesResponse, IFibonacciRequest, IFibonacciResponse, IWidget, IAny, IAnyArray, IAnyMap, IAnyResult, IAnyNullable, IHasWidget, Answer, ApiErrors } from './conformanceApiTypes';
 export * from './conformanceApiTypes';
 
 /** Provides access to ConformanceApi over HTTP via fetch. */
@@ -10,7 +10,7 @@ export function createHttpClient(options: IHttpClientOptions): IConformanceApi {
   return new ConformanceApiHttpClient(options);
 }
 
-const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
+const { fetchResponse, createResponseError, createRequiredRequestFieldError, createFetchEventStream } = HttpClientUtility;
 type IFetch = HttpClientUtility.IFetch;
 type IFetchRequest = HttpClientUtility.IFetchRequest;
 
@@ -601,6 +601,19 @@ export class ConformanceApiHttpClient implements IConformanceApi {
         }
         return { value: value };
       });
+  }
+
+  public fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>> {
+    let uri = 'fibonacci';
+    const query: string[] = [];
+    request.count == null || query.push('count=' + request.count.toString());
+    if (query.length) {
+      uri = uri + '?' + query.join('&');
+    }
+    const fetchRequest: IFetchRequest = {
+      method: 'GET',
+    };
+    return HttpClientUtility.createFetchEventStream<IFibonacciResponse>(this._fetch, this._baseUri + uri, fetchRequest, context);
   }
 
   private _fetch: IFetch;

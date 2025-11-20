@@ -123,11 +123,14 @@ namespace Facility.CodeGen.JavaScript
 				{
 					WriteFileHeader(code);
 
-					var allFields = service.Dtos.SelectMany(x => x.Fields).Concat(service.Methods.SelectMany(x => x.RequestFields.Concat(x.ResponseFields))).ToList();
+					var allFields = service.Dtos.SelectMany(x => x.Fields)
+						.Concat(service.Methods.SelectMany(x => x.RequestFields.Concat(x.ResponseFields)))
+						.Concat(service.Events.SelectMany(x => x.RequestFields.Concat(x.ResponseFields)))
+						.ToList();
 
 					code.WriteLine();
 					var facilityImports = new List<string>();
-					if (httpServiceInfo.Methods.Any() || allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Result)))
+					if (httpServiceInfo.Methods.Any() || httpServiceInfo.Events.Any() || allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Result)))
 						facilityImports.Add("IServiceResult");
 					if (allFields.Any(x => FieldUsesKind(service, x, ServiceTypeKind.Error)))
 						facilityImports.Add("IServiceError");
@@ -155,7 +158,7 @@ namespace Facility.CodeGen.JavaScript
 					var facilityImports = new List<string> { "HttpClientUtility" };
 					if (TypeScript)
 					{
-						if (httpServiceInfo.Methods.Any())
+						if (httpServiceInfo.Methods.Any() || httpServiceInfo.Events.Any())
 							facilityImports.Add("IServiceResult");
 						facilityImports.Add("IHttpClientOptions");
 					}
@@ -173,7 +176,10 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine($"return new {capModuleName}HttpClient(options);");
 
 					code.WriteLine();
-					code.WriteLine("const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;");
+					var utilityImports = new List<string> { "fetchResponse", "createResponseError", "createRequiredRequestFieldError" };
+					if (httpServiceInfo.Events.Count > 0)
+						utilityImports.Add("createFetchEventStream");
+					code.WriteLine($"const {{ {string.Join(", ", utilityImports)} }} = HttpClientUtility;");
 					if (TypeScript)
 					{
 						code.WriteLine("type IFetch = HttpClientUtility.IFetch;");
@@ -375,6 +381,96 @@ namespace Facility.CodeGen.JavaScript
 
 									code.WriteLine("return { value: value };");
 								}
+							}
+						}
+
+						foreach (var httpEventInfo in httpServiceInfo.Events)
+						{
+							var eventName = httpEventInfo.ServiceMethod.Name;
+							var capEventName = CodeGenUtility.Capitalize(eventName);
+
+							code.WriteLine();
+							WriteJsDoc(code, httpEventInfo.ServiceMethod);
+							using (code.Block(IfTypeScript("public ") + $"{eventName}(request" + IfTypeScript($": I{capEventName}Request") + ", context" + IfTypeScript("?: unknown") + ")" + IfTypeScript($": Promise<IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>>") + " {", "}"))
+							{
+								var hasPathFields = httpEventInfo.PathFields.Count != 0;
+								var jsUriDelim = hasPathFields ? "`" : "'";
+#if !NETSTANDARD2_0
+								var jsUri = string.Concat(jsUriDelim, httpEventInfo.Path.AsSpan(1), jsUriDelim);
+#else
+								var jsUri = jsUriDelim + httpEventInfo.Path.Substring(1) + jsUriDelim;
+#endif
+								if (hasPathFields)
+								{
+									foreach (var httpPathField in httpEventInfo.PathFields)
+									{
+										code.WriteLine($"const uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)} = request.{httpPathField.ServiceField.Name} != null && {RenderUriComponent(httpPathField.ServiceField, service)};");
+										using (code.Block($"if (!uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}) {{", "}"))
+											code.WriteLine($"return Promise.resolve({{ error: createRequiredRequestFieldError('{httpPathField.ServiceField.Name}').error }}" + IfTypeScript($" as IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>") + ");");
+									}
+									foreach (var httpPathField in httpEventInfo.PathFields)
+										jsUri = ReplaceOrdinal(jsUri, "{" + httpPathField.Name + "}", $"${{uriPart{CodeGenUtility.Capitalize(httpPathField.ServiceField.Name)}}}");
+								}
+
+								var hasQueryFields = httpEventInfo.QueryFields.Count != 0;
+								code.WriteLine((hasQueryFields ? "let" : "const") + $" uri = {jsUri};");
+								if (hasQueryFields)
+								{
+									code.WriteLine("const query" + IfTypeScript(": string[]") + " = [];");
+									foreach (var httpQueryField in httpEventInfo.QueryFields)
+										code.WriteLine($"request.{httpQueryField.ServiceField.Name} == null || query.push('{httpQueryField.Name}=' + {RenderUriComponent(httpQueryField.ServiceField, service)});");
+									using (code.Block("if (query.length) {", "}"))
+										code.WriteLine("uri = uri + '?' + query.join('&');");
+								}
+
+								// Build fetch request for all HTTP methods
+								using (code.Block("const fetchRequest" + IfTypeScript(": IFetchRequest") + " = {", "};"))
+								{
+									code.WriteLine($"method: '{httpEventInfo.Method}',");
+
+									if (httpEventInfo.RequestBodyField == null && httpEventInfo.RequestNormalFields.Count == 0)
+									{
+										if (httpEventInfo.RequestHeaderFields.Count != 0)
+											code.WriteLine("headers: {},");
+									}
+									else
+									{
+										code.WriteLine("headers: { 'Content-Type': 'application/json' },");
+
+										if (httpEventInfo.RequestBodyField != null)
+										{
+											code.WriteLine($"body: JSON.stringify(request.{httpEventInfo.RequestBodyField.ServiceField.Name})");
+										}
+										else if (httpEventInfo.ServiceMethod.RequestFields.Count == httpEventInfo.RequestNormalFields.Count)
+										{
+											code.WriteLine("body: JSON.stringify(request)");
+										}
+										else
+										{
+											using (code.Block("body: JSON.stringify({", "})"))
+											{
+												for (var httpFieldIndex = 0; httpFieldIndex < httpEventInfo.RequestNormalFields.Count; httpFieldIndex++)
+												{
+													var httpFieldInfo = httpEventInfo.RequestNormalFields[httpFieldIndex];
+													var isLastField = httpFieldIndex == httpEventInfo.RequestNormalFields.Count - 1;
+													var fieldName = httpFieldInfo.ServiceField.Name;
+													code.WriteLine(fieldName + ": request." + fieldName + (isLastField ? "" : ","));
+												}
+											}
+										}
+									}
+								}
+
+								if (httpEventInfo.RequestHeaderFields.Count != 0)
+								{
+									foreach (var httpHeaderField in httpEventInfo.RequestHeaderFields)
+									{
+										using (code.Block($"if (request.{httpHeaderField.ServiceField.Name} != null) {{", "}"))
+											code.WriteLine("fetchRequest.headers" + IfTypeScript("!") + $"['{httpHeaderField.Name}'] = {RenderFieldValue(httpHeaderField.ServiceField, service, $"request.{httpHeaderField.ServiceField.Name}")};");
+									}
+								}
+
+								code.WriteLine("return " + (TypeScript ? "HttpClientUtility." : "") + "createFetchEventStream" + IfTypeScript($"<I{capEventName}Response>") + "(this._fetch, this._baseUri + uri, fetchRequest, context);");
 							}
 						}
 
@@ -1177,6 +1273,15 @@ namespace Facility.CodeGen.JavaScript
 					WriteJsDoc(code, httpMethodInfo.ServiceMethod);
 					code.WriteLine($"{methodName}(request: I{capMethodName}Request, context?: unknown): Promise<IServiceResult<I{capMethodName}Response>>;");
 				}
+
+				foreach (var httpEventInfo in httpServiceInfo.Events)
+				{
+					var eventName = httpEventInfo.ServiceMethod.Name;
+					var capEventName = CodeGenUtility.Capitalize(eventName);
+					code.WriteLineSkipOnce();
+					WriteJsDoc(code, httpEventInfo.ServiceMethod);
+					code.WriteLine($"{eventName}(request: I{capEventName}Request, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<I{capEventName}Response>>>>;");
+				}
 			}
 
 			foreach (var methodInfo in service.Methods)
@@ -1194,6 +1299,23 @@ namespace Facility.CodeGen.JavaScript
 					name: responseDtoName,
 					fields: methodInfo.ResponseFields,
 					summary: $"Response for {CodeGenUtility.Capitalize(methodInfo.Name)}."), service);
+			}
+
+			foreach (var eventInfo in service.Events)
+			{
+				var requestDtoName = $"{CodeGenUtility.Capitalize(eventInfo.Name)}Request";
+				typeNames.Add($"I{requestDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: requestDtoName,
+					fields: eventInfo.RequestFields,
+					summary: $"Request for {CodeGenUtility.Capitalize(eventInfo.Name)}."), service);
+
+				var responseDtoName = $"{CodeGenUtility.Capitalize(eventInfo.Name)}Response";
+				typeNames.Add($"I{responseDtoName}");
+				WriteDto(code, new ServiceDtoInfo(
+					name: responseDtoName,
+					fields: eventInfo.ResponseFields,
+					summary: $"Response for {CodeGenUtility.Capitalize(eventInfo.Name)}."), service);
 			}
 
 			foreach (var dtoInfo in service.Dtos)

@@ -874,6 +874,8 @@ export interface IConformanceApi {
   mirrorText(request: IMirrorTextRequest, context?: unknown): Promise<IServiceResult<IMirrorTextResponse>>;
 
   bodyTypes(request: IBodyTypesRequest, context?: unknown): Promise<IServiceResult<IBodyTypesResponse>>;
+
+  fibonacci(request: IFibonacciRequest, context?: unknown): Promise<IServiceResult<AsyncIterable<IServiceResult<IFibonacciResponse>>>>;
 }
 
 /** Request for GetApiInfo. */
@@ -1162,6 +1164,16 @@ export interface IBodyTypesRequest {
 /** Response for BodyTypes. */
 export interface IBodyTypesResponse {
   content?: string;
+}
+
+/** Request for Fibonacci. */
+export interface IFibonacciRequest {
+  count: number;
+}
+
+/** Response for Fibonacci. */
+export interface IFibonacciResponse {
+  value: number;
 }
 
 /** A widget. */

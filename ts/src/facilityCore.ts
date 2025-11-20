@@ -48,9 +48,11 @@ export namespace HttpClientUtility {
 	/** The minimal fetch response. */
 	export interface IFetchResponse {
 		status: number;
+		ok?: boolean;
 		headers: {
 			get(name: string): string | null;
 		};
+		body?: IWebReadableStream | INodeReadableStream | null;
 		json(): Promise<unknown>;
 	}
 
@@ -60,6 +62,23 @@ export namespace HttpClientUtility {
 		response: IFetchResponse;
 		/** The fetched JSON, if any. */
 		json?: unknown;
+	}
+
+	/** Web Streams API ReadableStream (browser). */
+	export interface IWebReadableStream {
+		getReader(): {
+			read(): Promise<{ done: boolean; value: Uint8Array }>;
+			cancel(): Promise<void>;
+		};
+	}
+
+	/** Node.js ReadableStream. */
+	export interface INodeReadableStream {
+		on(event: 'data', listener: (chunk: Uint8Array | ArrayBuffer) => void): void;
+		on(event: 'end', listener: () => void): void;
+		on(event: 'error', listener: (err: Error) => void): void;
+		off?(event: string, listener: (...args: unknown[]) => void): void;
+		removeAllListeners?(): void;
 	}
 
 	const standardErrorCodes: { [index: number]: string } = {
@@ -131,6 +150,167 @@ export namespace HttpClientUtility {
 			},
 		};
 	}
+
+	/** Creates an async iterable stream from a fetch SSE response. */
+	export function createFetchEventStream<T>(
+		fetchFunc: IFetch,
+		url: string,
+		fetchRequest: IFetchRequest,
+		context?: unknown
+	): Promise<IServiceResult<AsyncIterable<IServiceResult<T>>>> {
+		return new Promise((outerResolve, outerReject) => {
+			fetchFunc(url, fetchRequest, context)
+				.then((response) => {
+					if (!response.ok) {
+						outerReject(new Error(`HTTP error! status: ${response.status}`));
+						return;
+					}
+					if (!response.body) {
+						outerReject(new Error('Response body is null'));
+						return;
+					}
+
+					const body = response.body;
+
+					if (!isWebReadableStream(body) && !isNodeReadableStream(body)) {
+						outerReject(new Error('Response body is not a readable stream'));
+						return;
+					}
+
+					const asyncIterable: AsyncIterable<IServiceResult<T>> = {
+						[Symbol.asyncIterator]() {
+							const queue: Array<IServiceResult<T>> = [];
+							let resolveNext: ((value: IteratorResult<IServiceResult<T>>) => void) | null = null;
+							let isDone = false;
+							let buffer = '';
+							const decoder = new TextDecoder();
+
+							const processLine = (line: string) => {
+								if (line.startsWith('data: ')) {
+									const data = line.slice(6);
+									try {
+										const parsed = JSON.parse(data) as T;
+										const result: IServiceResult<T> = { value: parsed };
+										if (resolveNext) {
+											resolveNext({ value: result, done: false });
+											resolveNext = null;
+										} else {
+											queue.push(result);
+										}
+									} catch (parseError) {
+										const errorResult: IServiceResult<T> = {
+											error: { code: 'InvalidResponse', message: 'Failed to parse SSE data' },
+										};
+										if (resolveNext) {
+											resolveNext({ value: errorResult, done: false });
+											resolveNext = null;
+										} else {
+											queue.push(errorResult);
+										}
+									}
+								}
+							};
+
+							const processChunk = (chunk: Uint8Array) => {
+								buffer += decoder.decode(chunk, { stream: true });
+								const lines = buffer.split('\n');
+								buffer = lines.pop() || '';
+								for (const line of lines) {
+									processLine(line);
+								}
+							};
+
+							const handleError = () => {
+								isDone = true;
+								if (resolveNext) {
+									resolveNext({
+										value: {
+											error: { code: 'InternalError', message: 'Stream read error' },
+										},
+										done: false,
+									});
+								}
+							};
+
+							const handleEnd = () => {
+								isDone = true;
+								if (resolveNext) {
+									resolveNext({ value: undefined, done: true });
+								}
+							};
+
+							if (isWebReadableStream(body)) {
+								// Handle Web Streams (browser)
+								const reader = body.getReader();
+								const readStream = (): void => {
+									reader
+										.read()
+										.then(({ done, value }: { done: boolean; value: Uint8Array }) => {
+											if (done) {
+												handleEnd();
+												return;
+											}
+											processChunk(value);
+											readStream();
+										})
+										.catch(handleError);
+								};
+								readStream();
+							} else if (isNodeReadableStream(body)) {
+								// Handle Node.js Streams
+								body.on('data', (chunk: Uint8Array | ArrayBuffer) => {
+									const uint8Array = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
+									processChunk(uint8Array);
+								});
+								body.on('end', handleEnd);
+								body.on('error', handleError);
+							}
+
+							return {
+								async next() {
+									if (queue.length > 0) {
+										// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+										return { value: queue.shift()!, done: false };
+									}
+									if (isDone) {
+										return { value: undefined, done: true };
+									}
+									return new Promise((res) => {
+										resolveNext = res;
+									});
+								},
+								async return() {
+									isDone = true;
+									if (isWebReadableStream(body)) {
+										const reader = body.getReader();
+										reader.cancel();
+									} else if (isNodeReadableStream(body)) {
+										if (body.removeAllListeners) {
+											body.removeAllListeners();
+										}
+									}
+									return { value: undefined, done: true };
+								},
+							};
+						},
+					};
+					outerResolve({ value: asyncIterable });
+				})
+				.catch((err) => {
+					outerReject(err);
+				});
+		});
+	}
+}
+
+/** Type guard to check if a stream is a Web ReadableStream. */
+function isWebReadableStream(stream: unknown): stream is HttpClientUtility.IWebReadableStream {
+	return typeof (stream as HttpClientUtility.IWebReadableStream).getReader === 'function';
+}
+
+/** Type guard to check if a stream is a Node.js ReadableStream. */
+function isNodeReadableStream(stream: unknown): stream is HttpClientUtility.INodeReadableStream {
+	return typeof (stream as HttpClientUtility.INodeReadableStream).on === 'function';
 }
 
 function isServiceError(json: unknown): json is IServiceError {

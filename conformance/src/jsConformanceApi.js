@@ -9,7 +9,7 @@ export function createHttpClient(options) {
   return new JsConformanceApiHttpClient(options);
 }
 
-const { fetchResponse, createResponseError, createRequiredRequestFieldError } = HttpClientUtility;
+const { fetchResponse, createResponseError, createRequiredRequestFieldError, createFetchEventStream } = HttpClientUtility;
 
 function parseBoolean(value) {
   if (typeof value === 'string') {
@@ -598,5 +598,18 @@ export class JsConformanceApiHttpClient {
         }
         return { value: value };
       });
+  }
+
+  fibonacci(request, context) {
+    let uri = 'fibonacci';
+    const query = [];
+    request.count == null || query.push('count=' + request.count.toString());
+    if (query.length) {
+      uri = uri + '?' + query.join('&');
+    }
+    const fetchRequest = {
+      method: 'GET',
+    };
+    return createFetchEventStream(this._fetch, this._baseUri + uri, fetchRequest, context);
   }
 }

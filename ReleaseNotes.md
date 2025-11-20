@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.6.0
+
+* Add client support for events (Server-Sent Events).
+
 ## 3.5.0
 
 * Add option to omit generated HTTP client.
