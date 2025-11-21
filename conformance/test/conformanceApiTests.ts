@@ -1,7 +1,6 @@
 import { createHttpClient } from "../src/conformanceApi";
 import { createHttpClient as jsCreateHttpClient } from "../src/jsConformanceApi";
 import { expect, should } from "chai";
-import fetch from "node-fetch";
 import { HttpClientUtility } from "facility-core";
 import conformanceTestsJson from "../ConformanceTests.json";
 import { isDeepStrictEqual } from "util";

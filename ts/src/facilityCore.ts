@@ -67,7 +67,7 @@ export namespace HttpClientUtility {
 	/** Web Streams API ReadableStream (browser). */
 	export interface IWebReadableStream {
 		getReader(): {
-			read(): Promise<{ done: boolean; value: Uint8Array }>;
+			read(): Promise<{ done: boolean; value?: Uint8Array }>;
 			cancel(): Promise<void>;
 		};
 	}
@@ -245,12 +245,12 @@ export namespace HttpClientUtility {
 								const readStream = (): void => {
 									reader
 										.read()
-										.then(({ done, value }: { done: boolean; value: Uint8Array }) => {
+										.then(({ done, value }) => {
 											if (done) {
 												handleEnd();
 												return;
 											}
-											processChunk(value);
+											if (value) processChunk(value);
 											readStream();
 										})
 										.catch(handleError);
@@ -258,7 +258,7 @@ export namespace HttpClientUtility {
 								readStream();
 							} else if (isNodeReadableStream(body)) {
 								// Handle Node.js Streams
-								body.on('data', (chunk: Uint8Array | ArrayBuffer) => {
+								body.on('data', (chunk) => {
 									const uint8Array = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
 									processChunk(uint8Array);
 								});

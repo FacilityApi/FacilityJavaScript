@@ -6,7 +6,6 @@ import * as crypto from 'crypto';
 import { expect, should } from 'chai';
 import * as http from 'http';
 import { AddressInfo } from 'net';
-import fetch from 'node-fetch';
 
 should();
 
