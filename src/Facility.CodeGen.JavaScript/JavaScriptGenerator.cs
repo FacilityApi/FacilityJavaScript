@@ -780,7 +780,7 @@ namespace Facility.CodeGen.JavaScript
 									foreach (var response in httpMethodInfo.ValidResponses)
 									{
 										var statusCode = (int) response.StatusCode;
-										code.Write($"{statusCode}: ");
+										code.Write($"'{statusCode}': ");
 
 										if (response.BodyField is not null)
 										{
@@ -803,6 +803,9 @@ namespace Facility.CodeGen.JavaScript
 											code.WriteLine("{ type: 'object', additionalProperties: false },");
 										}
 									}
+
+									code.WriteLine("'4xx': { $ref: '_error' },");
+									code.WriteLine("'5xx': { $ref: '_error' },");
 								}
 							}
 							using (code.Block("handler: async function (req, res) {", "}"))

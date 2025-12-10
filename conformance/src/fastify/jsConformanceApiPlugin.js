@@ -49,13 +49,15 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: {
+        '200': {
           type: 'object',
           properties: {
             service: { type: 'string' },
             version: { type: 'string' },
           },
         },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -83,12 +85,14 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: {
+        '200': {
           type: 'object',
           properties: {
             widgets: { type: 'array', items: { $ref: 'Widget' } },
           },
         },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -119,7 +123,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        201: { $ref: 'Widget' },
+        '201': { $ref: 'Widget' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -154,8 +160,10 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: { $ref: 'Widget' },
-        304: { type: 'boolean' },
+        '200': { $ref: 'Widget' },
+        '304': { type: 'boolean' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -198,9 +206,11 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'DELETE',
     schema: {
       response: {
-        204: { type: 'object', additionalProperties: false },
-        404: { type: 'boolean' },
-        409: { type: 'boolean' },
+        '204': { type: 'object', additionalProperties: false },
+        '404': { type: 'boolean' },
+        '409': { type: 'boolean' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -244,7 +254,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: { type: 'array', items: { type: 'object', properties: { value: { $ref: 'Widget' }, error: { $ref: '_error' } } } },
+        '200': { type: 'array', items: { type: 'object', properties: { value: { $ref: 'Widget' }, error: { $ref: '_error' } } } },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -276,13 +288,15 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: {
+        '200': {
           type: 'object',
           properties: {
             field: { $ref: 'Any' },
             matrix: { type: 'array', items: { type: 'array', items: { type: 'array', items: { type: 'number' } } } },
           },
         },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -314,7 +328,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: { type: 'object', additionalProperties: false },
+        '200': { type: 'object', additionalProperties: false },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -353,7 +369,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: { type: 'object', additionalProperties: false },
+        '200': { type: 'object', additionalProperties: false },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -392,7 +410,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'GET',
     schema: {
       response: {
-        200: { type: 'object', additionalProperties: false },
+        '200': { type: 'object', additionalProperties: false },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -441,14 +461,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: {
+        '200': {
           type: 'object',
           properties: {
             normal: { type: 'string' },
           },
         },
-        202: { type: 'object', additionalProperties: true },
-        204: { type: 'boolean' },
+        '202': { type: 'object', additionalProperties: true },
+        '204': { type: 'boolean' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -500,12 +522,14 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: {
+        '200': {
           type: 'object',
           properties: {
             normal: { type: 'string' },
           },
         },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -547,7 +571,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: { type: 'string' },
+        '200': { type: 'string' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -584,7 +610,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: { type: 'string' },
+        '200': { type: 'string' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
@@ -621,7 +649,9 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     method: 'POST',
     schema: {
       response: {
-        200: { type: 'string' },
+        '200': { type: 'string' },
+        '4xx': { $ref: '_error' },
+        '5xx': { $ref: '_error' },
       },
     },
     handler: async function (req, res) {
