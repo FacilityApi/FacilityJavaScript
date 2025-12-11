@@ -2,6 +2,11 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.7.0
+
+* Add `4xx` and `5xx` response schemas to fastify plugin.
+* Send explicit return values in fastify plugin.
+
 ## 3.6.0
 
 * Add client support for events (Server-Sent Events).
