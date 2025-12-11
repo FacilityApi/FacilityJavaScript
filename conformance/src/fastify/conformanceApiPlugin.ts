@@ -27,8 +27,9 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
   fastify.setErrorHandler((error, req, res) => {
     req.log.error(error);
+    res.code(500);
     if (includeErrorDetails) {
-      res.status(500).send({
+      res.send({
         code: 'InternalError',
         message: error.message,
         details: {
@@ -37,7 +38,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       });
     }
     else {
-      res.status(500).send({
+      res.send({
         code: 'InternalError',
         message: 'The service experienced an unexpected internal error.',
       });
@@ -85,7 +86,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         res.send({
           service: value.service,
           version: value.version,
@@ -127,7 +128,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         res.send({
           widgets: value.widgets,
         } satisfies IGetWidgetsResponse);
@@ -165,7 +166,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         if (value.url != null) res.header('Location', value.url);
         if (value.eTag != null) res.header('eTag', value.eTag);
         if (value.widget) {
-          res.status(201);
+          res.code(201);
           res.send({
             id: value.widget.id,
             name: value.widget.name,
@@ -209,7 +210,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         const value = result.value;
         if (value.eTag != null) res.header('eTag', value.eTag);
         if (value.widget) {
-          res.status(200);
+          res.code(200);
           res.send({
             id: value.widget.id,
             name: value.widget.name,
@@ -218,7 +219,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         }
 
         if (value.notModified) {
-          res.status(304);
+          res.code(304);
           return;
         }
       }
@@ -258,16 +259,16 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       if (result.value) {
         const value = result.value;
         if (value.notFound) {
-          res.status(404);
+          res.code(404);
           return;
         }
 
         if (value.conflict) {
-          res.status(409);
+          res.code(409);
           return;
         }
 
-        res.status(204);
+        res.code(204);
         return;
       }
 
@@ -300,7 +301,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       if (result.value) {
         const value = result.value;
         if (value.results) {
-          res.status(200);
+          res.code(200);
           res.send(value.results);
           return;
         }
@@ -342,7 +343,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         res.send({
           field: value.field,
           matrix: value.matrix,
@@ -387,7 +388,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         return;
       }
 
@@ -428,7 +429,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         return;
       }
 
@@ -478,7 +479,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         if (value.decimal != null) res.header('decimal', value.decimal);
         if (value.enum != null) res.header('enum', value.enum);
         if (value.datetime != null) res.header('datetime', value.datetime);
-        res.status(200);
+        res.code(200);
         return;
       }
 
@@ -529,17 +530,17 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         const value = result.value;
         if (value.header != null) res.header('header', value.header);
         if (value.body) {
-          res.status(202);
+          res.code(202);
           res.send(value.body);
           return;
         }
 
         if (value.empty) {
-          res.status(204);
+          res.code(204);
           return;
         }
 
-        res.status(200);
+        res.code(200);
         res.send({
           normal: value.normal,
         } satisfies IMixedResponse);
@@ -591,7 +592,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       if (result.value) {
         const value = result.value;
-        res.status(200);
+        res.code(200);
         res.send({
           normal: value.normal,
         } satisfies IRequiredResponse);
@@ -631,7 +632,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         const value = result.value;
         if (value.type != null) res.header('Content-Type', value.type);
         if (value.content) {
-          res.status(200);
+          res.code(200);
           res.send(value.content);
           return;
         }
@@ -670,7 +671,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
         const value = result.value;
         if (value.type != null) res.header('Content-Type', value.type);
         if (value.content) {
-          res.status(200);
+          res.code(200);
           res.send(value.content);
           return;
         }
@@ -705,7 +706,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       if (result.value) {
         const value = result.value;
         if (value.content) {
-          res.status(200);
+          res.code(200);
           res.send(value.content);
           return;
         }
@@ -892,7 +893,7 @@ function parseBoolean(value: string | undefined) {
 }
 
 function sendErrorResponse(res: fastifyTypes.FastifyReply, error: IServiceError) {
-  res.status(standardErrorCodes[error.code ?? ''] || 500);
+  res.code(standardErrorCodes[error.code ?? ''] || 500);
   res.send({
     code: error.code,
     message: error.message,

@@ -716,9 +716,10 @@ namespace Facility.CodeGen.JavaScript
 					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
 					{
 						code.WriteLine("req.log.error(error);");
+						code.WriteLine("res.code(500);");
 						using (code.Block("if (includeErrorDetails) {", "}"))
 						{
-							code.WriteLine("res.status(500).send({");
+							code.WriteLine("res.send({");
 							using (code.Indent())
 							{
 								code.WriteLine("code: 'InternalError',");
@@ -732,7 +733,7 @@ namespace Facility.CodeGen.JavaScript
 						}
 						using (code.Block("else {", "}"))
 						{
-							code.WriteLine("res.status(500).send({");
+							code.WriteLine("res.send({");
 							using (code.Indent())
 							{
 								code.WriteLine("code: 'InternalError',");
@@ -884,7 +885,7 @@ namespace Facility.CodeGen.JavaScript
 										code.WriteLineSkipOnce();
 										using (code.Block($"if (value.{bodyField.ServiceField.Name}) {{", "}"))
 										{
-											code.WriteLine($"res.status({(int) validResponse.StatusCode});");
+											code.WriteLine($"res.code({(int) validResponse.StatusCode});");
 											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
 											if (bodyFieldType.Kind == ServiceTypeKind.Dto)
 											{
@@ -908,7 +909,7 @@ namespace Facility.CodeGen.JavaScript
 									{
 										var lastValidResponse = handledResponses[0];
 										code.WriteLineSkipOnce();
-										code.WriteLine($"res.status({(int) lastValidResponse.StatusCode});");
+										code.WriteLine($"res.code({(int) lastValidResponse.StatusCode});");
 
 										if (lastValidResponse.NormalFields?.Count > 0)
 										{
@@ -945,7 +946,7 @@ namespace Facility.CodeGen.JavaScript
 				code.WriteLine();
 				using (code.Block($"function sendErrorResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, error{IfTypeScript(": IServiceError")}) {{", "}"))
 				{
-					code.WriteLine("res.status(standardErrorCodes[error.code ?? ''] || 500);");
+					code.WriteLine("res.code(standardErrorCodes[error.code ?? ''] || 500);");
 					using (code.Block("res.send({", $"}}{IfTypeScript(" satisfies IServiceError")});"))
 					{
 						// Write all properties out manually to satisfy static analyzer tools like Snyk.
