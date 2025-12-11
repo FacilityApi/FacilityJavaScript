@@ -861,19 +861,18 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine();
 								using (code.Block("if (result.error) {", "}"))
 								{
-									code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code];");
-									code.WriteLine("res.status(status || 500).send(result.error);");
+									code.WriteLine("sendErrorResponse(res, result.error);");
 									code.WriteLine("return;");
 								}
 
 								code.WriteLine();
 								using (code.Block("if (result.value) {", "}"))
 								{
+									code.WriteLine("const value = result.value;");
 									if (httpMethodInfo.ResponseHeaderFields.Count != 0)
 									{
-										code.WriteLineSkipOnce();
 										foreach (var field in httpMethodInfo.ResponseHeaderFields)
-											code.WriteLine($"if (result.value.{field.ServiceField.Name} != null) res.header('{field.Name}', result.value.{field.ServiceField.Name});");
+											code.WriteLine($"if (value.{field.ServiceField.Name} != null) res.header('{field.Name}', value.{field.ServiceField.Name});");
 									}
 
 									var handledResponses = httpMethodInfo.ValidResponses.ToList();
@@ -881,39 +880,44 @@ namespace Facility.CodeGen.JavaScript
 									{
 										handledResponses.Remove(validResponse);
 										var bodyField = validResponse.BodyField!;
-										var statusCode = (int) validResponse.StatusCode;
 
 										code.WriteLineSkipOnce();
-										using (code.Block($"if (result.value.{bodyField.ServiceField.Name}) {{", "}"))
+										using (code.Block($"if (value.{bodyField.ServiceField.Name}) {{", "}"))
 										{
+											code.WriteLine($"res.status({(int) validResponse.StatusCode});");
 											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
-											if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+											if (bodyFieldType.Kind == ServiceTypeKind.Dto)
 											{
-												code.WriteLine($"res.status({statusCode});");
-												code.WriteLine("return;");
+												using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{bodyField.ServiceField.TypeName}")});"))
+												{
+													// Write all properties out manually to satisfy static analyzer tools like Snyk.
+													foreach (var field in bodyFieldType.Dto!.Fields)
+														code.WriteLine($"{field.Name}: value.{bodyField.ServiceField.Name}.{field.Name},");
+												}
 											}
-											else
+											else if (bodyFieldType.Kind != ServiceTypeKind.Boolean)
 											{
-												code.WriteLine($"res.status({statusCode}).send(result.value.{bodyField.ServiceField.Name});");
-												code.WriteLine("return;");
+												code.WriteLine($"res.send(value.{bodyField.ServiceField.Name});");
 											}
+
+											code.WriteLine("return;");
 										}
 									}
 
 									if (handledResponses.Count == 1)
 									{
 										var lastValidResponse = handledResponses[0];
-										var statusCode = (int) lastValidResponse.StatusCode;
+										code.WriteLineSkipOnce();
+										code.WriteLine($"res.status({(int) lastValidResponse.StatusCode});");
 
 										if (lastValidResponse.NormalFields?.Count > 0)
 										{
-											code.WriteLineSkipOnce();
-											code.WriteLine($"res.status({statusCode}).send(result.value);");
-										}
-										else
-										{
-											code.WriteLineSkipOnce();
-											code.WriteLine($"res.status({statusCode});");
+											using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{capMethodName}Response")});"))
+											{
+												// Write all properties out manually to satisfy static analyzer tools like Snyk.
+												foreach (var field in lastValidResponse.NormalFields)
+													code.WriteLine($"{field.ServiceField.Name}: value.{field.ServiceField.Name},");
+											}
 										}
 										code.WriteLine("return;");
 									}
@@ -937,6 +941,20 @@ namespace Facility.CodeGen.JavaScript
 
 				code.WriteLine();
 				WriteParseBooleanFunction("parseBoolean", code);
+
+				code.WriteLine();
+				using (code.Block($"function sendErrorResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, error{IfTypeScript(": IServiceError")}) {{", "}"))
+				{
+					code.WriteLine("res.status(standardErrorCodes[error.code ?? ''] || 500);");
+					using (code.Block("res.send({", $"}}{IfTypeScript(" satisfies IServiceError")});"))
+					{
+						// Write all properties out manually to satisfy static analyzer tools like Snyk.
+						code.WriteLine("code: error.code,");
+						code.WriteLine("message: error.message,");
+						code.WriteLine("details: error.details,");
+						code.WriteLine("innerError: error.innerError,");
+					}
+				}
 
 				if (TypeScript)
 					WriteTypes(code, httpServiceInfo);

@@ -66,13 +66,17 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).getApiInfo(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        res.status(200).send(result.value);
+        const value = result.value;
+        res.status(200);
+        res.send({
+          service: value.service,
+          version: value.version,
+        });
         return;
       }
 
@@ -104,13 +108,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).getWidgets(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        res.status(200).send(result.value);
+        const value = result.value;
+        res.status(200);
+        res.send({
+          widgets: value.widgets,
+        });
         return;
       }
 
@@ -136,17 +143,20 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).createWidget(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.url != null) res.header('Location', result.value.url);
-        if (result.value.eTag != null) res.header('eTag', result.value.eTag);
-
-        if (result.value.widget) {
-          res.status(201).send(result.value.widget);
+        const value = result.value;
+        if (value.url != null) res.header('Location', value.url);
+        if (value.eTag != null) res.header('eTag', value.eTag);
+        if (value.widget) {
+          res.status(201);
+          res.send({
+            id: value.widget.id,
+            name: value.widget.name,
+          });
           return;
         }
       }
@@ -178,20 +188,23 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).getWidget(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.eTag != null) res.header('eTag', result.value.eTag);
-
-        if (result.value.widget) {
-          res.status(200).send(result.value.widget);
+        const value = result.value;
+        if (value.eTag != null) res.header('eTag', value.eTag);
+        if (value.widget) {
+          res.status(200);
+          res.send({
+            id: value.widget.id,
+            name: value.widget.name,
+          });
           return;
         }
 
-        if (result.value.notModified) {
+        if (value.notModified) {
           res.status(304);
           return;
         }
@@ -225,18 +238,18 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).deleteWidget(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.notFound) {
+        const value = result.value;
+        if (value.notFound) {
           res.status(404);
           return;
         }
 
-        if (result.value.conflict) {
+        if (value.conflict) {
           res.status(409);
           return;
         }
@@ -267,14 +280,15 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).getWidgetBatch(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.results) {
-          res.status(200).send(result.value.results);
+        const value = result.value;
+        if (value.results) {
+          res.status(200);
+          res.send(value.results);
           return;
         }
       }
@@ -309,13 +323,17 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).mirrorFields(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        res.status(200).send(result.value);
+        const value = result.value;
+        res.status(200);
+        res.send({
+          field: value.field,
+          matrix: value.matrix,
+        });
         return;
       }
 
@@ -350,12 +368,12 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).checkQuery(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
+        const value = result.value;
         res.status(200);
         return;
       }
@@ -391,12 +409,12 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).checkPath(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
+        const value = result.value;
         res.status(200);
         return;
       }
@@ -432,22 +450,21 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).mirrorHeaders(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.string != null) res.header('string', result.value.string);
-        if (result.value.boolean != null) res.header('boolean', result.value.boolean);
-        if (result.value.float != null) res.header('float', result.value.float);
-        if (result.value.double != null) res.header('double', result.value.double);
-        if (result.value.int32 != null) res.header('int32', result.value.int32);
-        if (result.value.int64 != null) res.header('int64', result.value.int64);
-        if (result.value.decimal != null) res.header('decimal', result.value.decimal);
-        if (result.value.enum != null) res.header('enum', result.value.enum);
-        if (result.value.datetime != null) res.header('datetime', result.value.datetime);
-
+        const value = result.value;
+        if (value.string != null) res.header('string', value.string);
+        if (value.boolean != null) res.header('boolean', value.boolean);
+        if (value.float != null) res.header('float', value.float);
+        if (value.double != null) res.header('double', value.double);
+        if (value.int32 != null) res.header('int32', value.int32);
+        if (value.int64 != null) res.header('int64', value.int64);
+        if (value.decimal != null) res.header('decimal', value.decimal);
+        if (value.enum != null) res.header('enum', value.enum);
+        if (value.datetime != null) res.header('datetime', value.datetime);
         res.status(200);
         return;
       }
@@ -491,25 +508,28 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).mixed(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.header != null) res.header('header', result.value.header);
-
-        if (result.value.body) {
-          res.status(202).send(result.value.body);
+        const value = result.value;
+        if (value.header != null) res.header('header', value.header);
+        if (value.body) {
+          res.status(202);
+          res.send(value.body);
           return;
         }
 
-        if (result.value.empty) {
+        if (value.empty) {
           res.status(204);
           return;
         }
 
-        res.status(200).send(result.value);
+        res.status(200);
+        res.send({
+          normal: value.normal,
+        });
         return;
       }
 
@@ -552,13 +572,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).required(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        res.status(200).send(result.value);
+        const value = result.value;
+        res.status(200);
+        res.send({
+          normal: value.normal,
+        });
         return;
       }
 
@@ -587,16 +610,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).mirrorBytes(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.type != null) res.header('Content-Type', result.value.type);
-
-        if (result.value.content) {
-          res.status(200).send(result.value.content);
+        const value = result.value;
+        if (value.type != null) res.header('Content-Type', value.type);
+        if (value.content) {
+          res.status(200);
+          res.send(value.content);
           return;
         }
       }
@@ -626,16 +649,16 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).mirrorText(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.type != null) res.header('Content-Type', result.value.type);
-
-        if (result.value.content) {
-          res.status(200).send(result.value.content);
+        const value = result.value;
+        if (value.type != null) res.header('Content-Type', value.type);
+        if (value.content) {
+          res.status(200);
+          res.send(value.content);
           return;
         }
       }
@@ -662,14 +685,15 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
       const result = await getService(req).bodyTypes(request);
 
       if (result.error) {
-        const status = result.error.code && standardErrorCodes[result.error.code];
-        res.status(status || 500).send(result.error);
+        sendErrorResponse(res, result.error);
         return;
       }
 
       if (result.value) {
-        if (result.value.content) {
-          res.status(200).send(result.value.content);
+        const value = result.value;
+        if (value.content) {
+          res.status(200);
+          res.send(value.content);
           return;
         }
       }
@@ -852,4 +876,14 @@ function parseBoolean(value) {
     }
   }
   return undefined;
+}
+
+function sendErrorResponse(res, error) {
+  res.status(standardErrorCodes[error.code ?? ''] || 500);
+  res.send({
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    innerError: error.innerError,
+  });
 }
