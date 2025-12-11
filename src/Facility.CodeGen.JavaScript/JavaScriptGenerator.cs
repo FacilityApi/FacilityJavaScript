@@ -687,7 +687,7 @@ namespace Facility.CodeGen.JavaScript
 
 						code.WriteLine();
 						WriteJsDoc(code, "Whether to make query string keys case insensitive. Defalts to false.");
-						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
+						code.WriteLine("caseInsensitiveQueryStringKeys?: boolean;");
 
 						code.WriteLine();
 						WriteJsDoc(code, "Whether to include error details in the response. Defaults to false.");
@@ -703,7 +703,7 @@ namespace Facility.CodeGen.JavaScript
 				WriteJsDoc(code, "EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump.");
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": fastifyTypes.FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+					code.WriteLine("const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;");
 
 					code.WriteLine();
 					code.WriteLine("const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
@@ -716,9 +716,10 @@ namespace Facility.CodeGen.JavaScript
 					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
 					{
 						code.WriteLine("req.log.error(error);");
+						code.WriteLine("res.code(500);");
 						using (code.Block("if (includeErrorDetails) {", "}"))
 						{
-							code.WriteLine("res.status(500).send({");
+							code.WriteLine("res.send({");
 							using (code.Indent())
 							{
 								code.WriteLine("code: 'InternalError',");
@@ -732,7 +733,7 @@ namespace Facility.CodeGen.JavaScript
 						}
 						using (code.Block("else {", "}"))
 						{
-							code.WriteLine("res.status(500).send({");
+							code.WriteLine("res.send({");
 							using (code.Indent())
 							{
 								code.WriteLine("code: 'InternalError',");
@@ -743,7 +744,7 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block("if (caseInsenstiveQueryStringKeys) {", "}"))
+					using (code.Block("if (caseInsensitiveQueryStringKeys) {", "}"))
 					{
 						using (code.Block("fastify.addHook('onRequest', async (req, res) => {", "});"))
 						{
@@ -780,7 +781,7 @@ namespace Facility.CodeGen.JavaScript
 									foreach (var response in httpMethodInfo.ValidResponses)
 									{
 										var statusCode = (int) response.StatusCode;
-										code.Write($"{statusCode}: ");
+										code.Write($"'{statusCode}': ");
 
 										if (response.BodyField is not null)
 										{
@@ -803,6 +804,9 @@ namespace Facility.CodeGen.JavaScript
 											code.WriteLine("{ type: 'object', additionalProperties: false },");
 										}
 									}
+
+									code.WriteLine("'4xx': { $ref: '_error' },");
+									code.WriteLine("'5xx': { $ref: '_error' },");
 								}
 							}
 							using (code.Block("handler: async function (req, res) {", "}"))
@@ -858,19 +862,18 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine();
 								using (code.Block("if (result.error) {", "}"))
 								{
-									code.WriteLine("const status = result.error.code && standardErrorCodes[result.error.code];");
-									code.WriteLine("res.status(status || 500).send(result.error);");
+									code.WriteLine("sendErrorResponse(res, result.error);");
 									code.WriteLine("return;");
 								}
 
 								code.WriteLine();
 								using (code.Block("if (result.value) {", "}"))
 								{
+									code.WriteLine("const value = result.value;");
 									if (httpMethodInfo.ResponseHeaderFields.Count != 0)
 									{
-										code.WriteLineSkipOnce();
 										foreach (var field in httpMethodInfo.ResponseHeaderFields)
-											code.WriteLine($"if (result.value.{field.ServiceField.Name} != null) res.header('{field.Name}', result.value.{field.ServiceField.Name});");
+											code.WriteLine($"if (value.{field.ServiceField.Name} != null) res.header('{field.Name}', value.{field.ServiceField.Name});");
 									}
 
 									var handledResponses = httpMethodInfo.ValidResponses.ToList();
@@ -878,39 +881,44 @@ namespace Facility.CodeGen.JavaScript
 									{
 										handledResponses.Remove(validResponse);
 										var bodyField = validResponse.BodyField!;
-										var statusCode = (int) validResponse.StatusCode;
 
 										code.WriteLineSkipOnce();
-										using (code.Block($"if (result.value.{bodyField.ServiceField.Name}) {{", "}"))
+										using (code.Block($"if (value.{bodyField.ServiceField.Name}) {{", "}"))
 										{
+											code.WriteLine($"res.code({(int) validResponse.StatusCode});");
 											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
-											if (bodyFieldType.Kind == ServiceTypeKind.Boolean)
+											if (bodyFieldType.Kind == ServiceTypeKind.Dto)
 											{
-												code.WriteLine($"res.status({statusCode});");
-												code.WriteLine("return;");
+												using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{bodyField.ServiceField.TypeName}")});"))
+												{
+													// Write all properties out manually to satisfy static analyzer tools like Snyk.
+													foreach (var field in bodyFieldType.Dto!.Fields)
+														code.WriteLine($"{field.Name}: value.{bodyField.ServiceField.Name}.{field.Name},");
+												}
 											}
-											else
+											else if (bodyFieldType.Kind != ServiceTypeKind.Boolean)
 											{
-												code.WriteLine($"res.status({statusCode}).send(result.value.{bodyField.ServiceField.Name});");
-												code.WriteLine("return;");
+												code.WriteLine($"res.send(value.{bodyField.ServiceField.Name});");
 											}
+
+											code.WriteLine("return;");
 										}
 									}
 
 									if (handledResponses.Count == 1)
 									{
 										var lastValidResponse = handledResponses[0];
-										var statusCode = (int) lastValidResponse.StatusCode;
+										code.WriteLineSkipOnce();
+										code.WriteLine($"res.code({(int) lastValidResponse.StatusCode});");
 
 										if (lastValidResponse.NormalFields?.Count > 0)
 										{
-											code.WriteLineSkipOnce();
-											code.WriteLine($"res.status({statusCode}).send(result.value);");
-										}
-										else
-										{
-											code.WriteLineSkipOnce();
-											code.WriteLine($"res.status({statusCode});");
+											using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{capMethodName}Response")});"))
+											{
+												// Write all properties out manually to satisfy static analyzer tools like Snyk.
+												foreach (var field in lastValidResponse.NormalFields)
+													code.WriteLine($"{field.ServiceField.Name}: value.{field.ServiceField.Name},");
+											}
 										}
 										code.WriteLine("return;");
 									}
@@ -934,6 +942,20 @@ namespace Facility.CodeGen.JavaScript
 
 				code.WriteLine();
 				WriteParseBooleanFunction("parseBoolean", code);
+
+				code.WriteLine();
+				using (code.Block($"function sendErrorResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, error{IfTypeScript(": IServiceError")}) {{", "}"))
+				{
+					code.WriteLine("res.code(standardErrorCodes[error.code ?? ''] || 500);");
+					using (code.Block("res.send({", $"}}{IfTypeScript(" satisfies IServiceError")});"))
+					{
+						// Write all properties out manually to satisfy static analyzer tools like Snyk.
+						code.WriteLine("code: error.code,");
+						code.WriteLine("message: error.message,");
+						code.WriteLine("details: error.details,");
+						code.WriteLine("innerError: error.innerError,");
+					}
+				}
 
 				if (TypeScript)
 					WriteTypes(code, httpServiceInfo);
