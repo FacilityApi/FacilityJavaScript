@@ -709,37 +709,57 @@ namespace Facility.CodeGen.JavaScript
 					code.WriteLine("const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
 
 					code.WriteLine();
+					using (code.Block($"function sendErrorResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, error{IfTypeScript(": IServiceError")}) {{", "}"))
+					{
+						code.WriteLine("const statusCode = standardErrorCodes[error.code ?? ''] || 500;");
+						using (code.Block("if (statusCode >= 500) {", "}"))
+						{
+							code.WriteLine("res.log.error(error);");
+							using (code.Block("if (!includeErrorDetails) {", "}"))
+							{
+								code.WriteLine("error.message = 'The service experienced an unexpected internal error.';");
+								code.WriteLine("delete error.details;");
+								code.WriteLine("delete error.innerError;");
+							}
+						}
+						code.WriteLine();
+						code.WriteLine("res.code(statusCode);");
+						code.WriteLine("res.type('application/json');");
+						code.WriteLine("res.send(error);");
+					}
+
+					code.WriteLine();
+					using (code.Block($"function sendResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, code{IfTypeScript(": number")}, value{IfTypeScript(": object | string | true")}) {{", "}"))
+					{
+						code.WriteLine("res.code(code);");
+
+						code.WriteLine();
+						code.WriteLine("if (value === true) {");
+						using (code.Indent())
+						{
+							code.WriteLine("res.send();");
+						}
+						code.WriteLine("} else {");
+						using (code.Indent())
+						{
+							code.WriteLine("res.type('application/json');");
+							code.WriteLine("res.send(value);");
+						}
+						code.WriteLine("}");
+					}
+
+					code.WriteLine();
 					using (code.Block("for (const jsonSchema of jsonSchemas) {", "}"))
 						code.WriteLine("fastify.addSchema(jsonSchema);");
 
 					code.WriteLine();
-					using (code.Block("fastify.setErrorHandler((error, req, res) => {", "});"))
+					using (code.Block("fastify.setErrorHandler((err, req, res) => {", "});"))
 					{
-						code.WriteLine("req.log.error(error);");
-						code.WriteLine("res.code(500);");
-						using (code.Block("if (includeErrorDetails) {", "}"))
+						using (code.Block("sendErrorResponse(res, {", "});"))
 						{
-							code.WriteLine("res.send({");
-							using (code.Indent())
-							{
-								code.WriteLine("code: 'InternalError',");
-								code.WriteLine("message: error.message,");
-								using (code.Block("details: {", "}"))
-								{
-									code.WriteLine("stack: error.stack?.split('\\n').filter((x) => x.length > 0),");
-								}
-							}
-							code.WriteLine("});");
-						}
-						using (code.Block("else {", "}"))
-						{
-							code.WriteLine("res.send({");
-							using (code.Indent())
-							{
-								code.WriteLine("code: 'InternalError',");
-								code.WriteLine("message: 'The service experienced an unexpected internal error.',");
-							}
-							code.WriteLine("});");
+							code.WriteLine("code: 'InternalError',");
+							code.WriteLine("message: err.message,");
+							code.WriteLine("details: { stack: err.stack?.split('\\n').filter((x) => x.length > 0) },");
 						}
 					}
 
@@ -860,76 +880,64 @@ namespace Facility.CodeGen.JavaScript
 								code.WriteLine($"const result = await getService(req).{methodName}(request{IfTypeScript($" as I{capMethodName}Request")});");
 
 								code.WriteLine();
-								using (code.Block("if (result.error) {", "}"))
+								code.WriteLine("if (result.value != null && result.error == null) {");
+								using (code.Indent())
 								{
-									code.WriteLine("sendErrorResponse(res, result.error);");
-									code.WriteLine("return;");
-								}
-
-								code.WriteLine();
-								using (code.Block("if (result.value) {", "}"))
-								{
-									code.WriteLine("const value = result.value;");
 									if (httpMethodInfo.ResponseHeaderFields.Count != 0)
 									{
+										code.WriteLineSkipOnce();
 										foreach (var field in httpMethodInfo.ResponseHeaderFields)
-											code.WriteLine($"if (value.{field.ServiceField.Name} != null) res.header('{field.Name}', value.{field.ServiceField.Name});");
+											code.WriteLine($"if (result.value.{field.ServiceField.Name} != null) res.header('{field.Name}', result.value.{field.ServiceField.Name});");
 									}
 
-									var handledResponses = httpMethodInfo.ValidResponses.ToList();
-									foreach (var validResponse in httpMethodInfo.ValidResponses.Where(x => x.BodyField is not null))
-									{
-										handledResponses.Remove(validResponse);
-										var bodyField = validResponse.BodyField!;
+									var responsesWithoutBodyField = httpMethodInfo.ValidResponses.Where(x => x.BodyField is null).ToList();
+									var responsesWithBodyField = httpMethodInfo.ValidResponses.Where(x => x.BodyField is not null).ToList();
 
+									if (responsesWithBodyField.Count > 0)
+									{
 										code.WriteLineSkipOnce();
-										using (code.Block($"if (value.{bodyField.ServiceField.Name}) {{", "}"))
+										bool elseIf = false;
+										foreach (var response in responsesWithBodyField)
 										{
-											code.WriteLine($"res.code({(int) validResponse.StatusCode});");
-											var bodyFieldType = service.GetFieldType(bodyField.ServiceField)!;
-											if (bodyFieldType.Kind == ServiceTypeKind.Dto)
-											{
-												using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{bodyField.ServiceField.TypeName}")});"))
-												{
-													// Write all properties out manually to satisfy static analyzer tools like Snyk.
-													foreach (var field in bodyFieldType.Dto!.Fields)
-														code.WriteLine($"{field.Name}: value.{bodyField.ServiceField.Name}.{field.Name},");
-												}
-											}
-											else if (bodyFieldType.Kind != ServiceTypeKind.Boolean)
-											{
-												code.WriteLine($"res.send(value.{bodyField.ServiceField.Name});");
-											}
+											var name = response.BodyField!.ServiceField.Name;
+											var statusCode = (int) response.StatusCode;
 
-											code.WriteLine("return;");
+											code.WriteLine($"{(elseIf ? "} else " : "")}if (result.value.{name}) {{");
+											using (code.Indent())
+												code.WriteLine($"sendResponse(res, {statusCode}, result.value.{name});");
+
+											elseIf = true;
 										}
+										code.WriteLine("} else {");
+										using (code.Indent())
+										{
+											if (responsesWithoutBodyField.Count == 1)
+												code.WriteLine($"sendResponse(res, {(int) responsesWithoutBodyField[0].StatusCode}, result.value);");
+											else
+												code.WriteLine($"throw new Error('Value must have exactly one set from: {string.Join(", ", responsesWithBodyField.Select(x => x.BodyField!.ServiceField.Name))}');");
+										}
+										code.WriteLine("}");
 									}
-
-									if (handledResponses.Count == 1)
+									else if (responsesWithoutBodyField.Count == 1)
 									{
-										var lastValidResponse = handledResponses[0];
 										code.WriteLineSkipOnce();
-										code.WriteLine($"res.code({(int) lastValidResponse.StatusCode});");
+										code.WriteLine($"sendResponse(res, {(int) responsesWithoutBodyField[0].StatusCode}, result.value);");
+									}
 
-										if (lastValidResponse.NormalFields?.Count > 0)
-										{
-											using (code.Block("res.send({", $"}}{IfTypeScript($" satisfies I{capMethodName}Response")});"))
-											{
-												// Write all properties out manually to satisfy static analyzer tools like Snyk.
-												foreach (var field in lastValidResponse.NormalFields)
-													code.WriteLine($"{field.ServiceField.Name}: value.{field.ServiceField.Name},");
-											}
-										}
-										code.WriteLine("return;");
-									}
-									else if (handledResponses.Count > 1)
-									{
-										throw new InvalidOperationException("More than one response is left.");
-									}
+									if (responsesWithoutBodyField.Count > 1)
+										throw new InvalidOperationException("Multiple responses without a body field are not supported.");
 								}
-
-								code.WriteLine();
-								code.WriteLine("throw new Error('Result must have an error or value.');");
+								code.WriteLine("} else if (result.error != null) {");
+								using (code.Indent())
+								{
+									code.WriteLine("sendErrorResponse(res, result.error);");
+								}
+								code.WriteLine("} else {");
+								using (code.Indent())
+								{
+									code.WriteLine("throw new Error('Result must have exactly one set from: value, error');");
+								}
+								code.WriteLine("}");
 							}
 						}
 					}
@@ -942,20 +950,6 @@ namespace Facility.CodeGen.JavaScript
 
 				code.WriteLine();
 				WriteParseBooleanFunction("parseBoolean", code);
-
-				code.WriteLine();
-				using (code.Block($"function sendErrorResponse(res{IfTypeScript(": fastifyTypes.FastifyReply")}, error{IfTypeScript(": IServiceError")}) {{", "}"))
-				{
-					code.WriteLine("res.code(standardErrorCodes[error.code ?? ''] || 500);");
-					using (code.Block("res.send({", $"}}{IfTypeScript(" satisfies IServiceError")});"))
-					{
-						// Write all properties out manually to satisfy static analyzer tools like Snyk.
-						code.WriteLine("code: error.code,");
-						code.WriteLine("message: error.message,");
-						code.WriteLine("details: error.details,");
-						code.WriteLine("innerError: error.innerError,");
-					}
-				}
 
 				if (TypeScript)
 					WriteTypes(code, httpServiceInfo);

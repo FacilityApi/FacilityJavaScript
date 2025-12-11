@@ -21,28 +21,43 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
   const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
+  function sendErrorResponse(res: fastifyTypes.FastifyReply, error: IServiceError) {
+    const statusCode = standardErrorCodes[error.code ?? ''] || 500;
+    if (statusCode >= 500) {
+      res.log.error(error);
+      if (!includeErrorDetails) {
+        error.message = 'The service experienced an unexpected internal error.';
+        delete error.details;
+        delete error.innerError;
+      }
+    }
+
+    res.code(statusCode);
+    res.type('application/json');
+    res.send(error);
+  }
+
+  function sendResponse(res: fastifyTypes.FastifyReply, code: number, value: object | string | true) {
+    res.code(code);
+
+    if (value === true) {
+      res.send();
+    } else {
+      res.type('application/json');
+      res.send(value);
+    }
+  }
+
   for (const jsonSchema of jsonSchemas) {
     fastify.addSchema(jsonSchema);
   }
 
-  fastify.setErrorHandler((error, req, res) => {
-    req.log.error(error);
-    res.code(500);
-    if (includeErrorDetails) {
-      res.send({
-        code: 'InternalError',
-        message: error.message,
-        details: {
-          stack: error.stack?.split('\n').filter((x) => x.length > 0),
-        }
-      });
-    }
-    else {
-      res.send({
-        code: 'InternalError',
-        message: 'The service experienced an unexpected internal error.',
-      });
-    }
+  fastify.setErrorHandler((err, req, res) => {
+    sendErrorResponse(res, {
+      code: 'InternalError',
+      message: err.message,
+      details: { stack: err.stack?.split('\n').filter((x) => x.length > 0) },
+    });
   });
 
   if (caseInsensitiveQueryStringKeys) {
@@ -79,22 +94,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).getApiInfo(request as IGetApiInfoRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        res.send({
-          service: value.service,
-          version: value.version,
-        } satisfies IGetApiInfoResponse);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -121,21 +127,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).getWidgets(request as IGetWidgetsRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        res.send({
-          widgets: value.widgets,
-        } satisfies IGetWidgetsResponse);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -156,26 +154,20 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).createWidget(request as ICreateWidgetRequest);
 
-      if (result.error) {
-        sendErrorResponse(res, result.error);
-        return;
-      }
+      if (result.value != null && result.error == null) {
+        if (result.value.url != null) res.header('Location', result.value.url);
+        if (result.value.eTag != null) res.header('eTag', result.value.eTag);
 
-      if (result.value) {
-        const value = result.value;
-        if (value.url != null) res.header('Location', value.url);
-        if (value.eTag != null) res.header('eTag', value.eTag);
-        if (value.widget) {
-          res.code(201);
-          res.send({
-            id: value.widget.id,
-            name: value.widget.name,
-          } satisfies IWidget);
-          return;
+        if (result.value.widget) {
+          sendResponse(res, 201, result.value.widget);
+        } else {
+          throw new Error('Value must have exactly one set from: widget');
         }
+      } else if (result.error != null) {
+        sendErrorResponse(res, result.error);
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -201,30 +193,21 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).getWidget(request as IGetWidgetRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        if (result.value.eTag != null) res.header('eTag', result.value.eTag);
+
+        if (result.value.widget) {
+          sendResponse(res, 200, result.value.widget);
+        } else if (result.value.notModified) {
+          sendResponse(res, 304, result.value.notModified);
+        } else {
+          throw new Error('Value must have exactly one set from: widget, notModified');
+        }
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.eTag != null) res.header('eTag', value.eTag);
-        if (value.widget) {
-          res.code(200);
-          res.send({
-            id: value.widget.id,
-            name: value.widget.name,
-          } satisfies IWidget);
-          return;
-        }
-
-        if (value.notModified) {
-          res.code(304);
-          return;
-        }
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -251,28 +234,19 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).deleteWidget(request as IDeleteWidgetRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        if (result.value.notFound) {
+          sendResponse(res, 404, result.value.notFound);
+        } else if (result.value.conflict) {
+          sendResponse(res, 409, result.value.conflict);
+        } else {
+          sendResponse(res, 204, result.value);
+        }
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.notFound) {
-          res.code(404);
-          return;
-        }
-
-        if (value.conflict) {
-          res.code(409);
-          return;
-        }
-
-        res.code(204);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -293,21 +267,17 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).getWidgetBatch(request as IGetWidgetBatchRequest);
 
-      if (result.error) {
-        sendErrorResponse(res, result.error);
-        return;
-      }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.results) {
-          res.code(200);
-          res.send(value.results);
-          return;
+      if (result.value != null && result.error == null) {
+        if (result.value.results) {
+          sendResponse(res, 200, result.value.results);
+        } else {
+          throw new Error('Value must have exactly one set from: results');
         }
+      } else if (result.error != null) {
+        sendErrorResponse(res, result.error);
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -336,22 +306,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).mirrorFields(request as IMirrorFieldsRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        res.send({
-          field: value.field,
-          matrix: value.matrix,
-        } satisfies IMirrorFieldsResponse);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -381,18 +342,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).checkQuery(request as ICheckQueryRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -422,18 +378,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).checkPath(request as ICheckPathRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -463,27 +414,23 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).mirrorHeaders(request as IMirrorHeadersRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        if (result.value.string != null) res.header('string', result.value.string);
+        if (result.value.boolean != null) res.header('boolean', result.value.boolean);
+        if (result.value.float != null) res.header('float', result.value.float);
+        if (result.value.double != null) res.header('double', result.value.double);
+        if (result.value.int32 != null) res.header('int32', result.value.int32);
+        if (result.value.int64 != null) res.header('int64', result.value.int64);
+        if (result.value.decimal != null) res.header('decimal', result.value.decimal);
+        if (result.value.enum != null) res.header('enum', result.value.enum);
+        if (result.value.datetime != null) res.header('datetime', result.value.datetime);
+
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.string != null) res.header('string', value.string);
-        if (value.boolean != null) res.header('boolean', value.boolean);
-        if (value.float != null) res.header('float', value.float);
-        if (value.double != null) res.header('double', value.double);
-        if (value.int32 != null) res.header('int32', value.int32);
-        if (value.int64 != null) res.header('int64', value.int64);
-        if (value.decimal != null) res.header('decimal', value.decimal);
-        if (value.enum != null) res.header('enum', value.enum);
-        if (value.datetime != null) res.header('datetime', value.datetime);
-        res.code(200);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -521,33 +468,21 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).mixed(request as IMixedRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        if (result.value.header != null) res.header('header', result.value.header);
+
+        if (result.value.body) {
+          sendResponse(res, 202, result.value.body);
+        } else if (result.value.empty) {
+          sendResponse(res, 204, result.value.empty);
+        } else {
+          sendResponse(res, 200, result.value);
+        }
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.header != null) res.header('header', value.header);
-        if (value.body) {
-          res.code(202);
-          res.send(value.body);
-          return;
-        }
-
-        if (value.empty) {
-          res.code(204);
-          return;
-        }
-
-        res.code(200);
-        res.send({
-          normal: value.normal,
-        } satisfies IMixedResponse);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -585,21 +520,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).required(request as IRequiredRequest);
 
-      if (result.error) {
+      if (result.value != null && result.error == null) {
+        sendResponse(res, 200, result.value);
+      } else if (result.error != null) {
         sendErrorResponse(res, result.error);
-        return;
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      if (result.value) {
-        const value = result.value;
-        res.code(200);
-        res.send({
-          normal: value.normal,
-        } satisfies IRequiredResponse);
-        return;
-      }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -623,22 +550,19 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).mirrorBytes(request as IMirrorBytesRequest);
 
-      if (result.error) {
-        sendErrorResponse(res, result.error);
-        return;
-      }
+      if (result.value != null && result.error == null) {
+        if (result.value.type != null) res.header('Content-Type', result.value.type);
 
-      if (result.value) {
-        const value = result.value;
-        if (value.type != null) res.header('Content-Type', value.type);
-        if (value.content) {
-          res.code(200);
-          res.send(value.content);
-          return;
+        if (result.value.content) {
+          sendResponse(res, 200, result.value.content);
+        } else {
+          throw new Error('Value must have exactly one set from: content');
         }
+      } else if (result.error != null) {
+        sendErrorResponse(res, result.error);
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -662,22 +586,19 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).mirrorText(request as IMirrorTextRequest);
 
-      if (result.error) {
-        sendErrorResponse(res, result.error);
-        return;
-      }
+      if (result.value != null && result.error == null) {
+        if (result.value.type != null) res.header('Content-Type', result.value.type);
 
-      if (result.value) {
-        const value = result.value;
-        if (value.type != null) res.header('Content-Type', value.type);
-        if (value.content) {
-          res.code(200);
-          res.send(value.content);
-          return;
+        if (result.value.content) {
+          sendResponse(res, 200, result.value.content);
+        } else {
+          throw new Error('Value must have exactly one set from: content');
         }
+      } else if (result.error != null) {
+        sendErrorResponse(res, result.error);
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 
@@ -698,21 +619,17 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
 
       const result = await getService(req).bodyTypes(request as IBodyTypesRequest);
 
-      if (result.error) {
-        sendErrorResponse(res, result.error);
-        return;
-      }
-
-      if (result.value) {
-        const value = result.value;
-        if (value.content) {
-          res.code(200);
-          res.send(value.content);
-          return;
+      if (result.value != null && result.error == null) {
+        if (result.value.content) {
+          sendResponse(res, 200, result.value.content);
+        } else {
+          throw new Error('Value must have exactly one set from: content');
         }
+      } else if (result.error != null) {
+        sendErrorResponse(res, result.error);
+      } else {
+        throw new Error('Result must have exactly one set from: value, error');
       }
-
-      throw new Error('Result must have an error or value.');
     }
   });
 }
@@ -890,16 +807,6 @@ function parseBoolean(value: string | undefined) {
     }
   }
   return undefined;
-}
-
-function sendErrorResponse(res: fastifyTypes.FastifyReply, error: IServiceError) {
-  res.code(standardErrorCodes[error.code ?? ''] || 500);
-  res.send({
-    code: error.code,
-    message: error.message,
-    details: error.details,
-    innerError: error.innerError,
-  } satisfies IServiceError);
 }
 
 /** API for a Facility test server. */
