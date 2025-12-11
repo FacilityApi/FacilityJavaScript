@@ -8,7 +8,7 @@ const app: FastifyPluginAsync<FastifyServerOptions> = async (fastify): Promise<v
 	const conformanceApiPluginOptions: ConformanceApiPluginOptions = {
 		serviceOrFactory: () =>
 			new ConformanceApiService(conformanceTestsJson.tests),
-		caseInsenstiveQueryStringKeys: true,
+		caseInsensitiveQueryStringKeys: true,
 		includeErrorDetails: true,
 	};
 

@@ -4,7 +4,7 @@
 
 /** EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump. */
 export const jsConformanceApiPlugin = async (fastify, opts) => {
-  const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
+  const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;
 
   const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
@@ -31,7 +31,7 @@ export const jsConformanceApiPlugin = async (fastify, opts) => {
     }
   });
 
-  if (caseInsenstiveQueryStringKeys) {
+  if (caseInsensitiveQueryStringKeys) {
     fastify.addHook('onRequest', async (req, res) => {
       const query = req.query;
       for (const key of Object.keys(query)) {

@@ -9,7 +9,7 @@ export type ConformanceApiPluginOptions = fastifyTypes.RegisterOptions & {
   serviceOrFactory: IConformanceApi | ((req: fastifyTypes.FastifyRequest) => IConformanceApi);
 
   /** Whether to make query string keys case insensitive. Defalts to false. */
-  caseInsenstiveQueryStringKeys?: boolean;
+  caseInsensitiveQueryStringKeys?: boolean;
 
   /** Whether to include error details in the response. Defaults to false. */
   includeErrorDetails?: boolean;
@@ -17,7 +17,7 @@ export type ConformanceApiPluginOptions = fastifyTypes.RegisterOptions & {
 
 /** EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump. */
 export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceApiPluginOptions> = async (fastify, opts) => {
-  const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;
+  const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;
 
   const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
@@ -44,7 +44,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
     }
   });
 
-  if (caseInsenstiveQueryStringKeys) {
+  if (caseInsensitiveQueryStringKeys) {
     fastify.addHook('onRequest', async (req, res) => {
       const query = req.query as Record<string, string>;
       for (const key of Object.keys(query)) {

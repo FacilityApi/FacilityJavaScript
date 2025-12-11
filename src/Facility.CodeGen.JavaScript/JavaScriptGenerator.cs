@@ -687,7 +687,7 @@ namespace Facility.CodeGen.JavaScript
 
 						code.WriteLine();
 						WriteJsDoc(code, "Whether to make query string keys case insensitive. Defalts to false.");
-						code.WriteLine("caseInsenstiveQueryStringKeys?: boolean;");
+						code.WriteLine("caseInsensitiveQueryStringKeys?: boolean;");
 
 						code.WriteLine();
 						WriteJsDoc(code, "Whether to include error details in the response. Defaults to false.");
@@ -703,7 +703,7 @@ namespace Facility.CodeGen.JavaScript
 				WriteJsDoc(code, "EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump.");
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": fastifyTypes.FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { serviceOrFactory, caseInsenstiveQueryStringKeys, includeErrorDetails } = opts;");
+					code.WriteLine("const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;");
 
 					code.WriteLine();
 					code.WriteLine("const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
@@ -743,7 +743,7 @@ namespace Facility.CodeGen.JavaScript
 					}
 
 					code.WriteLine();
-					using (code.Block("if (caseInsenstiveQueryStringKeys) {", "}"))
+					using (code.Block("if (caseInsensitiveQueryStringKeys) {", "}"))
 					{
 						using (code.Block("fastify.addHook('onRequest', async (req, res) => {", "});"))
 						{
