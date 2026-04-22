@@ -692,7 +692,14 @@ namespace Facility.CodeGen.JavaScript
 						code.WriteLine();
 						WriteJsDoc(code, "Whether to include error details in the response. Defaults to false.");
 						code.WriteLine("includeErrorDetails?: boolean;");
+
+						code.WriteLine();
+						WriteJsDoc(code, "Additional supported route options to use with routes. Only `bodyLimit` is currently supported. Use '*' to apply to all routes.");
+						code.WriteLine($"routeOptions?: {{ [K in '*' | {capModuleName}Routes]?: Pick<fastifyTypes.RouteOptions, 'bodyLimit'> }};");
 					}
+
+					code.WriteLine();
+					code.WriteLine($"export type {capModuleName}Routes = {string.Join(" | ", httpServiceInfo.Methods.Select(m => $"'{m.ServiceMethod.Name}'"))};");
 				}
 				else
 				{
@@ -703,7 +710,7 @@ namespace Facility.CodeGen.JavaScript
 				WriteJsDoc(code, "EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump.");
 				using (code.Block($"export const {camelCaseModuleName}Plugin" + IfTypeScript($": fastifyTypes.FastifyPluginAsync<{capModuleName}PluginOptions>") + " = async (fastify, opts) => {", "}"))
 				{
-					code.WriteLine("const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;");
+					code.WriteLine("const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails, routeOptions } = opts;");
 
 					code.WriteLine();
 					code.WriteLine("const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;");
@@ -781,6 +788,9 @@ namespace Facility.CodeGen.JavaScript
 						}
 					}
 
+					code.WriteLine();
+					code.WriteLine("const defaultBodyLimit = routeOptions?.['*']?.bodyLimit;");
+
 					foreach (var httpMethodInfo in httpServiceInfo.Methods)
 					{
 						var methodName = httpMethodInfo.ServiceMethod.Name;
@@ -794,6 +804,7 @@ namespace Facility.CodeGen.JavaScript
 						{
 							code.WriteLine($"url: '{fastifyPath}',");
 							code.WriteLine($"method: '{httpMethodInfo.Method.ToUpperInvariant()}',");
+							code.WriteLine($"bodyLimit: routeOptions?.['{httpMethodInfo.ServiceMethod.Name}']?.bodyLimit ?? defaultBodyLimit,");
 							using (code.Block("schema: {", "},"))
 							{
 								using (code.Block("response: {", "},"))
@@ -829,7 +840,7 @@ namespace Facility.CodeGen.JavaScript
 									code.WriteLine("'5xx': { $ref: '_error' },");
 								}
 							}
-							using (code.Block("handler: async function (req, res) {", "}"))
+							using (code.Block("handler: async function (req, res) {", "},"))
 							{
 								code.WriteLine("const request" + IfTypeScript($": Partial<I{capMethodName}Request>") + " = {};");
 								if (httpMethodInfo.PathFields.Count != 0)
