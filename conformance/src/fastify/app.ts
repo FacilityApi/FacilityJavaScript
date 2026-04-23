@@ -10,6 +10,14 @@ const app: FastifyPluginAsync<FastifyServerOptions> = async (fastify): Promise<v
 			new ConformanceApiService(conformanceTestsJson.tests),
 		caseInsensitiveQueryStringKeys: true,
 		includeErrorDetails: true,
+		routeOptions: {
+			'*': {
+				bodyLimit: 10 * 1024, // 10 KB
+			},
+			'createWidget': {
+				bodyLimit: 100 * 1024, // 100 KB
+			}
+		}
 	};
 
 	fastify.register(conformanceApiPlugin, conformanceApiPluginOptions);

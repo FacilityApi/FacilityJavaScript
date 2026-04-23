@@ -13,11 +13,16 @@ export type ConformanceApiPluginOptions = fastifyTypes.RegisterOptions & {
 
   /** Whether to include error details in the response. Defaults to false. */
   includeErrorDetails?: boolean;
+
+  /** Additional supported route options to use with routes. Only `bodyLimit` is currently supported. Use '*' to apply to all routes. */
+  routeOptions?: { [K in '*' | ConformanceApiRoutes]?: Pick<fastifyTypes.RouteOptions, 'bodyLimit'> };
 }
+
+export type ConformanceApiRoutes = 'getApiInfo' | 'getWidgets' | 'createWidget' | 'getWidget' | 'deleteWidget' | 'getWidgetBatch' | 'mirrorFields' | 'checkQuery' | 'checkPath' | 'mirrorHeaders' | 'mixed' | 'required' | 'mirrorBytes' | 'mirrorText' | 'bodyTypes';
 
 /** EXPERIMENTAL: The generated code for this plugin is subject to change/removal without a major version bump. */
 export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceApiPluginOptions> = async (fastify, opts) => {
-  const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails } = opts;
+  const { serviceOrFactory, caseInsensitiveQueryStringKeys, includeErrorDetails, routeOptions } = opts;
 
   const getService = typeof serviceOrFactory === 'function' ? serviceOrFactory : () => serviceOrFactory;
 
@@ -73,9 +78,12 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
     });
   }
 
+  const defaultBodyLimit = routeOptions?.['*']?.bodyLimit;
+
   fastify.route({
     url: '/',
     method: 'GET',
+    bodyLimit: routeOptions?.['getApiInfo']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': {
@@ -101,12 +109,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/widgets',
     method: 'GET',
+    bodyLimit: routeOptions?.['getWidgets']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': {
@@ -134,12 +143,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/widgets',
     method: 'POST',
+    bodyLimit: routeOptions?.['createWidget']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '201': { $ref: 'Widget' },
@@ -168,12 +178,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/widgets/:id',
     method: 'GET',
+    bodyLimit: routeOptions?.['getWidget']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { $ref: 'Widget' },
@@ -208,12 +219,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/widgets/:id',
     method: 'DELETE',
+    bodyLimit: routeOptions?.['deleteWidget']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '204': { type: 'object', additionalProperties: false },
@@ -247,12 +259,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/widgets/get',
     method: 'POST',
+    bodyLimit: routeOptions?.['getWidgetBatch']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'array', items: { type: 'object', properties: { value: { $ref: 'Widget' }, error: { $ref: '_error' } } } },
@@ -278,12 +291,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/mirrorFields',
     method: 'POST',
+    bodyLimit: routeOptions?.['mirrorFields']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': {
@@ -313,12 +327,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/checkQuery',
     method: 'GET',
+    bodyLimit: routeOptions?.['checkQuery']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'object', additionalProperties: false },
@@ -349,12 +364,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/checkPath/:string/:boolean/:float/:double/:int32/:int64/:decimal/:enum/:datetime',
     method: 'GET',
+    bodyLimit: routeOptions?.['checkPath']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'object', additionalProperties: false },
@@ -385,12 +401,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/mirrorHeaders',
     method: 'GET',
+    bodyLimit: routeOptions?.['mirrorHeaders']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'object', additionalProperties: false },
@@ -431,12 +448,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/mixed/:path',
     method: 'POST',
+    bodyLimit: routeOptions?.['mixed']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': {
@@ -483,12 +501,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/required',
     method: 'POST',
+    bodyLimit: routeOptions?.['required']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': {
@@ -527,12 +546,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/mirrorBytes',
     method: 'POST',
+    bodyLimit: routeOptions?.['mirrorBytes']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'string' },
@@ -563,12 +583,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/mirrorText',
     method: 'POST',
+    bodyLimit: routeOptions?.['mirrorText']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'string' },
@@ -599,12 +620,13 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 
   fastify.route({
     url: '/bodyTypes',
     method: 'POST',
+    bodyLimit: routeOptions?.['bodyTypes']?.bodyLimit ?? defaultBodyLimit,
     schema: {
       response: {
         '200': { type: 'string' },
@@ -630,7 +652,7 @@ export const conformanceApiPlugin: fastifyTypes.FastifyPluginAsync<ConformanceAp
       } else {
         throw new Error('Result must have exactly one set from: value, error');
       }
-    }
+    },
   });
 }
 
