@@ -108,7 +108,8 @@ export namespace HttpClientUtility {
 				throw new TypeError('fetch must resolve Promise with { status, headers, json() }.');
 			}
 			const contentType = response.headers.get('content-type');
-			if (!contentType) {
+			const contentLength = response.headers.get('content-length');
+			if (!contentType || contentLength === '0') {
 				return Promise.resolve({ response: response, json: {} });
 			}
 			if (contentType.toLowerCase().substr(0, jsonContentType.length) === jsonContentType) {
