@@ -95,6 +95,13 @@ export namespace HttpClientUtility {
 	};
 
 	const jsonContentType = 'application/json';
+	const createInvalidContentError = (error: unknown) => {
+		const message = error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+		return {
+			code: 'InvalidResponse',
+			message: message ? `HTTP content is invalid: ${message}` : 'HTTP content is invalid',
+		};
+	};
 
 	/** Fetch JSON using the specified fetch, URI, and request. */
 	export function fetchResponse(
@@ -116,10 +123,16 @@ export namespace HttpClientUtility {
 				if (!jsonPromise || typeof jsonPromise.then !== 'function') {
 					throw new TypeError('json() of fetch response must return a Promise.');
 				}
-				return jsonPromise.then((json) => ({
-					response: response,
-					json: json,
-				}));
+				return jsonPromise
+					.then((json) => ({
+						response: response,
+						json: json,
+					}))
+					.catch((error) =>
+						response.status >= 400 && response.status <= 599
+							? { response: response }
+							: { response: response, json: createInvalidContentError(error) }
+					);
 			}
 			return Promise.resolve({ response: response });
 		});
