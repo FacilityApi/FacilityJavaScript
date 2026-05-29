@@ -116,10 +116,14 @@ export namespace HttpClientUtility {
 				if (!jsonPromise || typeof jsonPromise.then !== 'function') {
 					throw new TypeError('json() of fetch response must return a Promise.');
 				}
-				return jsonPromise.then((json) => ({
-					response: response,
-					json: json,
-				}));
+				return jsonPromise
+					.then((json) => ({
+						response: response,
+						json: json,
+					}))
+					.catch(() => ({
+						response: response,
+					}));
 			}
 			return Promise.resolve({ response: response });
 		});
