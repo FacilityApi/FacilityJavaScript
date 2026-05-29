@@ -1,0 +1,39 @@
+name: npm
+
+on:
+  push:
+    branches: [master]
+    tags-ignore: ['**']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+      - name: Install .NET
+        uses: actions/setup-dotnet@v5
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org
+      - name: Build npm package
+        run: ./build.ps1 build-npm
+      - name: Test npm package
+        run: ./build.ps1 test-npm --skip build-npm
+      - name: Publish npm package
+        if: github.repository_owner == 'FacilityApi' && github.ref == 'refs/heads/master'
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: ./build.ps1 publish-npm --skip test-npm
