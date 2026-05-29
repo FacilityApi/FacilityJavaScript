@@ -95,6 +95,7 @@ export namespace HttpClientUtility {
 	};
 
 	const jsonContentType = 'application/json';
+	const invalidJsonContent = {};
 
 	/** Fetch JSON using the specified fetch, URI, and request. */
 	export function fetchResponse(
@@ -123,6 +124,7 @@ export namespace HttpClientUtility {
 					}))
 					.catch(() => ({
 						response: response,
+						json: invalidJsonContent,
 					}));
 			}
 			return Promise.resolve({ response: response });
@@ -136,6 +138,9 @@ export namespace HttpClientUtility {
 		}
 		const isClientError = status >= 400 && status <= 499;
 		const isServerError = status >= 500 && status <= 599;
+		if (json === invalidJsonContent && !isClientError && !isServerError) {
+			return { error: { code: 'InvalidResponse', message: 'HTTP content is invalid: ' } };
+		}
 		const errorCode = standardErrorCodes[status] || (isClientError ? 'InvalidRequest' : 'InvalidResponse');
 		const message = isServerError
 			? 'HTTP server error'

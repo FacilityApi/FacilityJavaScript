@@ -1,7 +1,5 @@
 import { HttpClientUtility } from '../src/facilityCore';
-import { expect, should } from 'chai';
-
-should();
+import { expect } from 'chai';
 
 const createResponseError = HttpClientUtility.createResponseError;
 const fetchResponse = HttpClientUtility.fetchResponse;
@@ -26,7 +24,7 @@ describe('fetchResponse', () => {
 		);
 
 		expect(createResponseError(result.response.status, result.json))
-			.to.deep.equal({ error: { code: 'InvalidResponse', message: 'Unexpected HTTP status code: 200' } });
+			.to.deep.equal({ error: { code: 'InvalidResponse', message: 'HTTP content is invalid: ' } });
 	});
 
 	it('should preserve error status when parsing JSON fails for failure status', async () => {
