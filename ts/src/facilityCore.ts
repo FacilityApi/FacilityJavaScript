@@ -95,7 +95,13 @@ export namespace HttpClientUtility {
 	};
 
 	const jsonContentType = 'application/json';
-	const invalidJsonContent = {};
+	const createInvalidContentError = (error: unknown) => {
+		const message = error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+		return {
+			code: 'InvalidResponse',
+			message: message ? `HTTP content is invalid: ${message}` : 'HTTP content is invalid',
+		};
+	};
 
 	/** Fetch JSON using the specified fetch, URI, and request. */
 	export function fetchResponse(
@@ -122,10 +128,11 @@ export namespace HttpClientUtility {
 						response: response,
 						json: json,
 					}))
-					.catch(() => ({
-						response: response,
-						json: invalidJsonContent,
-					}));
+					.catch((error) =>
+						response.status >= 400 && response.status <= 599
+							? { response: response }
+							: { response: response, json: createInvalidContentError(error) }
+					);
 			}
 			return Promise.resolve({ response: response });
 		});
@@ -138,9 +145,6 @@ export namespace HttpClientUtility {
 		}
 		const isClientError = status >= 400 && status <= 499;
 		const isServerError = status >= 500 && status <= 599;
-		if (json === invalidJsonContent && !isClientError && !isServerError) {
-			return { error: { code: 'InvalidResponse', message: 'HTTP content is invalid: ' } };
-		}
 		const errorCode = standardErrorCodes[status] || (isClientError ? 'InvalidRequest' : 'InvalidResponse');
 		const message = isServerError
 			? 'HTTP server error'

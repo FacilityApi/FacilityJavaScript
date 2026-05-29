@@ -24,7 +24,7 @@ describe('fetchResponse', () => {
 		);
 
 		expect(createResponseError(result.response.status, result.json))
-			.to.deep.equal({ error: { code: 'InvalidResponse', message: 'HTTP content is invalid: ' } });
+			.to.deep.equal({ error: { code: 'InvalidResponse', message: 'HTTP content is invalid: Unexpected end of JSON input' } });
 	});
 
 	it('should preserve error status when parsing JSON fails for failure status', async () => {
