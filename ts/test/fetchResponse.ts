@@ -8,7 +8,7 @@ const fetchResponse = HttpClientUtility.fetchResponse;
 
 describe('fetchResponse', () => {
 
-	it('should return invalid response when parsing json fails for success status', async () => {
+	it('should return invalid response when parsing JSON fails for success status', async () => {
 		const result = await fetchResponse(
 			() => Promise.resolve({
 				status: 200,
@@ -29,7 +29,7 @@ describe('fetchResponse', () => {
 			.to.deep.equal({ error: { code: 'InvalidResponse', message: 'Unexpected HTTP status code: 200' } });
 	});
 
-	it('should preserve error status when parsing json fails for failure status', async () => {
+	it('should preserve error status when parsing JSON fails for failure status', async () => {
 		const result = await fetchResponse(
 			() => Promise.resolve({
 				status: 404,
@@ -50,7 +50,7 @@ describe('fetchResponse', () => {
 			.to.deep.equal({ error: { code: 'NotFound', message: 'HTTP client error: 404' } });
 	});
 
-	it('should return parsed json when parsing succeeds', async () => {
+	it('should return parsed JSON when parsing succeeds', async () => {
 		const result = await fetchResponse(
 			() => Promise.resolve({
 				status: 200,
