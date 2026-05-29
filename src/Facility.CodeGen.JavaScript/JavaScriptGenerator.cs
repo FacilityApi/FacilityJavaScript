@@ -1214,7 +1214,7 @@ namespace Facility.CodeGen.JavaScript
 			WriteJsDoc(code, lines);
 		}
 
-		private static void WriteJsDoc(CodeWriter code, IReadOnlyList<string> lines)
+		private static void WriteJsDoc(CodeWriter code, List<string> lines)
 		{
 			if (lines.Count == 1)
 			{

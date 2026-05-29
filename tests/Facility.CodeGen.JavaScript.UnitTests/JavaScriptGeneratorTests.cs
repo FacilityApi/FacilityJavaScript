@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Facility.CodeGen.JavaScript.UnitTests
 {
-	public sealed class JavaScriptGeneratorTests
+	internal sealed class JavaScriptGeneratorTests
 	{
 		[TestCase(false)]
 		[TestCase(true)]

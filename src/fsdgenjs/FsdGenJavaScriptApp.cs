@@ -6,7 +6,7 @@ using Facility.Definition.Fsd;
 
 namespace fsdgenjs
 {
-	public sealed class FsdGenJavaScriptApp : CodeGeneratorApp
+	internal sealed class FsdGenJavaScriptApp : CodeGeneratorApp
 	{
 		public static int Main(string[] args) => new FsdGenJavaScriptApp().Run(args);
 

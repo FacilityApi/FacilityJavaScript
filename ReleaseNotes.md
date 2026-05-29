@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.9.1
+
+* Update NuGet package README.
+
 ## 3.9.0
 
 * Add ability to configure route specific `bodyLimit` in fastify plugin, via the new `routeOptions` property on the plugin constructor.

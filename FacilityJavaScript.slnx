@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Facility.CodeGen.JavaScript/Facility.CodeGen.JavaScript.csproj" />
+  <Project Path="src/fsdgenjs/fsdgenjs.csproj" />
+  <Project Path="tests/Facility.CodeGen.JavaScript.UnitTests/Facility.CodeGen.JavaScript.UnitTests.csproj" />
+  <Project Path="tools/Build/Build.csproj" />
+</Solution>
