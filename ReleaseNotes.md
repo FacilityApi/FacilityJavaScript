@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.9.2
+
+* Update dependencies.
+
 ## 3.9.1
 
 * Update NuGet package README.
