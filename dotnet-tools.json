@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "facilityconformance": {
-      "version": "2.38.4",
+      "version": "2.39.0",
       "commands": [
         "FacilityConformance"
       ],
