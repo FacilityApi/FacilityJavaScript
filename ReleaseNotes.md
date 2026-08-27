@@ -2,6 +2,10 @@
 
 These are the NuGet package releases. See also [npm Release Notes](ReleaseNotesNpm.md).
 
+## 3.9.3
+
+* Fix an extra blank line at the end of generated TypeScript types files.
+
 ## 3.9.2
 
 * Update dependencies.
