@@ -402,6 +402,25 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 			Assert.That(typesFile.Text, Does.Contain("}"));
 		}
 
+		[Test]
+		public void GenerateExampleApiTypeScript_TypesFileDoesNotEndWithBlankLine()
+		{
+			const string definition = "service TestApi { }";
+			var parser = CreateParser();
+			var service = parser.ParseDefinition(new ServiceDefinitionText("TestApi.fsd", definition));
+			var generator = new JavaScriptGenerator
+			{
+				GeneratorName = "JavaScriptGeneratorTests",
+				TypeScript = true,
+				NewLine = "\n",
+			};
+			var result = generator.GenerateOutput(service);
+
+			var typesFile = result.Files.Single(f => f.Name == "testApiTypes.ts");
+			Assert.That(typesFile.Text, Does.EndWith("\n"));
+			Assert.That(typesFile.Text, Does.Not.EndWith("\n\n"));
+		}
+
 		[TestCase("", true)]
 		[TestCase("", false)]
 		[TestCase("suffix", true)]

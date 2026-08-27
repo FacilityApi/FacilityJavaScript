@@ -141,7 +141,6 @@ namespace Facility.CodeGen.JavaScript
 						WriteImports(code, import.Select(x => $"{x.Name}{(x.Name != x.Alias ? $" as {x.Alias}" : "")}").ToArray(), import.Key);
 
 					typeNames.AddRange(WriteTypes(code, httpServiceInfo));
-					code.WriteLine();
 				}));
 			}
 
