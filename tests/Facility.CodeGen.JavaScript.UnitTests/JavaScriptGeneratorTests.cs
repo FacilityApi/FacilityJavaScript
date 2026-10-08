@@ -438,8 +438,8 @@ namespace Facility.CodeGen.JavaScript.UnitTests
 
 			Assert.That(result.Files, Has.Count.EqualTo(isTypeScript ? 3 : 2));
 			var fullSuffix = suffix + (isTypeScript ? ".ts" : ".js");
-			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f.Name == $"testApi{fullSuffix}"));
-			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f.Name == $"testApiServer{fullSuffix}"));
+			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f is not null && f.Name == $"testApi{fullSuffix}"));
+			Assert.That(result.Files, Has.One.Matches<CodeGenFile>(f => f is not null && f.Name == $"testApiServer{fullSuffix}"));
 
 			if (isTypeScript)
 				Assert.That(result.Files.SingleOrDefault(f => f.Name == $"testApiTypes{fullSuffix}"), Is.Not.Null);
