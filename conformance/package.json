@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "facility-core": "file:../ts",
-    "fastify": "^5.2.1"
+    "fastify": "^5.12.1"
   }
 }
